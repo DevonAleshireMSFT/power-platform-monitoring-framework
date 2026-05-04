@@ -33,6 +33,7 @@ yarn-error.log*
 # TypeScript
 *.js
 !*.config.js
+!PowerPlatformMonitoringFramework/Controls/**/bundle.js
 tsconfig.tsbuildinfo
 
 # Visual Studio / VS Code
