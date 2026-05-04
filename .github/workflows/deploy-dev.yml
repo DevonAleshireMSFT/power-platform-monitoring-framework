@@ -13,6 +13,10 @@
 #   PP_TENANT_ID            Azure AD tenant ID
 #   PP_DEV_ENVIRONMENT_URL  Dev environment URL
 #                           e.g. https://org05d9d92f.crm.microsoftdynamics.us/
+#   PP_DV_CONNECTION_ID     Dataverse connection ID from the maker portal
+#                           (Data → Connections → Dataverse → copy ID from URL)
+#   PP_TEAMS_CONNECTION_ID  Teams connection ID from the maker portal
+#   PP_SP_CONNECTION_ID     SharePoint connection ID from the maker portal
 #
 # Service principal setup:
 #   1. Register an app in Entra ID.
@@ -56,6 +60,20 @@ jobs:
           solution-type: Unmanaged
           process-canvas-apps: false
 
+      - name: Generate deployment settings
+        shell: pwsh
+        run: |
+          $settings = @{
+            EnvironmentVariables = @()
+            ConnectionReferences  = @(
+              @{ LogicalName = "ppmf_DataverseConnectionReference";  ConnectionId = "${{ secrets.PP_DV_CONNECTION_ID }}" }
+              @{ LogicalName = "ppmf_TeamsConnectionReference";      ConnectionId = "${{ secrets.PP_TEAMS_CONNECTION_ID }}" }
+              @{ LogicalName = "ppmf_SharePointConnectionReference"; ConnectionId = "${{ secrets.PP_SP_CONNECTION_ID }}" }
+            )
+          }
+          $settings | ConvertTo-Json -Depth 5 | Set-Content out/deploymentsettings.json
+          Write-Host "Deployment settings written."
+
       - name: Import to Dev environment
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
@@ -65,6 +83,7 @@ jobs:
           tenant-id: ${{ secrets.PP_TENANT_ID }}
           cloud: UsGovHigh
           solution-file: out/PowerPlatformMonitoringFramework_unmanaged.zip
+          deployment-settings-file: out/deploymentsettings.json
           force-overwrite: true
           publish-changes: true
           skip-dependency-check: false
