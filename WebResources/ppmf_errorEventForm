@@ -1,0 +1,140 @@
+// =============================================================================
+// ppmf_errorEventForm.js
+// Error Event main form controller for the Power Platform Monitoring Framework.
+//
+// Depends on: ppmf_base (must be listed as a library before this one on the form).
+//
+//   PPMF.ErrorEvent  — form-specific logic for the ppmf_errorevent main form.
+//                      Evaluates ppmf_sourcetype on load and on change to
+//                      show/hide the Flow and User sections.
+//
+// Form registration:
+//   Library (1st): ppmf_base
+//   Library (2nd): ppmf_errorEventForm
+//   OnLoad:        PPMF.ErrorEvent.onLoad   (Pass execution context: true)
+//
+// The ppmf_sourcetype OnChange handler is registered programmatically inside
+// onLoad via addOnChange. If you prefer to register it directly as a form
+// event handler instead, use:
+//   OnChange (ppmf_sourcetype): PPMF.ErrorEvent.onSourceTypeChange
+//   (Pass execution context: true)
+//   — but do NOT do both; that would fire the handler twice per change.
+// =============================================================================
+
+// =============================================================================
+// PPMF.ErrorEvent — ppmf_errorevent main form controller
+// =============================================================================
+PPMF.ErrorEvent = (function () {
+
+    // -------------------------------------------------------------------------
+    // Constants
+    // Keep these in sync with the ppmf_sourcetype option set in Entity.xml.
+    // -------------------------------------------------------------------------
+
+    /** Integer values for the ppmf_sourcetype choice field. */
+    var SOURCE_TYPE = {
+        POWER_APP:  1,  // Set by PPMF-Power-Apps-Error-Handler-JSON
+        FLOW:       2,  // Set by PPMF-Child-FlowErrorHandler-JSON / -Parameters
+        CHILD_FLOW: 3   // Reserved for child-flow origination
+    };
+
+    /**
+     * Form XML section `name` attributes for the Error Details tab.
+     * Visible for Flow/ChildFlow errors only  → FLOW section
+     * Visible for PowerApp errors only        → USER section
+     */
+    var SECTIONS = {
+        FLOW: "errorevent_errordetails_tab_section_flow",
+        USER: "errorevent_errordetails_tab_section_user"
+    };
+
+    // -------------------------------------------------------------------------
+    // Private logic
+    // -------------------------------------------------------------------------
+
+    /**
+     * Reads ppmf_sourcetype and applies section visibility rules:
+     *
+     *   PowerApp (1)            → hide Flow section, show User section
+     *   Flow (2) / ChildFlow(3) → show Flow section, hide User section
+     *   null / unknown          → show both sections (safe default; prevents
+     *                             data loss when source type is not yet set)
+     *
+     * @param {Xrm.FormContext} formContext
+     */
+    function applySourceTypeVisibility(formContext) {
+        var sourceType = PPMF.utils.getOptionSetValue(formContext, "ppmf_sourcetype");
+
+        var isFlow     = (sourceType === SOURCE_TYPE.FLOW || sourceType === SOURCE_TYPE.CHILD_FLOW);
+        var isPowerApp = (sourceType === SOURCE_TYPE.POWER_APP);
+        var isUnset    = (sourceType === null);
+
+        // Show both sections when source type is unknown so no data is hidden
+        // from the user on a record where ppmf_sourcetype was not populated.
+        PPMF.utils.setSectionVisible(formContext, SECTIONS.FLOW, isFlow  || isUnset);
+        PPMF.utils.setSectionVisible(formContext, SECTIONS.USER, isPowerApp || isUnset);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public event handlers (referenced by form XML and/or addOnChange)
+    // -------------------------------------------------------------------------
+
+    /**
+     * OnLoad handler for the Error Event main form.
+     *
+     * Applies initial section visibility based on the current ppmf_sourcetype
+     * value and registers an OnChange listener so visibility stays correct if
+     * the field is edited during the session.
+     *
+     * Form registration:
+     *   Event:    OnLoad
+     *   Function: PPMF.ErrorEvent.onLoad
+     *   Library:  ppmf_errorEventForm
+     *   Pass execution context: true
+     *
+     * @param {Xrm.Events.EventContext} executionContext
+     */
+    function onLoad(executionContext) {
+        var formContext = executionContext.getFormContext();
+
+        // Set initial visibility so the form opens in the correct state.
+        applySourceTypeVisibility(formContext);
+
+        // Register the change handler programmatically.
+        // Do NOT also add it as a form-level OnChange event handler — that
+        // would cause it to fire twice per change.
+        var sourceTypeAttr = formContext.getAttribute("ppmf_sourcetype");
+        if (sourceTypeAttr) {
+            sourceTypeAttr.addOnChange(onSourceTypeChange);
+        }
+    }
+
+    /**
+     * OnChange handler for the ppmf_sourcetype field.
+     *
+     * Exported so it can optionally be registered directly as a form event
+     * handler (e.g. from the form editor) instead of via addOnChange above.
+     * Choose one registration approach only — not both.
+     *
+     * Form registration (if used directly):
+     *   Event:    OnChange — ppmf_sourcetype
+     *   Function: PPMF.ErrorEvent.onSourceTypeChange
+     *   Library:  ppmf_errorEventForm
+     *   Pass execution context: true
+     *
+     * @param {Xrm.Events.EventContext} executionContext
+     */
+    function onSourceTypeChange(executionContext) {
+        var formContext = executionContext.getFormContext();
+        applySourceTypeVisibility(formContext);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
+    return {
+        onLoad:             onLoad,
+        onSourceTypeChange: onSourceTypeChange
+    };
+
+}());

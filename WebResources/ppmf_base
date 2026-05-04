@@ -1,0 +1,66 @@
+// =============================================================================
+// ppmf_base.js
+// Foundation script for the Power Platform Monitoring Framework.
+//
+// Establishes the shared PPMF namespace and PPMF.utils helper module.
+// This script must be registered as the FIRST library on any form that uses
+// other PPMF scripts (ppmf_errorEventForm, ppmf_severityBadgeForm, etc.)
+// so the namespace is available before any module attempts to extend it.
+//
+// Adding new shared helpers:
+//   Add functions to the PPMF.utils return object below. They will be
+//   immediately available to all other PPMF form scripts on the same form.
+// =============================================================================
+
+// Initialise the top-level namespace once. Other PPMF scripts extend it
+// with their own sub-objects (e.g. PPMF.ErrorEvent, PPMF.SeverityBadge).
+var PPMF = PPMF || {};
+
+// =============================================================================
+// PPMF.utils — shared form utility helpers
+// =============================================================================
+PPMF.utils = PPMF.utils || (function () {
+
+    /**
+     * Sets the visibility of a named section anywhere on the form.
+     *
+     * Iterates all tabs to locate the section by its `name` attribute from the
+     * form XML, so callers do not need to know the containing tab name.
+     *
+     * @param {Xrm.FormContext} formContext
+     * @param {string}  sectionName  Section `name` from form XML.
+     * @param {boolean} visible      True to show; false to hide.
+     */
+    function setSectionVisible(formContext, sectionName, visible) {
+        formContext.ui.tabs.forEach(function (tab) {
+            var section = tab.sections.get(sectionName);
+            if (section) {
+                section.setVisible(visible);
+            }
+        });
+    }
+
+    /**
+     * Safely retrieves the integer value of a choice (OptionSet) attribute.
+     *
+     * Returns null if the attribute does not exist or has no value, avoiding
+     * null-guard boilerplate at every call site.
+     *
+     * @param  {Xrm.FormContext} formContext
+     * @param  {string}          attributeName  Logical name of the attribute.
+     * @returns {number|null}
+     */
+    function getOptionSetValue(formContext, attributeName) {
+        var attr = formContext.getAttribute(attributeName);
+        return attr ? attr.getValue() : null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API — add new shared helpers here as the framework grows.
+    // -------------------------------------------------------------------------
+    return {
+        setSectionVisible: setSectionVisible,
+        getOptionSetValue: getOptionSetValue
+    };
+
+}());

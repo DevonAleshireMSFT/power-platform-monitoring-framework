@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{f1e2d3c4-b5a6-4789-abcd-001dd8020012}</WebResourceId>
+  <Name>ppmf_base</Name>
+  <DisplayName>ppmf_base</DisplayName>
+  <Description>Foundation script for PPMF. Establishes the PPMF namespace and PPMF.utils shared helper module (setSectionVisible, getOptionSetValue). Must be registered as the first library on any form that uses other PPMF scripts.</Description>
+  <LanguageCode>0</LanguageCode>
+  <WebResourceType>3</WebResourceType>
+  <IntroducedVersion>1.0.0.6</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/ppmf_baseF1E2D3C4-B5A6-4789-ABCD-001DD8020012</FileName>
+</WebResource>

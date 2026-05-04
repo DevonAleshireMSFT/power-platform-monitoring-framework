@@ -416,11 +416,14 @@
       </DisplayConditions>
       <controlDescriptions />
       <formLibraries>
+        <Library name="ppmf_base" libraryUniqueId="{a1b2c3d4-e5f6-4789-abcd-001dd8020001}" />
+        <Library name="ppmf_errorEventForm" libraryUniqueId="{b2c3d4e5-f6a7-4891-bcde-001dd8020002}" />
         <Library name="ppmf_severityBadgeForm" libraryUniqueId="{cb02ed01-8ce2-4fd9-a8f3-f361e385f72a}" />
       </formLibraries>
       <events>
         <event name="onload" application="false" active="false">
           <Handlers>
+            <Handler functionName="PPMF.ErrorEvent.onLoad" libraryName="ppmf_errorEventForm" handlerUniqueId="{c3d4e5f6-a7b8-4902-cdef-001dd8020003}" enabled="true" parameters="" passExecutionContext="true" />
             <Handler functionName="PPMF.SeverityBadge.onLoad" libraryName="ppmf_severityBadgeForm" handlerUniqueId="{7941eaec-8875-4fce-a8a1-dc232bae7006}" enabled="true" parameters="" passExecutionContext="true" />
           </Handlers>
         </event>
