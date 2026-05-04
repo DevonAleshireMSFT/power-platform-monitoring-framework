@@ -1,0 +1,56 @@
+var PPMF = PPMF || {};
+
+PPMF.SeverityBadge = (function () {
+
+  var SEVERITY_MAP = {
+    1: { color: "#0F6CBD" },
+    2: { color: "#835B00" },
+    3: { color: "#C50F1F" },
+    4: { color: "#616161" }
+  };
+
+  // Walk the same-origin frame tree to find an element across iframes
+  function findInFrames(win, selector) {
+    try {
+      var el = win.document.querySelector(selector);
+      if (el) return el;
+    } catch (e) {}
+    try {
+      for (var i = 0; i < win.frames.length; i++) {
+        var found = findInFrames(win.frames[i], selector);
+        if (found) return found;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function applyBadge(executionContext) {
+    var formContext = executionContext.getFormContext();
+    var attr = formContext.getAttribute("ppmf_severity");
+    if (!attr) return;
+
+    var value = attr.getValue();
+    var style = value !== null ? SEVERITY_MAP[value] : null;
+
+    var btn = findInFrames(window.top, "[data-id='header_ppmf_severity.fieldControl-option-set-select']");
+    if (!btn) return;
+
+    btn.style.borderLeft = style ? "4px solid " + style.color : "";
+    btn.style.paddingLeft = style ? "8px" : "";
+  }
+
+  function onLoad(executionContext) {
+    setTimeout(function () { applyBadge(executionContext); }, 1500);
+
+    var formContext = executionContext.getFormContext();
+    var attr = formContext.getAttribute("ppmf_severity");
+    if (attr) {
+      attr.addOnChange(function (ctx) {
+        setTimeout(function () { applyBadge(ctx); }, 200);
+      });
+    }
+  }
+
+  return { onLoad: onLoad };
+
+})();

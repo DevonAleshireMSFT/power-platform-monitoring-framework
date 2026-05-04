@@ -1,0 +1,92 @@
+{
+  "properties": {
+    "connectionReferences": {},
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Environment Name (ppmf_EnvironmentName)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_EnvironmentName",
+            "description": "A short, human-readable label that identifies this Power Platform environment in Teams alerts and on every error record. Use a clear, consistent name such as \"Production\", \"UAT\", or \"Dev\". This value is displayed in the subject line of every alert message posted to Teams, making it immediately clear which environment generated the error."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "a8e0bd48-ab93-4f8e-9683-66f7139b8562"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_variable_Environment": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "0a217dfd-6f0f-40fc-90a1-7a2db0829f64"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Environment",
+                "type": "string",
+                "value": "@parameters('Environment Name (ppmf_EnvironmentName)')"
+              }
+            ]
+          }
+        },
+        "Respond_to_a_Power_App_or_flow": {
+          "runAfter": {
+            "Initialize_variable_Environment": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "5c0ad62f-77a2-4e4f-a765-512e740e2e45"
+          },
+          "type": "Response",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "environment": {
+                  "title": "Environment",
+                  "x-ms-dynamically-added": true,
+                  "type": "string"
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "environment": "@variables('Environment')"
+            }
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{2efe69e2-04d4-480a-9651-644dfc04be6a}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{5d820dbd-ddfa-44ac-ad62-f2134eaadc96}" IsUserDefined="1" name="errorevent_errordetails_tab">
+          <labels>
+            <label description="Error Details" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="true" showbar="false" IsUserDefined="0" id="{fdd87398-d6f9-46ef-a7c3-9b238b0989b3}" columns="11" name="errorevent_errordetails_tab_section_identity">
+                  <labels>
+                    <label description="Identity" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{214ceb9e-4ffd-42a6-9f5b-8e303775a756}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Assigned To" languagecode="1033" />
+                        </labels>
+                        <control id="header_ppmf_assignedtoid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ppmf_assignedtoid" disabled="false" />
+                      </cell>
+                      <cell id="{1be1f828-c2a5-4281-844c-2f80de190bbc}" userspacer="true" showlabel="false" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{24bf2b12-4706-4072-ba8e-52eeadb278ed}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Solution Name" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_solutionname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_solutionname" disabled="false" />
+                      </cell>
+                      <cell id="{1e2ad973-7453-46af-abd0-f540263cb130}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Application Name" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_applicationname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_applicationname" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{064faee6-c851-4bb6-a0ab-84d88bc30831}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Environment Name" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_environmentname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_environmentname" disabled="false" />
+                      </cell>
+                      <cell id="{dae347c6-0793-4051-a421-c1f1ba31c733}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="App Version" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_appversion" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_appversion" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ee02d68d-0821-4ce9-893e-dab856d61be7}" visible="false">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                      <cell locklevel="0" id="{88b29d5d-fe1f-4a2e-b281-318cfab7c7e1}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="errorevent_errordetails_tab_section_failure" id="4dda2a72-d894-4a57-a6f2-86bac7cc613b" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="11" labelwidth="115">
+                  <labels>
+                    <label description="Failure" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell locklevel="0" id="{79808ca3-fe06-40b5-9363-01acb19cf225}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{76cad8bb-66a5-4563-8235-e5b7fb59a0d0}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f5c9281c-882b-466b-ab10-7fb1c10758e8}" locklevel="0" colspan="2" rowspan="1">
+                        <labels>
+                          <label description="Error Message" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_errormessage" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="ppmf_errormessage" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{090f129e-4421-445c-8a31-33f293dc6fbf}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Error Type" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_errortype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="ppmf_errortype" disabled="false" />
+                      </cell>
+                      <cell id="{6dbeb4c2-8024-4874-9263-6d857e9b5abe}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Severity" languagecode="1033" />
+                        </labels>
+                        <control id="header_ppmf_severity" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="ppmf_severity" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{204e8661-c099-44a8-bf85-4435965c92af}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Occurred On" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_occurredon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="ppmf_occurredon" disabled="false" />
+                      </cell>
+                      <cell id="{c3397435-495a-4b23-8efe-cf96cab2dbe8}" userspacer="true" showlabel="false" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="errorevent_errordetails_tab_section_flow" id="55cfdfb8-a9c2-4ca6-abb2-c3c35becb0e8" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="11" labelwidth="115">
+                  <labels>
+                    <label description="Flow" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell locklevel="0" id="{4d79d83a-8c46-4549-9fb5-291f0fdc8005}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{abb1954d-8b42-495a-8e80-fb11dce02900}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0ea2fd47-ae2d-44bd-a750-4816b8e56e80}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Flow Name" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_flowname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_flowname" disabled="false" />
+                      </cell>
+                      <cell id="{7df4e92a-ba8b-4002-b9b7-5ea80e2b53cc}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Flow Run Id" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_flowrunid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_flowrunid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{656fa045-cf79-4f19-9227-d77812d4d260}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Flow URL" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_flowurl" classid="{71716B6C-711E-476C-8AB8-5D11542BFB47}" datafieldname="ppmf_flowurl" disabled="false" />
+                      </cell>
+                      <cell id="{1edc4843-8d25-4d90-8194-cc469caffb14}" userspacer="true" showlabel="false" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="errorevent_errordetails_tab_section_user" id="c34934e4-bdda-4923-a899-f688746e5d53" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="11" labelwidth="115">
+                  <labels>
+                    <label description="User" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell locklevel="0" id="{45666d87-141a-4b6d-8e63-1681e236de1f}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{f783ac3e-9073-489b-a7df-2b33e9019000}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{15b88f90-b27b-42e6-afa9-8aed81d868af}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="User Name" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_username" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_username" disabled="false" />
+                      </cell>
+                      <cell id="{acca2968-83ba-4f72-a9b3-9e6f715b2292}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="User Email" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_useremail" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_useremail" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{7fd87f23-f989-4e1f-aff5-366275863ca2}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Active Screen" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_activescreen" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_activescreen" disabled="false" />
+                      </cell>
+                      <cell id="{bb2cacde-7349-4ab7-857c-695a6914b4e0}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Session Id" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_sessionid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_sessionid" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+        <tab name="errorevent_technical_tab" id="4bf23366-f888-40dd-a9ea-e07e303e861a" IsUserDefined="0" locklevel="0" showlabel="true">
+          <labels>
+            <label description="Technical" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section name="errorevent_technical_tab_section_tracking" id="bc84bd1d-57c4-43c0-b062-13677e2502ff" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="11" labelwidth="115">
+                  <labels>
+                    <label description="Tracking" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell locklevel="0" id="{359f3d56-f988-4844-8881-f2de1bc82612}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{3c9a181d-d7d6-4b9d-8a99-ba3c46e38d5d}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e49d08e4-b92f-44ad-a986-3613173676b0}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Correlation Id" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_correlationid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_correlationid" disabled="false" />
+                      </cell>
+                      <cell id="{871a64a3-8c31-4caa-a47d-a9f265b938eb}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Source Type" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_sourcetype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="ppmf_sourcetype" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2e650fe4-3e85-4733-b063-7a7823f88e3b}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Unique Key" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_uniquekey" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="ppmf_uniquekey" disabled="false" />
+                      </cell>
+                      <cell id="{a6a8c4ae-a9fd-45db-86e0-b978a5cd2ad5}" userspacer="true" showlabel="false" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="errorevent_technical_tab_section_raw" id="92fc08cc-e49e-449f-966d-5292057e06b9" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="Raw" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell id="{5538b622-b993-4d7b-b536-b55dc6b7bccc}" locklevel="0" colspan="1" rowspan="10">
+                        <labels>
+                          <label description="Raw Payload" languagecode="1033" />
+                        </labels>
+                        <control id="ppmf_rawpayload" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="ppmf_rawpayload" disabled="false" />
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+        <tab name="errorevent_errornotes_tab" id="2461700b-1a75-4609-b5b9-f2ec44e1cb57" IsUserDefined="0" locklevel="0" showlabel="true" contenttype="singleComponent">
+          <labels>
+            <label description="Error Notes" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section name="errorevent_errornotes_tab_section_errornotes" id="5e1d4c5f-9ff2-4ae4-ab42-8ca34f571113" IsUserDefined="0" locklevel="0" showlabel="false" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="Error Notes" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell locklevel="0" id="{2c086d5a-52a7-4006-a70d-04a4d36dd717}" rowspan="4" colspan="1" auto="false">
+                        <labels>
+                          <label description="Error Notes" languagecode="1033" />
+                        </labels>
+                        <control indicationOfSubgrid="true" id="errorevent_errornotes_tab_subgrid_errornotes" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
+                          <parameters>
+                            <RecordsPerPage>4</RecordsPerPage>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableChartPicker>true</EnableChartPicker>
+                            <ChartGridMode>All</ChartGridMode>
+                            <RelationshipName>ppmf_ErrorEvent_ppmf_ErrorNote</RelationshipName>
+                            <TargetEntityType>ppmf_errornote</TargetEntityType>
+                            <ViewId>{7913F42F-B41B-4E31-81D8-90D10A5374EF}</ViewId>
+                            <ViewIds>{7913F42F-B41B-4E31-81D8-90D10A5374EF}</ViewIds>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{e8100686-8bf8-4438-9391-b003753f2dc7}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{14d9bbd2-e755-4c3b-951b-4c9c22db1340}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{c3dd61fc-61df-4c9b-92cc-30eddb47b1e2}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4b4d3b90-1b7a-43ee-9c81-fb08e9a836c8}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell locklevel="0" id="{76bfbc23-137e-4132-95be-c47a9d8fabd0}">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{49a952a5-71b9-4b5b-abd5-041c5125514e}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Triage Status" languagecode="1033" />
+              </labels>
+              <control id="header_ppmf_triagestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="ppmf_triagestatus" disabled="false" />
+            </cell>
+            <cell id="{662b4982-8970-492d-a492-5f1d10d8233b}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Severity" languagecode="1033" />
+              </labels>
+              <control id="header_ppmf_severity" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="ppmf_severity" disabled="false" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{018bca90-5c6a-4217-85d5-74043ab1f527}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{c0e3ac9d-001c-4b28-a5b9-9e5277df426f}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{534a3c32-4b2d-4e9a-a835-5aa176a7a3fc}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{88dba3f1-c3a2-4dc4-ba93-7c97896a0f39}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+      <controlDescriptions />
+      <formLibraries>
+        <Library name="ppmf_severityBadgeForm" libraryUniqueId="{cb02ed01-8ce2-4fd9-a8f3-f361e385f72a}" />
+      </formLibraries>
+      <events>
+        <event name="onload" application="false" active="false">
+          <Handlers>
+            <Handler functionName="PPMF.SeverityBadge.onLoad" libraryName="ppmf_severityBadgeForm" handlerUniqueId="{7941eaec-8875-4fce-a8a1-dc232bae7006}" enabled="true" parameters="" passExecutionContext="true" />
+          </Handlers>
+        </event>
+      </events>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

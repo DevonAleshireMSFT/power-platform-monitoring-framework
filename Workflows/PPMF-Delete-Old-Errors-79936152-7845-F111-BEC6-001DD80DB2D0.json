@@ -1,0 +1,111 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_DataverseConnectionReference"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Error Retention Days (ppmf_RetentionDays)": {
+          "defaultValue": "90",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_RetentionDays",
+            "description": "The number of days to retain promoted error event records before the weekly Delete Old Errors maintenance flow removes them. Only records with a triage status of Fixed, Duplicate, Won't Fix, or Closed and an occurrence date older than this threshold are deleted. Unresolved records are never deleted by the maintenance flow. Set to 0 to disable automatic deletion. Default: 90."
+          }
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "recurrence": {
+            "frequency": "Week",
+            "interval": 1,
+            "startTime": "2026-05-01T17:00:00Z",
+            "schedule": {
+              "weekDays": [
+                "Sunday"
+              ],
+              "hours": [
+                "0"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "8eb667c1-bcde-44d8-ba22-4d85759676ea"
+          },
+          "type": "Recurrence"
+        }
+      },
+      "actions": {
+        "List_rows": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "f5a14f17-a6c9-486b-b00f-feef64880657"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "ppmf_errorevents",
+              "$filter": "ppmf_triagestatus ne 1 and ppmf_occurredon le @{addDays(utcNow(), mul(-1, int(parameters('Error Retention Days (ppmf_RetentionDays)'))))}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "connectionName": "shared_commondataserviceforapps-1"
+            }
+          }
+        },
+        "Apply_to_each": {
+          "foreach": "@outputs('List_rows')?['body/value']",
+          "actions": {
+            "Delete_a_row": {
+              "metadata": {
+                "operationMetadataId": "4457da46-e19b-4769-a53d-1e14113010cb"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "ppmf_errorevents",
+                  "recordId": "@items('Apply_to_each')?['ppmf_erroreventid']"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "operationId": "DeleteRecord",
+                  "connectionName": "shared_commondataserviceforapps-1"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "List_rows": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "8e31c584-eae2-434b-a0c7-ba8d9ef8ed51"
+          },
+          "type": "Foreach"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

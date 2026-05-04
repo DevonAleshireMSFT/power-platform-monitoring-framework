@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ppmf_EnvironmentName">
+  <description default="A short, human-readable label that identifies this Power Platform environment in Teams alerts and on every error record. Use a clear, consistent name such as &quot;Production&quot;, &quot;UAT&quot;, or &quot;Dev&quot;. This value is displayed in the subject line of every alert message posted to Teams, making it immediately clear which environment generated the error.">
+    <label description="A short, human-readable label that identifies this Power Platform environment in Teams alerts and on every error record. Use a clear, consistent name such as &quot;Production&quot;, &quot;UAT&quot;, or &quot;Dev&quot;. This value is displayed in the subject line of every alert message posted to Teams, making it immediately clear which environment generated the error." languagecode="1033" />
+  </description>
+  <displayname default="Environment Name">
+    <label description="Environment Name" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

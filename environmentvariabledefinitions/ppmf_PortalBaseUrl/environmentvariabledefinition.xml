@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ppmf_PortalBaseUrl">
+  <description default="The base URL of the Power Automate portal for this cloud environment. Used to construct direct deep links to failed flow runs inside Teams alert messages. Set to the correct endpoint for your cloud: Commercial — https://make.powerautomate.com, GCC High — https://make.powerautomate.appsplatform.us, DoD — https://make.powerautomate.appsplatform.mil. Do not include a trailing slash.">
+    <label description="The base URL of the Power Automate portal for this cloud environment. Used to construct direct deep links to failed flow runs inside Teams alert messages. Set to the correct endpoint for your cloud: Commercial — https://make.powerautomate.com, GCC High — https://make.powerautomate.appsplatform.us, DoD — https://make.powerautomate.appsplatform.mil. Do not include a trailing slash." languagecode="1033" />
+  </description>
+  <displayname default="Portal Base URL">
+    <label description="Portal Base URL" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

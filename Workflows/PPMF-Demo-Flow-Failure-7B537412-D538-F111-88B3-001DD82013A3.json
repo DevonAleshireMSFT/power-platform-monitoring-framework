@@ -1,0 +1,97 @@
+{
+  "properties": {
+    "connectionReferences": {},
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "c9af5f9a-b461-4e43-a68a-0daa4a53d973"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "SolutionName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide a solution name",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Scope_-_Executing_Function_(Failure_Testing)": {
+          "actions": {
+            "Compose_2": {
+              "metadata": {
+                "operationMetadataId": "e3da0c66-279d-4837-939b-ae5150eadbbf"
+              },
+              "type": "Compose",
+              "inputs": "@div(1, 0)"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "dd9c9877-12c9-4e1d-b61a-713628e9a42b"
+          },
+          "type": "Scope"
+        },
+        "Scope-Catch": {
+          "actions": {
+            "Run_a_Child_Flow_": {
+              "metadata": {
+                "operationMetadataId": "19516906-a99f-40a9-9c0f-32f1c99908e1"
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "74c993d4-d438-f111-88b3-001dd8207c25"
+                },
+                "body": {
+                  "text": "@triggerBody()['text']",
+                  "text_1": "@string(workflow())",
+                  "text_2": "@result('Scope_-_Executing_Function_(Failure_Testing)')"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Scope_-_Executing_Function_(Failure_Testing)": [
+              "Failed"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "182aba1f-478c-4ec9-8cfa-143382c808be"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

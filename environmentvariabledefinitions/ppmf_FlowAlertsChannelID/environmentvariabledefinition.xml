@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ppmf_FlowAlertsChannelID">
+  <description default="The Teams channel ID of the default channel where flow failure alert messages will be posted. This is the internal channel identifier starting with &quot;19:&quot; — visible in the channel URL after /channel/ in the Teams web or desktop client (URL-decode %3A to : and %40 to @). Used as the fallback destination when no Alert Route matches an incoming error. Add Alert Route records to route specific solutions to different channels.">
+    <label description="The Teams channel ID of the default channel where flow failure alert messages will be posted. This is the internal channel identifier starting with &quot;19:&quot; — visible in the channel URL after /channel/ in the Teams web or desktop client (URL-decode %3A to : and %40 to @). Used as the fallback destination when no Alert Route matches an incoming error. Add Alert Route records to route specific solutions to different channels." languagecode="1033" />
+  </description>
+  <displayname default="Flow Alerts Channel ID">
+    <label description="Flow Alerts Channel ID" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

@@ -1,0 +1,286 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_DataverseConnectionReference"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "2adab8e2-9016-4e50-b0e0-fa099606b7f8"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "ErrorPayload",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Json Error Payload",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Parse_JSON": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "1ae4ac41-8608-4829-8e24-8e8286e29a41"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()['text']",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "SourceType": {
+                  "type": "string",
+                  "description": "PowerApp or Flow"
+                },
+                "EnvironmentName": {
+                  "type": "string"
+                },
+                "SolutionName": {
+                  "type": "string"
+                },
+                "ApplicationName": {
+                  "type": "string"
+                },
+                "AppVersion": {
+                  "type": "string"
+                },
+                "FlowName": {
+                  "type": "string"
+                },
+                "FlowRunId": {
+                  "type": "string"
+                },
+                "FlowUrl": {
+                  "type": "string"
+                },
+                "SessionId": {
+                  "type": "string"
+                },
+                "CorrelationId": {
+                  "type": "string"
+                },
+                "UniqueKey": {
+                  "type": "string"
+                },
+                "UserName": {
+                  "type": "string"
+                },
+                "UserEmail": {
+                  "type": "string"
+                },
+                "ActiveScreen": {
+                  "type": "string"
+                },
+                "ErrorMessage": {
+                  "type": "string"
+                },
+                "ErrorSource": {
+                  "type": "string"
+                },
+                "ErrorType": {
+                  "type": "string"
+                },
+                "Severity": {
+                  "type": "string"
+                },
+                "OccurredOn": {
+                  "type": "string"
+                },
+                "RawPayload": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SourceType",
+                "EnvironmentName",
+                "ErrorMessage",
+                "OccurredOn"
+              ]
+            }
+          },
+          "description": "Required: SourceType, Environment Name, Error Message, Occurred On"
+        },
+        "Condition_is_duplicate": {
+          "actions": {
+            "Respond_duplicate": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    },
+                    "recordid": {
+                      "title": "recordid",
+                      "x-ms-dynamically-added": true,
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": {}
+                },
+                "statusCode": 200,
+                "body": {
+                  "result": "Duplicate",
+                  "recordid": 0
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "List_rows_dedup_check": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {
+              "Add_a_new_row": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "parameters": {
+                    "entityName": "ppmf_errorevents",
+                    "item/ppmf_appversion": "@body('Parse_JSON')?['AppVersion']",
+                    "item/ppmf_applicationname": "@body('Parse_JSON')?['ApplicationName']",
+                    "item/ppmf_correlationid": "@body('Parse_JSON')?['CorrelationId']",
+                    "item/ppmf_environmentname": "@body('Parse_JSON')?['EnvironmentName']",
+                    "item/ppmf_errormessage": "@body('Parse_JSON')?['ErrorMessage']",
+                    "item/ppmf_errorsource": "@body('Parse_JSON')?['ErrorSource']",
+                    "item/ppmf_flowname": "@body('Parse_JSON')?['FlowName']",
+                    "item/ppmf_flowrunid": "@body('Parse_JSON')?['FlowRunId']",
+                    "item/ppmf_flowurl": "@body('Parse_JSON')?['FlowUrl']",
+                    "item/ppmf_occurredon": "@body('Parse_JSON')?['OccurredOn']",
+                    "item/ppmf_rawpayload": "@body('Parse_JSON')?['RawPayload']",
+                    "item/ppmf_sessionid": "@body('Parse_JSON')?['SessionId']",
+                    "item/ppmf_solutionname": "@body('Parse_JSON')?['SolutionName']",
+                    "item/ppmf_triagestatus": 1,
+                    "item/ppmf_uniquekey": "@body('Parse_JSON')?['UniqueKey']",
+                    "item/ppmf_useremail": "@body('Parse_JSON')?['UserEmail']",
+                    "item/ppmf_username": "@body('Parse_JSON')?['UserName']"
+                  },
+                  "host": {
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                    "operationId": "CreateRecord",
+                    "connectionName": "shared_commondataserviceforapps-1"
+                  }
+                }
+              },
+              "Respond_to_a_Power_App_or_flow": {
+                "runAfter": {
+                  "Add_a_new_row": [
+                    "Succeeded"
+                  ]
+                },
+                "metadata": {
+                  "operationMetadataId": "53eddaa8-4fdf-4102-bcb6-8cf1b9417324"
+                },
+                "type": "Response",
+                "kind": "PowerApp",
+                "inputs": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "title": "result",
+                        "x-ms-dynamically-added": true,
+                        "type": "string"
+                      },
+                      "recordid": {
+                        "title": "recordid",
+                        "x-ms-dynamically-added": true,
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "statusCode": 200,
+                  "body": {
+                    "result": "Success",
+                    "recordid": "@outputs('Add_a_new_row')?['body/ppmf_erroreventid']"
+                  }
+                }
+              }
+            }
+          },
+          "expression": {
+            "and": [
+              {
+                "not": {
+                  "equals": [
+                    "@body('Parse_JSON')?['FlowRunId']",
+                    ""
+                  ]
+                }
+              },
+              {
+                "greater": [
+                  "@length(body('List_rows_dedup_check')?['value'])",
+                  0
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "List_rows_dedup_check": {
+          "runAfter": {
+            "Parse_JSON": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "ppmf_errorevents",
+              "$filter": "ppmf_flowrunid eq '@{body('Parse_JSON')?['FlowRunId']}'",
+              "$top": 1
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "connectionName": "shared_commondataserviceforapps-1"
+            }
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

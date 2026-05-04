@@ -1,0 +1,393 @@
+{
+  "properties": {
+    "connectionReferences": {},
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Portal Base URL (ppmf_PortalBaseUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_PortalBaseUrl",
+            "description": "The base URL of the Power Automate portal for this cloud environment. Used to construct direct deep links to failed flow runs inside Teams alert messages. Set to the correct endpoint for your cloud: Commercial — https://make.powerautomate.com, GCC High — https://make.powerautomate.appsplatform.us, DoD — https://make.powerautomate.appsplatform.mil. Do not include a trailing slash."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "b48b2381-1113-4bef-b41b-b2f426927554"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "SolutionName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Name of solution",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "ParentWorkFlowJson",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "work flow information",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_2": {
+                  "title": "TryResultsJson",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "JSON Try  results",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text",
+                "text_1",
+                "text_2"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_variable_PortalBase_URL": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "4849b26d-5e85-4f88-95d2-6553d1dcadf9"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "PortalBaseUrl",
+                "type": "string",
+                "value": "@parameters('Portal Base URL (ppmf_PortalBaseUrl)')"
+              }
+            ]
+          }
+        },
+        "Respond_to_a_Power_App_or_flow": {
+          "runAfter": {
+            "Scope-Record_Error": [
+              "Succeeded",
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "ec2cb127-4908-49b6-8a98-c19ab6c49c59"
+          },
+          "type": "Response",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "title": "Success",
+                  "x-ms-dynamically-added": true,
+                  "type": "string"
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "success": "@{variables('varSuccess')}"
+            }
+          }
+        },
+        "Parse_JSON": {
+          "runAfter": {
+            "Initialize_variable_Success": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "366c0018-b84d-4f6a-abb4-a01e0d9bdfb5"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()['text_1']",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "object",
+                  "properties": {
+                    "flowDisplayName": {
+                      "type": "string"
+                    },
+                    "environmentName": {
+                      "type": "string"
+                    },
+                    "logicAppName": {
+                      "type": "string"
+                    },
+                    "environmentWorkflowId": {
+                      "type": "string"
+                    },
+                    "xrmWorkflowId": {
+                      "type": "string"
+                    },
+                    "environmentFlowSuspensionReason": {
+                      "type": "string"
+                    },
+                    "sharingType": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "createdTime": {
+                      "type": "string"
+                    },
+                    "lastModifiedTime": {
+                      "type": "string"
+                    },
+                    "createdBy": {
+                      "type": "string"
+                    },
+                    "triggerType": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "run": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Filter_array": {
+          "runAfter": {
+            "Parse_JSON_Try_Results": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "b88fc5ab-dcf0-4656-be87-493b71e4929b"
+          },
+          "type": "Query",
+          "inputs": {
+            "from": "@body('Parse_JSON_Try_Results')",
+            "where": "@or(equals(item()?['status'], 'Failed'), equals(item()?['status'], 'TimedOut'))"
+          }
+        },
+        "Compose_First_failed_action": {
+          "runAfter": {
+            "Filter_array": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f539287b-e4a3-4220-96dd-29d4818cb64c"
+          },
+          "type": "Compose",
+          "inputs": "@first(body('Filter_array'))"
+        },
+        "Compose_Failed_action_message": {
+          "runAfter": {
+            "Compose_First_failed_action": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "bc74bdcc-92eb-47c5-b596-0769e5e43e51"
+          },
+          "type": "Compose",
+          "inputs": "@coalesce(outputs('Compose_First_failed_action')?['outputs']?['body']?['error']?['message'], outputs('Compose_First_failed_action')?['error']?['message'], 'Unknown error')"
+        },
+        "Parse_JSON_Try_Results": {
+          "runAfter": {
+            "Parse_JSON": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa304fb3-7b71-44c3-a021-e2470d5206b9"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()['text_2']",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "startTime": {
+                    "type": "string"
+                  },
+                  "endTime": {
+                    "type": "string"
+                  },
+                  "trackingId": {
+                    "type": "string"
+                  },
+                  "clientTrackingId": {
+                    "type": "string"
+                  },
+                  "clientKeywords": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "startTime",
+                  "endTime",
+                  "trackingId",
+                  "clientTrackingId",
+                  "code",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "Compose_ErrorPayload": {
+          "runAfter": {
+            "Compose_Failed_action_message": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "da56a659-cffd-4c7b-99b2-71c016a073ff"
+          },
+          "type": "Compose",
+          "inputs": "@json(\r\n  concat(\r\n    '{',\r\n      '\"timestamp\":\"', utcNow(), '\",',\r\n      '\"flow\":{',\r\n        '\"name\":\"', body('Parse_JSON')?['tags']?['flowDisplayName'], '\",',\r\n        '\"Id\":\"', body('Parse_JSON')?['run']?['name'], '\",',\r\n        '\"Url\":\"', concat(\r\n          variables('PortalBaseUrl'),\r\n          '/environments/',\r\n          body('Parse_JSON')?['tags']?['environmentName'],\r\n          '/flows/',\r\n          body('Parse_JSON')?['name'],\r\n          '/runs/',\r\n          body('Parse_JSON')?['run']?['name']\r\n        ), '\"',\r\n      '},',\r\n      '\"primaryErrorMessage\":\"', replace(outputs('Compose_Failed_action_message'), '\"', '\\\"'), '\",',\r\n      '\"error\":', string(body('Filter_array')),\r\n    '}'\r\n  )\r\n)"
+        },
+        "Initialize_variable_Success": {
+          "runAfter": {
+            "Initialize_variable_PortalBase_URL": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "7c73203c-4bcb-4565-933b-9d1e5206611d"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varSuccess",
+                "type": "boolean",
+                "value": "@false"
+              }
+            ]
+          }
+        },
+        "Scope-Record_Error": {
+          "actions": {
+            "Run_a_Child_Flow": {
+              "metadata": {
+                "operationMetadataId": "84d61202-9912-4c09-a95b-128bf59d831b"
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "d3f874c5-271f-f111-8341-001dd808cec5"
+                },
+                "body": {
+                  "text_3": "@string(outputs('Compose_ErrorPayload'))",
+                  "text": "@triggerBody()['text']"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            },
+            "Set_variable": {
+              "runAfter": {
+                "Run_a_Child_Flow": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d892cb1f-370a-41c4-b9c4-5a423199003c"
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "varSuccess",
+                "value": "@true"
+              }
+            }
+          },
+          "runAfter": {
+            "Compose_ErrorPayload": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "ead8f8e3-21d0-44b7-a605-c22e36c5a97d"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

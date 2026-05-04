@@ -1,0 +1,332 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_DataverseConnectionReference"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_teams-1": {
+        "runtimeSource": "invoker",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_TeamsConnectionReference"
+        },
+        "api": {
+          "name": "shared_teams"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Team ID (ppmf_TeamID)": {
+          "defaultValue": "62dbac07-f1de-42e8-96eb-c4c909a75c0d",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_TeamID",
+            "description": "The Azure AD group ID (GUID) of the Microsoft Teams team where flow failure alerts will be posted by default. Every Microsoft Team is backed by a Microsoft 365 Group; this value is the Object ID of that group. Find it in Teams Admin Center under the team details, or from the team URL in the Teams client (the groupId query parameter). Used as the fallback destination when no Alert Route matches an incoming error."
+          }
+        },
+        "Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)": {
+          "defaultValue": "19:gcch:oUT097G2sLZJvCri5_8s-Npulz_jyFHFQTQGaGic0cM1@thread.tacv2",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_FlowAlertsChannelID",
+            "description": "The Teams channel ID of the default channel where flow failure alert messages will be posted. This is the internal channel identifier starting with \"19:\" — visible in the channel URL after /channel/ in the Teams web or desktop client (URL-decode %3A to : and %40 to @). Used as the fallback destination when no Alert Route matches an incoming error. Add Alert Route records to route specific solutions to different channels."
+          }
+        },
+        "Alert Throttle Window (Minutes) (ppmf_AlertThrottleMinutes)": {
+          "defaultValue": "15",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_AlertThrottleMinutes",
+            "description": "The number of minutes within which duplicate alerts for the same app and solution will be suppressed. If an error event for the same application and solution was already recorded within this window, the Teams alert card will not be re-sent. The error is still logged to Dataverse regardless. Default is 15 minutes."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "d52ee1cf-47f7-4f05-949e-a3b9d9915925"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "ErrorPayload",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "JSON String contain app error",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Parse_JSON": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "a1d0981f-ca93-401e-8f08-b3703c946677"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()['text']",
+            "schema": {
+              "solutionName": "Solution Name",
+              "appname": "Application Name",
+              "appversion": "Application Version",
+              "environment": "Environment Name",
+              "sessionid": "sessionid",
+              "username": "User Name",
+              "useremail": "User Email",
+              "activescreen": "Active Screen Name",
+              "errormessage": "Error Message",
+              "errorsource": "Error Source",
+              "severity": "Severity"
+            }
+          }
+        },
+        "Scope:_Log_Error": {
+          "actions": {
+            "Compose": {
+              "metadata": {
+                "operationMetadataId": "446d2bbb-1c39-40cf-9d2e-6a4b4a5bbb47"
+              },
+              "type": "Compose",
+              "inputs": {
+                "SourceType": "PowerApp",
+                "EnvironmentName": "@{body('Parse_JSON')?['environment']}",
+                "SolutionName": "@{body('Parse_JSON')?['solutionname']}",
+                "ApplicationName": "@{body('Parse_JSON')?['appname']}",
+                "AppVersion": "@{body('Parse_JSON')?['appversion']}",
+                "FlowName": "",
+                "FlowRunId": "",
+                "FlowUrl": "",
+                "SessionId": "@{body('Parse_JSON')?['sessionid']}",
+                "CorrelationId": "",
+                "UserName": "@{body('Parse_JSON')?['username']}",
+                "UserEmail": "@{body('Parse_JSON')?['useremail']}",
+                "ActiveScreen": "@{body('Parse_JSON')?['activescreen']}",
+                "ErrorMessage": "@{body('Parse_JSON')?['errormessage']}",
+                "ErrorSource": "@{body('Parse_JSON')?['errorsource']}",
+                "ErrorType": "",
+                "Severity": "@{body('Parse_JSON')?['severity']}",
+                "OccurredOn": "@{utcNow()}",
+                "RawPayload": "@{triggerBody()['text']}"
+              }
+            },
+            "Run_a_Child_Flow": {
+              "runAfter": {
+                "Compose": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "3f533a60-cb77-4a78-aa79-9fe7b4f5b3ef"
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "b3819854-8f27-f111-8341-001dd8207276"
+                },
+                "body": {
+                  "text": "@string(outputs('Compose'))"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "List_rows_ThrottleCheck": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "fe8fe7f7-b48a-4c3f-8d99-18b8ae527ad1"
+          },
+          "type": "Scope"
+        },
+        "List_rows_ThrottleCheck": {
+          "runAfter": {
+            "List_rows_recent_alerts": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "ppmf_errorevents",
+              "$filter": "ppmf_solutionname eq '@{body('Parse_JSON')?['solutionname']}' and ppmf_applicationname eq '@{body('Parse_JSON')?['appname']}' and createdon ge @{outputs('Compose_ThrottleCutoff')}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "connectionName": "shared_commondataserviceforapps-1"
+            }
+          }
+        },
+        "Condition": {
+          "actions": {
+            "Scope:_Post_Card": {
+              "actions": {
+                "Post_card_in_a_chat_or_channel": {
+                  "metadata": {
+                    "operationMetadataId": "0498d721-639e-4355-8064-39fc9715a289"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "@parameters('Team ID (ppmf_TeamID)')",
+                      "body/recipient/channelId": "@parameters('Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)')",
+                      "body/messageBody": "{\n  \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n  \"type\": \"AdaptiveCard\",\n  \"version\": \"1.4\",\n  \"body\": [\n    {\n      \"type\": \"Container\",\n      \"style\": \"emphasis\",\n      \"bleed\": true,\n      \"items\": [\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"🚨 Power App Failure Alert\",\n          \"weight\": \"Bolder\",\n          \"size\": \"Large\",\n          \"wrap\": true\n        },\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"A canvas app error was captured and needs review.\",\n          \"wrap\": true,\n          \"spacing\": \"Small\"\n        }\n      ]\n    },\n    {\n      \"type\": \"FactSet\",\n      \"facts\": [\n{\n  \"title\": \"📦 Solution:\",\n  \"value\": \"@{body('Parse_JSON')?['solutionname']}\"\n},\n        {\n          \"title\": \"📱 Application:\",\n          \"value\": \"@{body('Parse_JSON')?['appname']}\"\n        },\n        {\n          \"title\": \"🔢 Version:\",\n          \"value\": \"@{body('Parse_JSON')?['appversion']}\"\n        },\n        {\n          \"title\": \"🌐 Environment:\",\n          \"value\": \"@{body('Parse_JSON')?['environment']}\"\n        },\n        {\n          \"title\": \"🕒 Session ID:\",\n          \"value\": \"@{body('Parse_JSON')?['sessionid']}\"\n        },\n        {\n          \"title\": \"👤 User:\",\n          \"value\": \"@{body('Parse_JSON')?['username']}\"\n        },\n        {\n          \"title\": \"📧 User Email:\",\n          \"value\": \"@{body('Parse_JSON')?['useremail']}\"\n        },\n        {\n          \"title\": \"🖼️ Active Screen:\",\n          \"value\": \"@{body('Parse_JSON')?['activescreen']}\"\n        },\n        {\n          \"title\": \"❌ Error Message:\",\n          \"value\": \"@{body('Parse_JSON')?['errormessage']}\"\n        },\n        {\n          \"title\": \"📍 Error Source:\",\n          \"value\": \"@{body('Parse_JSON')?['errorsource']}\"\n        }\n      ]\n    }\n  ]\n}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "operationId": "PostCardToConversation",
+                      "connectionName": "shared_teams-1"
+                    },
+                    "retryPolicy": {
+                      "type": "none"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "457e98d8-0c71-43b7-815d-77b153a62f97"
+              },
+              "type": "Scope"
+            }
+          },
+          "runAfter": {
+            "List_rows_ThrottleCheck": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@length(outputs('List_rows_ThrottleCheck')?['body/value'])",
+                  0
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "List_rows_recent_alerts": {
+          "runAfter": {
+            "var_AlertChannelId": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "ppmf_errorevents",
+              "$select": "ppmf_erroreventid",
+              "$filter": "ppmf_applicationname eq '@{body('Parse_JSON')?['appname']}' and ppmf_solutionname eq '@{body('Parse_JSON')?['solutionname']}' and createdon ge @{outputs('Compose_ThrottleCutoff')}",
+              "$top": 1
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "connectionName": "shared_commondataserviceforapps-1"
+            }
+          }
+        },
+        "var_AlertChannelId": {
+          "runAfter": {
+            "var_AlertTeamId": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "AlertChannelId",
+                "type": "string",
+                "value": "@{coalesce(first(body('List_alert_route')?['value'])?['ppmf_channelid'], parameters('Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)'))}"
+              }
+            ]
+          }
+        },
+        "var_AlertTeamId": {
+          "runAfter": {
+            "List_alert_route": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "AlertTeamId",
+                "type": "string",
+                "value": "@{coalesce(first(body('List_alert_route')?['value'])?['ppmf_teamid'], parameters('Team ID (ppmf_TeamID)'))}"
+              }
+            ]
+          }
+        },
+        "List_alert_route": {
+          "runAfter": {
+            "Compose_ThrottleCutoff": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "ppmf_alertroutes",
+              "$select": "ppmf_teamid,ppmf_channelid",
+              "$filter": "ppmf_isactive eq true and (ppmf_solutionnamepattern eq '' or ppmf_solutionnamepattern eq '@{triggerBody()['text']}')",
+              "$top": 1
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "ListRecords",
+              "connectionName": "shared_commondataserviceforapps-1"
+            }
+          }
+        },
+        "Compose_ThrottleCutoff": {
+          "runAfter": {
+            "Parse_JSON": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@addMinutes(utcNow(), mul(-1, int(parameters('Alert Throttle Window (Minutes) (ppmf_AlertThrottleMinutes)'))))"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

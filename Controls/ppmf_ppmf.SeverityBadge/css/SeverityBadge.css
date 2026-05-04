@@ -1,0 +1,11 @@
+.ppmf-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+    border: 1.5px solid currentColor;
+}

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Platform Monitoring Framework — Documentation</title>
+  <style>
+    :root {
+      --primary:          #0078d4;
+      --primary-dark:     #005a9e;
+      --primary-light:    #e1effa;
+      --success:          #107c10;
+      --success-light:    #f0faf0;
+      --success-border:   #c3e6c3;
+      --warning-light:    #fffbee;
+      --warning-border:   #fde7a0;
+      --error:            #d13438;
+      --error-light:      #fff3f3;
+      --error-border:     #f3c6c7;
+      --bg:               #f3f2f1;
+      --surface:          #ffffff;
+      --border:           #edebe9;
+      --border-strong:    #8a8886;
+      --text:             #323130;
+      --text-secondary:   #605e5c;
+      --text-disabled:    #a19f9d;
+      --radius:           4px;
+      --shadow:           0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .app-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-header-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    .app-body { display: flex; min-height: calc(100vh - 76px); }
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      height: calc(100vh - 76px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-disabled);
+      padding: 12px 20px 4px;
+    }
+    .sidebar-section-label:first-child { padding-top: 4px; }
+
+    .sidebar a {
+      display: block;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: color .1s, background .1s, border-color .1s;
+    }
+    .sidebar a:hover { color: var(--primary); background: var(--primary-light); }
+    .sidebar a.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-light); font-weight: 600; }
+
+    .app-main { flex: 1; padding: 28px 36px; max-width: 860px; overflow-y: auto; }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header-icon { font-size: 18px; }
+    .card-title    { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .card-body { padding: 20px; }
+
+    /* ── Prose ───────────────────────────────────────────────────────────── */
+    .prose p  { margin-bottom: 12px; font-size: 13px; color: var(--text-secondary); }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--text); }
+
+    /* ── Section anchors ─────────────────────────────────────────────────── */
+    .doc-section { scroll-margin-top: 20px; }
+
+    /* ── Quick Start steps ───────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .step-num {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: var(--primary); color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .step-desc  { font-size: 12px; color: var(--text-secondary); }
+    .step.done { background: var(--success-light); border-color: var(--success-border); }
+    .step.done .step-num { background: var(--success); }
+
+    /* ── Field glossary table ────────────────────────────────────────────── */
+    .glossary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .glossary-table th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em;
+      padding: 8px 12px; border-bottom: 2px solid var(--border);
+      background: var(--bg);
+    }
+    .glossary-table td {
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+      vertical-align: top; font-size: 12px;
+    }
+    .glossary-table tr:last-child td { border-bottom: none; }
+    .glossary-table tr:hover td { background: #faf9f8; }
+    .glossary-table .field-name {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+    .glossary-table .field-label { font-weight: 600; font-size: 12px; }
+    .glossary-table .field-desc  { color: var(--text-secondary); margin-top: 2px; }
+
+    /* ── Badges ──────────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .badge-required  { background: var(--error-border);   color: #6b0c0e; }
+    .badge-optional  { background: var(--border);         color: var(--text-secondary); }
+    .badge-info      { background: #dce9f8;               color: #004578; }
+    .badge-warning   { background: var(--warning-border); color: #4d3700; }
+    .badge-critical  { background: var(--error-border);   color: #6b0c0e; }
+    .badge-success   { background: var(--success-border); color: #0e5a0e; }
+
+    /* ── Env var table ───────────────────────────────────────────────────── */
+    .env-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .env-table th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em;
+      padding: 8px 12px; border-bottom: 2px solid var(--border);
+      background: var(--bg);
+    }
+    .env-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 12px; }
+    .env-table tr:last-child td { border-bottom: none; }
+    .env-table tr:hover td { background: #faf9f8; }
+    .schema-name {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px; color: var(--primary-dark);
+    }
+
+    /* ── Code blocks ─────────────────────────────────────────────────────── */
+    .code-block {
+      background: #1e1e1e; color: #d4d4d4;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .code-block .kw  { color: #569cd6; }
+    .code-block .str { color: #ce9178; }
+    .code-block .cmt { color: #6a9955; }
+    .code-block .fn  { color: #dcdcaa; }
+
+    code {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--primary-dark);
+    }
+
+    /* ── Alert callouts ──────────────────────────────────────────────────── */
+    .callout {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin: 12px 0;
+      font-size: 12px;
+    }
+    .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .callout-info    { background: var(--primary-light); border: 1px solid #b0d0ef; }
+    .callout-warning { background: var(--warning-light); border: 1px solid var(--warning-border); }
+    .callout-tip     { background: var(--success-light); border: 1px solid var(--success-border); }
+
+    /* ── Quick Start modal overlay ───────────────────────────────────────── */
+    .qs-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .qs-modal {
+      background: var(--surface);
+      border-radius: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.28);
+      width: 560px; max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: qs-in .2s ease;
+    }
+    @keyframes qs-in { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .qs-header {
+      background: var(--primary); color: #fff;
+      padding: 20px 24px 16px;
+      border-radius: 6px 6px 0 0;
+    }
+    .qs-header h2 { font-size: 18px; font-weight: 700; }
+    .qs-header p  { font-size: 12px; opacity: .85; margin-top: 4px; }
+
+    .qs-body { padding: 20px 24px; }
+    .qs-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .qs-step {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 12px 14px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .qs-num {
+      width: 24px; height: 24px; flex-shrink: 0;
+      background: var(--primary); color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .qs-step-title { font-weight: 600; font-size: 13px; }
+    .qs-step-desc  { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    .qs-footer {
+      padding: 14px 24px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .qs-footer label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 16px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background .1s, opacity .1s;
+    }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-secondary:hover { background: var(--primary-light); }
+    .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+
+    /* ── Flow diagram ────────────────────────────────────────────────────── */
+    .flow-diagram {
+      display: flex; flex-direction: column; gap: 0;
+      padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .flow-node {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 12px;
+    }
+    .flow-node-icon { font-size: 16px; flex-shrink: 0; }
+    .flow-node-name { font-weight: 600; }
+    .flow-node-desc { color: var(--text-secondary); font-size: 11px; margin-top: 1px; }
+    .flow-arrow {
+      width: 2px; height: 20px; background: var(--border-strong);
+      margin-left: 22px; flex-shrink: 0;
+      position: relative;
+    }
+    .flow-arrow::after {
+      content: ''; position: absolute; bottom: -5px; left: -4px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--border-strong);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 740px) {
+      .sidebar { display: none; }
+      .app-main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Quick Start Modal (shown on first visit)
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="qs-overlay" id="qs-overlay" style="display:none">
+  <div class="qs-modal">
+    <div class="qs-header">
+      <h2>🚀 Welcome to PPMF</h2>
+      <p>Power Platform Monitoring Framework — Quick Start Guide</p>
+    </div>
+    <div class="qs-body">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">
+        Complete these steps after importing the solution to get alerts flowing to Teams.
+      </p>
+      <div class="qs-steps">
+        <div class="qs-step">
+          <div class="qs-num">1</div>
+          <div>
+            <div class="qs-step-title">Assign connection references</div>
+            <div class="qs-step-desc">Go to Solutions → Power Platform Monitoring Framework → Connection References. Assign a Dataverse connection to <code>ppmf_DataverseConnectionReference</code> and a Microsoft Teams connection to <code>ppmf_TeamsConnectionReference</code>.</div>
+          </div>
+        </div>
+        <div class="qs-step">
+          <div class="qs-num">2</div>
+          <div>
+            <div class="qs-step-title">Activate child flows</div>
+            <div class="qs-step-desc">All four <strong>PPMF-Child-*</strong> flows must be set to Active before error handling will work: <em>ProcessFlowError</em>, <em>FlowErrorHandler-JSON</em>, <em>FlowErrorHandler-Parameters</em>, and <em>FlowWritetoIntakeList</em>. Turn them on from the Solutions flow list. If you are using canvas app error handling, also activate <em>PPMF-Power-Apps-Error-Handler-JSON</em>.</div>
+          </div>
+        </div>
+        <div class="qs-step">
+          <div class="qs-num">3</div>
+          <div>
+            <div class="qs-step-title">Configure environment variables</div>
+            <div class="qs-step-desc">Open <strong>Configuration → Setup &amp; Configuration</strong> and set the four required variables:
+              <ul style="margin:6px 0 0 16px;line-height:1.9">
+                <li><strong>Environment Name</strong> — short label for this environment (e.g. <em>Production</em>)</li>
+                <li><strong>Portal Base URL</strong> — use the preset button for your cloud: <em>Commercial</em> (<code>make.powerautomate.com</code>), <em>GCC High</em> (<code>make.powerautomate.appsplatform.us</code>), or <em>DoD</em> (<code>make.powerautomate.appsplatform.mil</code>)</li>
+                <li><strong>Teams Group ID</strong> — the Azure AD group GUID of your target Teams team</li>
+                <li><strong>Flow Alerts Channel ID</strong> — the internal channel ID (starts with <code>19:</code>) for the default alerts channel</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="qs-step">
+          <div class="qs-num">4</div>
+          <div>
+            <div class="qs-step-title">Run the deployment checklist</div>
+            <div class="qs-step-desc">Open <strong>Configuration → Setup &amp; Configuration</strong>. The page automatically runs 8 checks on load and displays a pass / warn / fail result for each. Click <strong>↻ Re-validate</strong> at any time to re-run. All 8 checks must show green before PPMF will reliably capture and alert on errors. Any red (fail) result must be resolved; amber (warn) results indicate degraded functionality.</div>
+          </div>
+        </div>
+        <div class="qs-step">
+          <div class="qs-num">5</div>
+          <div>
+            <div class="qs-step-title">Run the demo flow</div>
+            <div class="qs-step-desc">Trigger <strong>PPMF-Demo-Flow-Failure</strong> manually with a test solution name. Confirm an alert card arrives in Teams and an error record appears in the Triage view.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="qs-footer">
+      <label>
+        <input type="checkbox" id="qs-dont-show"> Don't show again
+      </label>
+      <button class="btn btn-primary" onclick="closeQuickStart()">Get Started →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Header
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="app-header">
+  <div class="app-header-icon">📖</div>
+  <div>
+    <h1>Power Platform Monitoring Framework</h1>
+    <p>Documentation &amp; Field Reference</p>
+  </div>
+  <div style="margin-left:auto">
+    <button class="btn btn-secondary btn-sm" style="color:#fff;border-color:rgba(255,255,255,.5)" onclick="showQuickStart()">🚀 Quick Start</button>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Sidebar Navigation
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Getting Started</div>
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#post-import">Post-Import Checklist</a>
+
+    <div class="sidebar-section-label">Configuration</div>
+    <a href="#env-vars">Environment Variables</a>
+    <a href="#connections">Connection References</a>
+    <a href="#alert-routes">Alert Routes</a>
+
+    <div class="sidebar-section-label">Flows</div>
+    <a href="#flow-reference">Flow Reference</a>
+    <a href="#integration">Integrating Your Flows</a>
+
+    <div class="sidebar-section-label">Data</div>
+    <a href="#errorevent-glossary">Error Event Fields</a>
+    <a href="#alertroute-glossary">Alert Route Fields</a>
+
+    <div class="sidebar-section-label">Operations</div>
+    <a href="#throttle">Alert Throttling</a>
+    <a href="#retention">Data Retention</a>
+    <a href="#canvas-apps">Canvas App Errors</a>
+
+    <div class="sidebar-section-label">About</div>
+    <a href="#ai-disclosure">AI Disclosure</a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Main Content
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <main class="app-main" id="main-content">
+
+    <!-- ── Overview ──────────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="overview">
+      <div class="card-header">
+        <span class="card-header-icon">🔍</span>
+        <div>
+          <div class="card-title">Overview</div>
+          <div class="card-subtitle">What PPMF is and what it does</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>The <strong>Power Platform Monitoring Framework (PPMF)</strong> is a Dataverse-backed solution that provides automated error capture, Teams alerting, and triage management for Power Automate cloud flows and Power Apps canvas applications.</p>
+        <p>When a monitored flow fails, PPMF captures structured error data to Dataverse, sends a formatted adaptive card to a Microsoft Teams channel, and creates a trackable error record for structured triage. Canvas app errors are handled through a separate entry point that accepts a JSON error payload directly from the app.</p>
+        <p>PPMF is designed for enterprise deployment in <strong>Commercial</strong>, <strong>GCC High</strong>, and <strong>DoD</strong> cloud environments and is compatible with managed solution distribution.</p>
+
+        <div class="callout callout-info" style="margin-top:8px">
+          <span class="callout-icon">ℹ️</span>
+          <div>PPMF requires a Dataverse connection and a Microsoft Teams connection. Both must be assigned to their connection references before any flows will process errors.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Architecture ───────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="architecture">
+      <div class="card-header">
+        <span class="card-header-icon">🏗️</span>
+        <div>
+          <div class="card-title">Architecture</div>
+          <div class="card-subtitle">How errors flow through the framework</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="prose" style="margin-bottom:16px"><strong>Flow error path</strong> — a monitored flow's catch scope calls the child flows in sequence:</p>
+        <div class="flow-diagram">
+          <div class="flow-node">
+            <span class="flow-node-icon">⚡</span>
+            <div>
+              <div class="flow-node-name">Your flow (Catch scope)</div>
+              <div class="flow-node-desc">Calls PPMF-Child-ProcessFlowError with SolutionName, workflow() JSON, and result() JSON</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">🔄</span>
+            <div>
+              <div class="flow-node-name">PPMF-Child-ProcessFlowError</div>
+              <div class="flow-node-desc">Parses workflow context, extracts flow name + run ID, constructs portal deep link URL</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">🔄</span>
+            <div>
+              <div class="flow-node-name">PPMF-Child-FlowErrorHandler-JSON</div>
+              <div class="flow-node-desc">Looks up alert route, checks throttle window, calls WriteToIntakeList, posts Teams card if not throttled</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">💾</span>
+            <div>
+              <div class="flow-node-name">PPMF-Child-FlowWritetoIntakeList</div>
+              <div class="flow-node-desc">Creates ppmf_errorevent record in Dataverse (always runs — every failure is logged)</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">💬</span>
+            <div>
+              <div class="flow-node-name">Teams Alert Card</div>
+              <div class="flow-node-desc">Posted to the matched alert route channel, or to the default channel from env vars</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="prose" style="margin-top:16px"><strong>Canvas app error path</strong> — the app calls <strong>PPMF-Power-Apps-Error-Handler-JSON</strong> directly via PowerAppV2 trigger, passing a JSON payload. The flow parses the payload, performs an alert route lookup, checks the throttle window, conditionally posts a Teams adaptive card, and always calls <strong>PPMF-Child-FlowWritetoIntakeList</strong> to write a <code>ppmf_errorevent</code> record to Dataverse. Unlike the flow error path, the Teams card is posted to the default channel from the environment variables (<code>ppmf_TeamID</code> / <code>ppmf_FlowAlertsChannelID</code>) regardless of any matching alert route — per-solution channel routing is not applied to canvas app alerts.</p>
+      </div>
+    </div>
+
+    <!-- ── Post-Import Checklist ──────────────────────────────────────────── -->
+    <div class="card doc-section" id="post-import">
+      <div class="card-header">
+        <span class="card-header-icon">✅</span>
+        <div>
+          <div class="card-title">Post-Import Checklist</div>
+          <div class="card-subtitle">Complete these steps in order after importing the solution</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">Assign the Dataverse connection reference</div>
+              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_DataverseConnectionReference</strong> → select or create a Dataverse connection.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">Assign the Teams connection reference</div>
+              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_TeamsConnectionReference</strong> → select or create a Teams connection. The account must be a member of the target Teams team.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">Activate all PPMF-Child-* flows</div>
+              <div class="step-desc">Flows may be in draft state after import. Turn on all four PPMF-Child-* flows from the Solutions flow list before proceeding. If using canvas app error handling, also activate <strong>PPMF-Power-Apps-Error-Handler-JSON</strong>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-title">Open the Setup &amp; Configuration page</div>
+              <div class="step-desc">Navigate to <strong>Configuration → Setup &amp; Configuration</strong> in this app. Configure the four required environment variables.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <div class="step-title">Run the deployment checklist</div>
+              <div class="step-desc">The Setup page runs 8 automated checks. All must show green before PPMF will reliably capture and alert.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-content">
+              <div class="step-title">Run the demo flow</div>
+              <div class="step-desc">Manually trigger <strong>PPMF-Demo-Flow-Failure</strong> with a test solution name. Confirm: an alert card arrives in Teams, and an error record appears in the Triage view.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">7</div>
+            <div class="step-content">
+              <div class="step-title">Configure Alert Routes (optional)</div>
+              <div class="step-desc">Add Alert Route records from the Setup page to route specific solutions to dedicated Teams channels. If no routes are configured, all alerts use the default channel.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Environment Variables ──────────────────────────────────────────── -->
+    <div class="card doc-section" id="env-vars">
+      <div class="card-header">
+        <span class="card-header-icon">🌐</span>
+        <div>
+          <div class="card-title">Environment Variables</div>
+          <div class="card-subtitle">Six variables control all runtime behaviour. Configure from the Setup &amp; Configuration page.</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="env-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Required</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_EnvironmentName</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Environment Name</div>
+              </td>
+              <td><span class="badge badge-required">Required</span></td>
+              <td style="color:var(--text-disabled)">—</td>
+              <td>Short human-readable label for this environment, e.g. <em>Production</em>, <em>UAT</em>, <em>Dev</em>. Appears in every Teams alert subject line and on every error record. Do not leave as a placeholder.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_PortalBaseUrl</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Portal Base URL</div>
+              </td>
+              <td><span class="badge badge-required">Required</span></td>
+              <td style="color:var(--text-disabled)">—</td>
+              <td>
+                Base URL of the Power Automate portal for your cloud. Used to build deep links in Teams alert cards. No trailing slash.<br>
+                <span style="display:block;margin-top:4px;color:var(--text-secondary)">
+                  Commercial: <code>https://make.powerautomate.com</code><br>
+                  GCC High: <code>https://make.powerautomate.appsplatform.us</code><br>
+                  DoD: <code>https://make.powerautomate.appsplatform.mil</code>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_TeamID</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Teams Group ID</div>
+              </td>
+              <td><span class="badge badge-required">Required</span></td>
+              <td style="color:var(--text-disabled)">—</td>
+              <td>Azure AD group GUID of the default Microsoft Teams team. Find it in Teams Admin Center or from the <code>groupId</code> query parameter in the Teams web URL. Used as fallback when no Alert Route matches.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_FlowAlertsChannelID</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Flow Alerts Channel ID</div>
+              </td>
+              <td><span class="badge badge-required">Required</span></td>
+              <td style="color:var(--text-disabled)">—</td>
+              <td>Internal Teams channel ID starting with <code>19:</code>. Find it from the channel URL in Teams web client — the segment after <code>/channel/</code> (URL-decode <code>%3A</code> → <code>:</code> and <code>%40</code> → <code>@</code>). Used as fallback when no Alert Route matches.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_AlertThrottleMinutes</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Alert Throttle Window</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>15</strong></td>
+              <td>Suppression window in minutes. After an alert fires for a given flow, subsequent failures of that same flow within this window are logged to Dataverse but do not post a Teams message. Set to <code>0</code> to disable throttling entirely.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_RetentionDays</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Error Retention Days</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>90</strong></td>
+              <td>Days after which resolved error records are deleted by the weekly maintenance flow. Only records with status <em>Fixed</em>, <em>Duplicate</em>, <em>Won't Fix</em>, or <em>Closed</em> are eligible. Records with status <em>New</em> or <em>In Progress</em> are never deleted. Set to <code>0</code> to disable automatic deletion.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Connection References ──────────────────────────────────────────── -->
+    <div class="card doc-section" id="connections">
+      <div class="card-header">
+        <span class="card-header-icon">🔌</span>
+        <div>
+          <div class="card-title">Connection References</div>
+          <div class="card-subtitle">Two connections must be assigned before any flows will run</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p><strong>ppmf_DataverseConnectionReference</strong> — used by flows that read and write <code>ppmf_errorevent</code> records in Dataverse. Requires a Dataverse connection authenticated to an account with access to this environment.</p>
+        <p><strong>ppmf_TeamsConnectionReference</strong> — used by the error handler flows to post adaptive card alerts. Requires a Teams connection authenticated to an account that is a member of the target Teams team.</p>
+        <div class="callout callout-warning">
+          <span class="callout-icon">⚠️</span>
+          <div>If either connection reference is unassigned, flows that depend on it will fail silently at the connection step. The deployment checklist on the Setup page will flag unassigned references.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Alert Routes ───────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="alert-routes">
+      <div class="card-header">
+        <span class="card-header-icon">📡</span>
+        <div>
+          <div class="card-title">Alert Routes</div>
+          <div class="card-subtitle">Route specific solutions to dedicated Teams channels</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>Alert Routes allow different solutions to post to different Teams channels with optional per-route minimum severity. Each route is a record in the <strong>ppmf_alertroute</strong> table, manageable from the <strong>Setup &amp; Configuration</strong> page or the <strong>Configuration → Alert Routes</strong> view.</p>
+
+        <p><strong>How routing works at runtime:</strong> when a flow failure arrives, the error handler queries <code>ppmf_alertroutes</code> filtered to active routes where <code>ppmf_solutionnamepattern</code> is blank (wildcard) or exactly equals the incoming <code>SolutionName</code>. The first matching route's Team ID and Channel ID override the environment variable defaults via <code>coalesce()</code>. If no route matches, the default env var channel is used.</p>
+
+        <p><strong>Fallback order:</strong></p>
+        <ol style="margin:8px 0 12px 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
+          <li>Active Alert Route with exact <code>ppmf_solutionnamepattern</code> match</li>
+          <li>Active Alert Route with blank <code>ppmf_solutionnamepattern</code> (wildcard)</li>
+          <li><code>ppmf_TeamID</code> and <code>ppmf_FlowAlertsChannelID</code> environment variables</li>
+        </ol>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ️</span>
+          <div>The <code>ppmf_solutionnamepattern</code> match is an <strong>exact equality</strong> check, not a prefix or contains match. The string your flow passes as <code>SolutionName</code> must exactly equal the pattern on the route record, including case.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Flow Reference ────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="flow-reference">
+      <div class="card-header">
+        <span class="card-header-icon">⚡</span>
+        <div>
+          <div class="card-title">Flow Reference</div>
+          <div class="card-subtitle">All 8 flows in the solution</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="glossary-table">
+          <thead>
+            <tr><th>Flow Name</th><th>Type</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-name">PPMF-Child-ProcessFlowError</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Primary entry point. Parses <code>workflow()</code> JSON to extract flow name, run ID, and environment. Constructs the portal deep link URL. Calls FlowErrorHandler-JSON.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Child-FlowErrorHandler-JSON</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Core alert logic. Resolves alert route, checks throttle window, calls WriteToIntakeList, posts Teams card if not throttled.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Child-FlowErrorHandler-Parameters</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Same purpose as JSON variant but accepts individual named parameters (FlowName, FlowURL, FlowErrorMsg, SolutionName, FlowId) instead of a JSON blob.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Child-FlowWritetoIntakeList</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Creates the <code>ppmf_errorevent</code> Dataverse record and writes to the SharePoint intake list. Always runs — every failure is logged regardless of throttle state.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Power-Apps-Error-Handler-JSON</span></td>
+              <td><span class="badge badge-info">PowerApp</span></td>
+              <td>Entry point for canvas app errors via PowerAppV2 trigger. Parses the JSON payload, performs alert route lookup and throttle checking, conditionally posts a Teams adaptive card, and always writes a <code>ppmf_errorevent</code> record to Dataverse via <strong>PPMF-Child-FlowWritetoIntakeList</strong>. <em>Note: the Teams card is posted to the default env var channel regardless of any matching alert route — per-solution channel routing is not applied on this path.</em></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Get-Environment-Info</span></td>
+              <td><span class="badge badge-success">Utility</span></td>
+              <td>Returns the configured environment name to the PPMF Monitor canvas app for display.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Delete-Old-Errors</span></td>
+              <td><span class="badge badge-warning">Scheduled</span></td>
+              <td>Weekly maintenance flow (Sundays, midnight UTC). Deletes resolved error records older than the retention threshold. New and In Progress records are never deleted.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Demo-Flow-Failure</span></td>
+              <td><span class="badge badge-optional">Testing</span></td>
+              <td>Intentionally fails with a divide-by-zero error, then calls the full error pipeline. Run manually after setup to verify end-to-end alerting.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Integrating Your Flows ─────────────────────────────────────────── -->
+    <div class="card doc-section" id="integration">
+      <div class="card-header">
+        <span class="card-header-icon">🔧</span>
+        <div>
+          <div class="card-title">Integrating Your Flows</div>
+          <div class="card-subtitle">How to add PPMF error handling to any Power Automate flow</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>Wrap all functional actions in a <strong>Try scope</strong>. Add a <strong>Catch scope</strong> configured to run after Try with status <em>Failed</em> or <em>TimedOut</em>. Inside the Catch scope, add a <strong>Run a Child Flow</strong> action:</p>
+
+        <div style="margin:12px 0">
+          <strong style="font-size:12px">Child flow:</strong> <code>PPMF-Child-ProcessFlowError</code><br><br>
+          <strong style="font-size:12px">Inputs:</strong>
+          <div class="code-block" style="margin-top:6px">
+<span class="kw">SolutionName</span>     → <span class="str">"YourSolutionUniqueName"</span>   <span class="cmt">// free text — used for alert route matching</span>
+<span class="kw">ParentWorkFlowJson</span> → <span class="fn">string</span>(<span class="fn">workflow</span>())            <span class="cmt">// captures flow name, run ID, environment</span>
+<span class="kw">TryResultsJson</span>     → <span class="fn">string</span>(<span class="fn">result</span>(<span class="str">'Try'</span>))         <span class="cmt">// captures error details from failed actions</span>
+          </div>
+        </div>
+
+        <div class="callout callout-tip">
+          <span class="callout-icon">✅</span>
+          <div><strong>SolutionName convention:</strong> use the solution's unique name (logical name), e.g. <code>PowerPlatformMonitoringFramework</code>. Avoid spaces. The string is matched by exact equality against Alert Route patterns — choose it deliberately and document it so route patterns stay consistent across your team.</div>
+        </div>
+
+        <p style="margin-top:12px">The child flow handles everything else: parsing the error, creating the Dataverse record, resolving the alert route, applying throttle logic, and posting the Teams card. You do not need to add any additional error handling logic.</p>
+      </div>
+    </div>
+
+    <!-- ── Error Event Field Glossary ────────────────────────────────────── -->
+    <div class="card doc-section" id="errorevent-glossary">
+      <div class="card-header">
+        <span class="card-header-icon">📋</span>
+        <div>
+          <div class="card-title">Error Event Field Glossary</div>
+          <div class="card-subtitle">ppmf_errorevent — all custom fields</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="glossary-table">
+          <thead>
+            <tr><th>Schema Name</th><th>Label</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-name">ppmf_environmentname</span></td>
+              <td><span class="field-label">Environment Name</span></td>
+              <td><span class="field-desc">Name of the Power Platform environment where the error occurred. Populated from the ppmf_EnvironmentName environment variable at capture time.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_solutionname</span></td>
+              <td><span class="field-label">Solution Name</span></td>
+              <td><span class="field-desc">The solution name string passed by the calling flow. Used for alert route matching and record filtering.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_applicationname</span></td>
+              <td><span class="field-label">Application Name</span></td>
+              <td><span class="field-desc">Canvas App name when the error source is an app rather than a flow.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_appversion</span></td>
+              <td><span class="field-label">App Version</span></td>
+              <td><span class="field-desc">App or solution version. Helps correlate errors to specific releases.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_flowname</span></td>
+              <td><span class="field-label">Flow Name</span></td>
+              <td><span class="field-desc">Display name of the Power Automate flow that failed. Extracted from the workflow() expression JSON.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_flowrunid</span></td>
+              <td><span class="field-label">Flow Run ID</span></td>
+              <td><span class="field-desc">The specific flow run GUID. Used by the throttle check to avoid self-referential suppression and as a deduplication key.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_flowurl</span></td>
+              <td><span class="field-label">Flow URL</span></td>
+              <td><span class="field-desc">Direct deep link to the failed flow run in the Power Automate portal. Constructed from ppmf_PortalBaseUrl + the run path. Appears as a clickable link in Teams alert cards.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_sessionid</span></td>
+              <td><span class="field-label">Session ID</span></td>
+              <td><span class="field-desc">Groups multiple errors from the same app session or execution context. Most useful for Canvas App errors.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_errormessage</span></td>
+              <td><span class="field-label">Error Message</span></td>
+              <td><span class="field-desc">The full error message text from the failed action or app error event.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_severity</span></td>
+              <td><span class="field-label">Severity</span></td>
+              <td><span class="field-desc">Choice field: 1 = Info (blue), 2 = Warning (amber), 3 = Critical (red), 4 = Unknown (grey). Set during triage. Displayed as a colored left border indicator on the form and as a colored dot in the view.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_triagingstatus</span></td>
+              <td><span class="field-label">Triaging Status</span></td>
+              <td><span class="field-desc">Triage workflow state: New → In Progress → Fixed / Duplicate / Won't Fix / Closed. Records with status New or In Progress are never deleted by the retention maintenance flow.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_occurredon</span></td>
+              <td><span class="field-label">Occurred On</span></td>
+              <td><span class="field-desc">Timestamp of when the failure occurred. Used by the retention maintenance flow to determine age eligibility for deletion.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_alertsent</span></td>
+              <td><span class="field-label">Alert Sent</span></td>
+              <td><span class="field-desc">Indicates whether a Teams alert card was posted for this record. False when the record was created during a throttle suppression window.</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Alert Route Field Glossary ────────────────────────────────────── -->
+    <div class="card doc-section" id="alertroute-glossary">
+      <div class="card-header">
+        <span class="card-header-icon">📡</span>
+        <div>
+          <div class="card-title">Alert Route Field Glossary</div>
+          <div class="card-subtitle">ppmf_alertroute — all custom fields</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="glossary-table">
+          <thead>
+            <tr><th>Schema Name</th><th>Label</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-name">ppmf_name</span></td>
+              <td><span class="field-label">Route Name</span></td>
+              <td><span class="field-desc">Required. Friendly label for this route, e.g. "SCOUT Flows - Critical Only". Used for identification in the Setup page and views.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_solutionnamepattern</span></td>
+              <td><span class="field-label">Solution Name Pattern</span></td>
+              <td><span class="field-desc">The exact solution name string to match against the SolutionName value passed by the calling flow. Leave blank to match all solutions (wildcard). The match is exact equality — case-sensitive.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_minseverity</span></td>
+              <td><span class="field-label">Minimum Severity</span></td>
+              <td><span class="field-desc">Choice: 1 = Info, 2 = Warning (default), 3 = Critical. Stored on the route record for reference. Available for future per-route severity enforcement in the flow filter.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_teamid</span></td>
+              <td><span class="field-label">Teams Group ID</span></td>
+              <td><span class="field-desc">Azure AD group GUID of the Teams team for this route. Overrides the ppmf_TeamID environment variable when this route matches.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_channelid</span></td>
+              <td><span class="field-label">Teams Channel ID</span></td>
+              <td><span class="field-desc">Internal Teams channel ID (starts with "19:") for this route. Overrides ppmf_FlowAlertsChannelID when this route matches.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_isactive</span></td>
+              <td><span class="field-label">Is Active</span></td>
+              <td><span class="field-desc">Yes/No. Set to No to disable this route without deleting it. Inactive routes are excluded from the runtime query.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_description</span></td>
+              <td><span class="field-label">Description</span></td>
+              <td><span class="field-desc">Free text. Document who owns this route and what solutions or scenarios it covers.</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Alert Throttling ───────────────────────────────────────────────── -->
+    <div class="card doc-section" id="throttle">
+      <div class="card-header">
+        <span class="card-header-icon">🔇</span>
+        <div>
+          <div class="card-title">Alert Throttling</div>
+          <div class="card-subtitle">Prevents Teams channel flooding from repeatedly failing flows</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>When a flow failure arrives, the error handler computes a throttle cutoff timestamp as <em>current time minus ppmf_AlertThrottleMinutes</em>. It then queries <code>ppmf_errorevent</code> for existing records where the flow name matches, the record was created after the cutoff, and the flow run ID is not the current run.</p>
+        <p>If any matching records exist, the Teams post is skipped. The error record is <strong>still created in Dataverse</strong> in all cases — every failure is logged regardless of throttle state.</p>
+        <p>Setting <code>ppmf_AlertThrottleMinutes</code> to <code>0</code> causes the cutoff to equal the current time, meaning no prior records can fall within the window. Every failure will generate an alert.</p>
+      </div>
+    </div>
+
+    <!-- ── Data Retention ─────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="retention">
+      <div class="card-header">
+        <span class="card-header-icon">🗑️</span>
+        <div>
+          <div class="card-title">Data Retention</div>
+          <div class="card-subtitle">Automatic cleanup of resolved error records</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>The <strong>PPMF-Delete-Old-Errors</strong> flow runs every Sunday at midnight UTC. It deletes <code>ppmf_errorevent</code> records that meet <strong>all three</strong> criteria simultaneously:</p>
+        <ol style="margin:8px 0 12px 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
+          <li>Triage status is <em>Fixed</em>, <em>Duplicate</em>, <em>Won't Fix</em>, or <em>Closed</em></li>
+          <li>Occurrence date is older than <code>ppmf_RetentionDays</code> days</li>
+          <li>Record exists in the <code>ppmf_errorevent</code> table</li>
+        </ol>
+        <p>Records with status <em>New</em> or <em>In Progress</em> are never deleted. Setting <code>ppmf_RetentionDays</code> to <code>0</code> disables automatic deletion entirely. The flow can also be triggered manually on demand from the Power Automate portal.</p>
+      </div>
+    </div>
+
+    <!-- ── Canvas App Errors ──────────────────────────────────────────────── -->
+    <div class="card doc-section" id="canvas-apps">
+      <div class="card-header">
+        <span class="card-header-icon">📱</span>
+        <div>
+          <div class="card-title">Canvas App Error Handling</div>
+          <div class="card-subtitle">Sending app errors to PPMF from a Canvas App</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>Call <strong>PPMF-Power-Apps-Error-Handler-JSON</strong> from your canvas app using a Power Automate connection. The flow accepts a single <code>ErrorPayload</code> text parameter — a JSON string with the following fields:</p>
+
+        <div class="code-block">
+{
+  <span class="str">"solutionName"</span>:  <span class="str">"YourSolutionName"</span>,
+  <span class="str">"appname"</span>:       <span class="str">"Application display name"</span>,
+  <span class="str">"appversion"</span>:    <span class="str">"1.0.0"</span>,
+  <span class="str">"environment"</span>:   <span class="str">"Production"</span>,
+  <span class="str">"sessionid"</span>:     <span class="str">"@{User().Email}-session"</span>,
+  <span class="str">"username"</span>:      <span class="str">"Display Name"</span>,
+  <span class="str">"useremail"</span>:     <span class="str">"user@domain.com"</span>,
+  <span class="str">"activescreen"</span>:  <span class="str">"ScreenName"</span>,
+  <span class="str">"errormessage"</span>:  <span class="str">"Error text"</span>,
+  <span class="str">"errorsource"</span>:   <span class="str">"ControlName.Property"</span>,
+  <span class="str">"severity"</span>:      <span class="str">"Warning"</span>
+}
+        </div>
+
+        <p class="prose" style="margin-top:16px;margin-bottom:16px"><strong>How the error is processed</strong> — once the payload is received, the flow executes the following steps in sequence:</p>
+        <div class="flow-diagram">
+          <div class="flow-node">
+            <span class="flow-node-icon">📱</span>
+            <div>
+              <div class="flow-node-name">Canvas App (OnError / custom handler)</div>
+              <div class="flow-node-desc">Calls PPMF-Power-Apps-Error-Handler-JSON with a JSON-serialized ErrorPayload string</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">🔍</span>
+            <div>
+              <div class="flow-node-name">Alert Route Lookup</div>
+              <div class="flow-node-desc">Queries ppmf_alertroutes for a matching active route; falls back to ppmf_TeamID and ppmf_FlowAlertsChannelID env vars if no match is found</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">⏱️</span>
+            <div>
+              <div class="flow-node-name">Throttle Check</div>
+              <div class="flow-node-desc">Queries ppmf_errorevents for a recent record matching the same app and solution within the ppmf_AlertThrottleMinutes window</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">💬</span>
+            <div>
+              <div class="flow-node-name">Teams Alert Card (conditional)</div>
+              <div class="flow-node-desc">Posted to the default channel (ppmf_TeamID / ppmf_FlowAlertsChannelID) only when no matching error was logged within the throttle window</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">
+            <span class="flow-node-icon">💾</span>
+            <div>
+              <div class="flow-node-name">PPMF-Child-FlowWritetoIntakeList</div>
+              <div class="flow-node-desc">Creates a ppmf_errorevent record in Dataverse — always runs regardless of throttle state</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info" style="margin-top:16px">
+          <span class="callout-icon">ℹ️</span>
+          <div><strong>Difference from the flow error path:</strong> Alert route lookup runs and resolves a matching route, but the Teams card is posted to the default channel from the environment variables regardless of the match. Per-solution channel routing is not applied to canvas app alerts. All other behaviour — throttle suppression and Dataverse logging — is consistent with the flow error path.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI Disclosure ─────────────────────────────────────────────────── -->
+    <div class="card doc-section" id="ai-disclosure">
+      <div class="card-header">
+        <span class="card-header-icon">🤖</span>
+        <div>
+          <div class="card-title">AI Disclosure</div>
+          <div class="card-subtitle">Use of AI assistance in this project</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+        <p>The scripts, security review, and documentation in this repository were generated with the assistance of <strong><a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer">GitHub Copilot</a></strong> (Claude Sonnet 4.6 model, via GitHub Copilot Pro). All output was reviewed by a human before publication.</p>
+        <div class="callout callout-warning" style="margin-top:12px">
+          <span class="callout-icon">⚠️</span>
+          <div>Users should apply the same due diligence they would to any third-party code — review the scripts before running them in your environment.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Quick Start first-run logic ───────────────────────────────────────────
+  const QS_KEY = 'ppmf_docs_qs_seen';
+
+  function showQuickStart() {
+    document.getElementById('qs-overlay').style.display = 'flex';
+  }
+
+  function closeQuickStart() {
+    if (document.getElementById('qs-dont-show').checked) {
+      try { localStorage.setItem(QS_KEY, '1'); } catch(e) {}
+    }
+    document.getElementById('qs-overlay').style.display = 'none';
+  }
+
+  // Show on first visit
+  (function() {
+    try {
+      if (!localStorage.getItem(QS_KEY)) {
+        showQuickStart();
+      }
+    } catch(e) {
+      // localStorage unavailable (cross-origin iframe restriction) — skip
+    }
+  }());
+
+  // Close on overlay click
+  document.getElementById('qs-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeQuickStart();
+  });
+
+  // ── Active sidebar link on scroll ─────────────────────────────────────────
+  const sections = document.querySelectorAll('.doc-section');
+  const navLinks = document.querySelectorAll('.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

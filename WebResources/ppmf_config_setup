@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Platform Monitoring Framework — Setup &amp; Configuration</title>
+  <style>
+    :root {
+      --primary:          #0078d4;
+      --primary-dark:     #005a9e;
+      --primary-light:    #e1effa;
+      --success:          #107c10;
+      --success-light:    #f0faf0;
+      --success-border:   #c3e6c3;
+      --warning-light:    #fffbee;
+      --warning-border:   #fde7a0;
+      --error:            #d13438;
+      --error-light:      #fff3f3;
+      --error-border:     #f3c6c7;
+      --bg:               #f3f2f1;
+      --surface:          #ffffff;
+      --border:           #edebe9;
+      --border-strong:    #8a8886;
+      --text:             #323130;
+      --text-secondary:   #605e5c;
+      --text-disabled:    #a19f9d;
+      --radius:           4px;
+      --shadow:           0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .app-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-header-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    .app-main  { padding: 24px 32px; max-width: 1120px; }
+    .grid-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header-icon { font-size: 18px; }
+    .card-title    { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .card-header-action { margin-left: auto; }
+    .card-body { padding: 20px; }
+
+    /* ── Form controls ───────────────────────────────────────────────────── */
+    .field        { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+    label         { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    label .req    { color: var(--error); margin-left: 2px; }
+    .field-desc   { font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; }
+
+    input[type="text"], select {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .1s, box-shadow .1s;
+      background: var(--surface);
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    input.saved { border-color: var(--success); box-shadow: 0 0 0 1px var(--success); }
+
+    .input-row { display: flex; gap: 8px; }
+    .input-row input { flex: 1; }
+
+    .preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+    .preset-btn {
+      font-size: 11px; font-family: inherit; height: 24px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg); cursor: pointer; color: var(--text);
+      transition: background .1s, border-color .1s, color .1s;
+    }
+    .preset-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 14px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background .1s, opacity .1s, box-shadow .1s;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary   { background: var(--primary);   color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-secondary:hover:not(:disabled) { background: var(--primary-light); }
+    .btn-danger    { background: transparent; color: var(--error); border: 1px solid var(--error); }
+    .btn-danger:hover:not(:disabled) { background: var(--error-light); }
+    .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+
+    /* ── Checklist ───────────────────────────────────────────────────────── */
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 11px 14px;
+      background: var(--bg);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      transition: border-color .15s, background .15s;
+    }
+    .check-item.pass { background: var(--success-light); border-color: var(--success-border); }
+    .check-item.warn { background: var(--warning-light); border-color: var(--warning-border); }
+    .check-item.fail { background: var(--error-light);   border-color: var(--error-border); }
+    .check-item.loading { opacity: .65; }
+    .check-icon  { font-size: 16px; margin-top: 1px; flex-shrink: 0; min-width: 20px; text-align: center; }
+    .check-text  { flex: 1; min-width: 0; }
+    .check-label { font-weight: 600; font-size: 13px; }
+    .check-detail{ font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Checklist summary bar */
+    .checklist-summary {
+      display: flex; gap: 20px; margin-bottom: 16px;
+      padding: 10px 14px;
+      background: var(--bg); border-radius: var(--radius);
+      font-size: 12px;
+    }
+    .summary-item { display: flex; align-items: center; gap: 6px; }
+
+    /* ── Alert Routes table ──────────────────────────────────────────────── */
+    .routes-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .routes-table th {
+      text-align: left; font-size: 11px; font-weight: 600;
+      color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em;
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+    }
+    .routes-table td {
+      padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle;
+    }
+    .routes-table tr:last-child td { border-bottom: none; }
+    .routes-table tr:hover td { background: #faf9f8; }
+    .routes-table .btn-group { display: flex; gap: 6px; justify-content: flex-end; }
+
+    .badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .badge-active   { background: var(--success-border); color: #0e5a0e; }
+    .badge-inactive { background: var(--border); color: var(--text-secondary); }
+    .badge-info     { background: #dce9f8; color: #004578; }
+    .badge-warning  { background: var(--warning-border); color: #4d3700; }
+    .badge-critical { background: var(--error-border); color: #6b0c0e; }
+
+    /* ── Add Route form ──────────────────────────────────────────────────── */
+    .add-route-panel {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .add-route-panel.visible { display: block; }
+    .add-route-panel .panel-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    /* ── Empty / loading states ──────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 36px 16px;
+      color: var(--text-secondary); font-size: 13px;
+    }
+    .empty-state-icon { font-size: 36px; margin-bottom: 8px; }
+
+    /* ── Spinner ─────────────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ───────────────────────────────────────────────────────────── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 8px; z-index: 9999;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      background: #323130; color: #fff;
+      padding: 11px 16px; border-radius: var(--radius);
+      box-shadow: var(--shadow); font-size: 13px;
+      min-width: 260px; max-width: 400px;
+      animation: toast-in .2s ease;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--error); }
+    @keyframes toast-in { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 740px) {
+      .app-main   { padding: 16px; }
+      .grid-2     { grid-template-columns: 1fr; }
+      .form-grid-3{ grid-template-columns: 1fr; }
+      .form-grid-2{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Header
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="app-header">
+  <div class="app-header-icon">⚙</div>
+  <div>
+    <h1>Power Platform Monitoring Framework</h1>
+    <p id="header-subtitle">Setup &amp; Configuration</p>
+  </div>
+</div>
+
+<div class="app-main">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Section 1: Deployment Checklist
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">✅</span>
+      <div>
+        <div class="card-title">Deployment Checklist</div>
+        <div class="card-subtitle">Validates all required configuration steps have been completed in this environment</div>
+      </div>
+      <div class="card-header-action">
+        <button class="btn btn-secondary btn-sm" onclick="loadChecklist()">↻ Re-validate</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="checklist-summary" class="checklist-summary" style="display:none"></div>
+      <div class="checklist" id="checklist">
+        <div class="empty-state"><span class="spinner"></span>&nbsp; Running checks…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Sections 2 & 3: Settings grid
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="grid-2">
+
+    <!-- Section 2: Environment Identity -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-icon">🌐</span>
+        <div>
+          <div class="card-title">Environment Identity</div>
+          <div class="card-subtitle">Identifies this environment in alerts and error records</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Environment Name <span class="req">*</span></label>
+          <div class="field-desc">Displayed in Teams alerts and stored on every error record. Use a clear, short label (e.g. Production, UAT, Dev).</div>
+          <div class="input-row">
+            <input type="text" id="env-name" placeholder="e.g. Production">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_EnvironmentName','env-name')">Save</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Portal Base URL <span class="req">*</span></label>
+          <div class="field-desc">Used to construct direct links to failed flow runs in Teams alerts.</div>
+          <div class="preset-row">
+            <button class="preset-btn" onclick="setPreset('portal-url','https://make.powerautomate.com')">Commercial</button>
+            <button class="preset-btn" onclick="setPreset('portal-url','https://make.powerautomate.appsplatform.us')">GCC High</button>
+            <button class="preset-btn" onclick="setPreset('portal-url','https://make.powerautomate.appsplatform.mil')">DoD</button>
+          </div>
+          <div class="input-row">
+            <input type="text" id="portal-url" placeholder="https://make.powerautomate.com">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_PortalBaseUrl','portal-url')">Save</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Error Retention (Days)</label>
+          <div class="field-desc">Promoted errors older than this are deleted by the weekly maintenance flow. Default: 90.</div>
+          <div class="input-row">
+            <input type="text" id="retention-days" placeholder="90">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_RetentionDays','retention-days')">Save</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 3: Teams Alert Settings -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-icon">🔔</span>
+        <div>
+          <div class="card-title">Default Teams Alert Channel</div>
+          <div class="card-subtitle">Fallback destination when no Alert Route matches an incoming error</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Teams Group ID <span class="req">*</span></label>
+          <div class="field-desc">The Azure AD group GUID for the target Microsoft Teams team. Found in Teams Admin Center or via Microsoft Graph.</div>
+          <div class="input-row">
+            <input type="text" id="team-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_TeamID','team-id')">Save</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Flow Alerts Channel ID <span class="req">*</span></label>
+          <div class="field-desc">The Teams channel ID. Visible in the channel URL after /channel/ in the Teams web client.</div>
+          <div class="input-row">
+            <input type="text" id="channel-id" placeholder="19:xxxxxxxx@thread.tacv2">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_FlowAlertsChannelID','channel-id')">Save</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Alert Throttle Window (Minutes)</label>
+          <div class="field-desc">Suppresses repeat Teams alerts for the same flow within this window. Prevents channel flooding on looping failures. Default: 15.</div>
+          <div class="input-row">
+            <input type="text" id="throttle-mins" placeholder="15">
+            <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_AlertThrottleMinutes','throttle-mins')">Save</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end grid-2 -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Section 4: Alert Routes
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">📡</span>
+      <div>
+        <div class="card-title">Alert Routes</div>
+        <div class="card-subtitle">Route specific solutions to dedicated Teams channels, overriding the default channel above</div>
+      </div>
+      <div class="card-header-action">
+        <button class="btn btn-primary btn-sm" onclick="toggleAddRoutePanel()">+ Add Route</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:0; padding-bottom:0">
+
+      <div id="routes-container">
+        <div class="empty-state"><span class="spinner"></span></div>
+      </div>
+
+      <!-- Add Route panel -->
+      <div class="add-route-panel" id="add-route-panel">
+        <div class="panel-title">New Alert Route</div>
+        <div class="form-grid-3">
+          <div class="field" style="margin:0">
+            <label>Route Name <span class="req">*</span></label>
+            <input type="text" id="nr-name" placeholder="e.g. SCOUT Critical Only">
+          </div>
+          <div class="field" style="margin:0">
+            <label>Solution Name Pattern</label>
+            <input type="text" id="nr-pattern" placeholder="e.g. SCOUT (leave blank = all)">
+          </div>
+          <div class="field" style="margin:0">
+            <label>Minimum Severity</label>
+            <select id="nr-severity">
+              <option value="1">Info (all alerts)</option>
+              <option value="2" selected>Warning</option>
+              <option value="3">Critical only</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field" style="margin:0">
+            <label>Teams Group ID <span class="req">*</span></label>
+            <input type="text" id="nr-teamid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          </div>
+          <div class="field" style="margin:0">
+            <label>Teams Channel ID <span class="req">*</span></label>
+            <input type="text" id="nr-channelid" placeholder="19:xxxxxxxx@thread.tacv2">
+          </div>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input type="text" id="nr-desc" placeholder="Who owns this route and what solutions it covers">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-sm" onclick="createAlertRoute()">Create Route</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleAddRoutePanel()">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end app-main -->
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JavaScript
+════════════════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const API   = `${window.location.origin}/api/data/v9.2`;
+const PPMF_VERSION = '1.0.0';
+
+const ENV_VAR_SCHEMA_NAMES = [
+  'ppmf_EnvironmentName',
+  'ppmf_PortalBaseUrl',
+  'ppmf_RetentionDays',
+  'ppmf_TeamID',
+  'ppmf_FlowAlertsChannelID',
+  'ppmf_AlertThrottleMinutes'
+];
+
+const SEVERITY_LABELS = { 1: 'Info', 2: 'Warning', 3: 'Critical' };
+const SEVERITY_BADGE  = { 1: 'badge-info', 2: 'badge-warning', 3: 'badge-critical' };
+
+// In-memory cache: { schemaname: { definitionId, valueId, value, defaultValue } }
+const envCache = {};
+
+// ─── Dataverse API helpers ────────────────────────────────────────────────────
+
+const DV_HEADERS = {
+  'OData-MaxVersion': '4.0',
+  'OData-Version':    '4.0',
+  'Accept':           'application/json',
+  'Prefer':           'odata.include-annotations="*"'
+};
+
+async function dvGet(path) {
+  const res = await fetch(`${API}/${path}`, {
+    headers: DV_HEADERS,
+    credentials: 'include'
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`GET /${path} → HTTP ${res.status}${text ? ': ' + text.substring(0, 200) : ''}`);
+  }
+  return res.json();
+}
+
+async function dvPost(path, body) {
+  const res = await fetch(`${API}/${path}`, {
+    method: 'POST',
+    headers: { ...DV_HEADERS, 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`POST /${path} → HTTP ${res.status}${text ? ': ' + text.substring(0, 200) : ''}`);
+  }
+  return res.headers.get('OData-EntityId') || null;
+}
+
+async function dvPatch(path, body) {
+  const res = await fetch(`${API}/${path}`, {
+    method: 'PATCH',
+    headers: { ...DV_HEADERS, 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`PATCH /${path} → HTTP ${res.status}${text ? ': ' + text.substring(0, 200) : ''}`);
+  }
+}
+
+async function dvDelete(path) {
+  const res = await fetch(`${API}/${path}`, {
+    method: 'DELETE',
+    headers: { 'OData-MaxVersion': '4.0', 'OData-Version': '4.0' },
+    credentials: 'include'
+  });
+  if (!res.ok) throw new Error(`DELETE /${path} → HTTP ${res.status}`);
+}
+
+// ─── Environment Variables ────────────────────────────────────────────────────
+
+async function loadEnvVars() {
+  try {
+    // 1. Fetch definitions
+    const filterExpr = ENV_VAR_SCHEMA_NAMES.map(n => `schemaname eq '${n}'`).join(' or ');
+    const defs = await dvGet(
+      `environmentvariabledefinitions?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=${filterExpr}`
+    );
+    for (const d of defs.value) {
+      envCache[d.schemaname] = {
+        definitionId: d.environmentvariabledefinitionid,
+        defaultValue: d.defaultvalue || '',
+        valueId:      null,
+        value:        null
+      };
+    }
+
+    // 2. Fetch current values
+    const vals = await dvGet(
+      `environmentvariablevalues?$select=environmentvariablevalueid,schemaname,value`
+    );
+    for (const v of vals.value) {
+      if (envCache[v.schemaname]) {
+        envCache[v.schemaname].valueId = v.environmentvariablevalueid;
+        envCache[v.schemaname].value   = v.value;
+      }
+    }
+
+    // 3. Populate form inputs
+    setInput('env-name',       'ppmf_EnvironmentName');
+    setInput('portal-url',     'ppmf_PortalBaseUrl');
+    setInput('retention-days', 'ppmf_RetentionDays');
+    setInput('team-id',        'ppmf_TeamID');
+    setInput('channel-id',     'ppmf_FlowAlertsChannelID');
+    setInput('throttle-mins',  'ppmf_AlertThrottleMinutes');
+
+    // 4. Update header subtitle with env name
+    const envNameRec = envCache['ppmf_EnvironmentName'];
+    if (envNameRec) {
+      const envName = envNameRec.value || envNameRec.defaultValue;
+      if (envName && envName !== 'MCSC SB') {
+        document.getElementById('header-subtitle').textContent =
+          `Setup & Configuration — ${envName} — v${PPMF_VERSION}`;
+      }
+    }
+
+  } catch (e) {
+    showToast('Could not load environment variables: ' + e.message, 'error');
+  }
+}
+
+function setInput(inputId, schemaName) {
+  const el  = document.getElementById(inputId);
+  const rec = envCache[schemaName];
+  if (!el || !rec) return;
+  el.value = (rec.value !== null ? rec.value : rec.defaultValue) || '';
+}
+
+async function saveEnvVar(schemaName, inputId) {
+  const el  = document.getElementById(inputId);
+  const val = el.value.trim();
+
+  if (!val) { showToast('Value cannot be empty', 'error'); return; }
+
+  const rec = envCache[schemaName];
+  if (!rec) {
+    showToast(`Definition for ${schemaName} not found — ensure the solution is fully imported`, 'error');
+    return;
+  }
+
+  const btnEl = el.nextElementSibling;
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = '…'; }
+
+  try {
+    if (rec.valueId) {
+      await dvPatch(`environmentvariablevalues(${rec.valueId})`, { value: val });
+    } else {
+      const entityId = await dvPost('environmentvariablevalues', {
+        schemaname: schemaName,
+        value:      val,
+        'EnvironmentVariableDefinitionId@odata.bind': `/environmentvariabledefinitions(${rec.definitionId})`
+      });
+      // Extract GUID from returned OData-EntityId URL
+      const match = entityId && entityId.match(/\(([0-9a-f-]{36})\)/i);
+      if (match) rec.valueId = match[1];
+    }
+    rec.value = val;
+    el.classList.add('saved');
+    setTimeout(() => el.classList.remove('saved'), 2500);
+    showToast(`Saved: ${schemaName}`, 'success');
+    // Re-run checklist in the background
+    loadChecklist();
+  } catch (e) {
+    showToast('Save failed: ' + e.message, 'error');
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Save'; }
+  }
+}
+
+function setPreset(inputId, value) {
+  const el = document.getElementById(inputId);
+  if (el) el.value = value;
+}
+
+// ─── Deployment Checklist ─────────────────────────────────────────────────────
+
+const CHECKS = [
+  {
+    id:     'chk-env-name',
+    label:  'Environment Name is configured',
+    detail: 'ppmf_EnvironmentName must be set and not left as the placeholder default',
+    run: async () => {
+      const rec = envCache['ppmf_EnvironmentName'];
+      if (!rec) return fail('Environment variable definition not found in this environment');
+      const val = (rec.value || rec.defaultValue || '').trim();
+      if (!val)              return fail('Not configured — enter a value above and save');
+      if (val === 'MCSC SB') return fail('Still set to the default placeholder "MCSC SB" — update to the actual environment name');
+      return pass(`Set to: "${val}"`);
+    }
+  },
+  {
+    id:     'chk-portal-url',
+    label:  'Portal Base URL is configured',
+    detail: 'ppmf_PortalBaseUrl must match the correct cloud endpoint for this environment',
+    run: async () => {
+      const rec = envCache['ppmf_PortalBaseUrl'];
+      if (!rec) return fail('Environment variable definition not found');
+      const val = (rec.value || rec.defaultValue || '').trim();
+      if (!val) return fail('Not configured — select a preset or enter the URL above and save');
+      const known = ['powerautomate.com', 'appsplatform.us', 'appsplatform.mil'];
+      if (!known.some(s => val.includes(s)))
+        return warn(`Unrecognised URL pattern: "${val}" — verify this matches your cloud endpoint`);
+      return pass(val);
+    }
+  },
+  {
+    id:     'chk-team-id',
+    label:  'Teams Group ID is configured',
+    detail: 'ppmf_TeamID must be set to a valid Azure AD group GUID',
+    run: async () => {
+      const rec = envCache['ppmf_TeamID'];
+      if (!rec) return fail('Environment variable definition not found');
+      const val = (rec.value || '').trim();
+      if (!val) return fail('Not configured — enter the Teams group GUID above and save');
+      const guid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!guid.test(val)) return warn(`"${val}" does not match GUID format — verify the value`);
+      return pass(val);
+    }
+  },
+  {
+    id:     'chk-channel-id',
+    label:  'Flow Alerts Channel ID is configured',
+    detail: 'ppmf_FlowAlertsChannelID must be set to a valid Teams channel ID',
+    run: async () => {
+      const rec = envCache['ppmf_FlowAlertsChannelID'];
+      if (!rec) return fail('Environment variable definition not found');
+      const val = (rec.value || '').trim();
+      if (!val) return fail('Not configured — enter the Teams channel ID above and save');
+      return pass(truncate(val, 50));
+    }
+  },
+  {
+    id:     'chk-dv-connref',
+    label:  'Dataverse connection reference is assigned',
+    detail: 'ppmf_DataverseConnectionReference must have a Dataverse connection assigned',
+    run: async () => {
+      try {
+        const res = await dvGet(
+          `connectionreferences?$select=connectionreferencedisplayname,connectionid&$filter=connectionreferencelogicalname eq 'ppmf_DataverseConnectionReference'`
+        );
+        if (!res.value.length)
+          return fail('Connection reference record not found — verify the solution was imported correctly');
+        const cid = res.value[0].connectionid;
+        if (!cid)
+          return fail('No connection assigned — go to Solutions → Power Platform Monitoring Framework → Connection References and assign a Dataverse connection');
+        return pass(`Connection assigned (${res.value[0].connectionreferencedisplayname || cid})`);
+      } catch {
+        return warn('Could not query connection references — verify you have System Customizer or higher privileges');
+      }
+    }
+  },
+  {
+    id:     'chk-teams-connref',
+    label:  'Teams connection reference is assigned',
+    detail: 'ppmf_TeamsConnectionReference must have a Teams connection assigned',
+    run: async () => {
+      try {
+        const res = await dvGet(
+          `connectionreferences?$select=connectionreferencedisplayname,connectionid&$filter=connectionreferencelogicalname eq 'ppmf_TeamsConnectionReference'`
+        );
+        if (!res.value.length)
+          return fail('Connection reference record not found — verify the solution was imported correctly');
+        const cid = res.value[0].connectionid;
+        if (!cid)
+          return fail('No connection assigned — go to Solutions → Power Platform Monitoring Framework → Connection References and assign a Teams connection');
+        return pass(`Connection assigned (${res.value[0].connectionreferencedisplayname || cid})`);
+      } catch {
+        return warn('Could not query connection references — verify you have System Customizer or higher privileges');
+      }
+    }
+  },
+  {
+    id:     'chk-flows-active',
+    label:  'Core child flows are active',
+    detail: 'All PPMF-Child-* flows must be in an Active state before the framework can process errors',
+    run: async () => {
+      try {
+        const res = await dvGet(
+          `workflows?$select=name,statecode&$filter=category eq 5 and contains(name,'PPMF-Child')`
+        );
+        if (!res.value.length)
+          return warn('No flows found matching "PPMF-Child" — verify flows were imported and renamed correctly');
+        const inactive = res.value.filter(f => f.statecode !== 1);
+        if (inactive.length)
+          return fail(`${inactive.length} flow(s) not active: ${inactive.map(f => f.name).join(', ')}`);
+        return pass(`${res.value.length} child flow(s) are active`);
+      } catch {
+        return warn('Could not query flows — verify you have System Customizer or higher privileges');
+      }
+    }
+  },
+  {
+    id:     'chk-alert-routes',
+    label:  'At least one active Alert Route is configured (or default channel is set)',
+    detail: 'Alerts fall back to the default Teams channel — add a route below for more granular routing',
+    run: async () => {
+      try {
+        const [routeRes, teamRec] = await Promise.all([
+          dvGet(`ppmf_alertroutes?$select=ppmf_name,ppmf_isactive&$filter=ppmf_isactive eq true`),
+          Promise.resolve(envCache['ppmf_TeamID'])
+        ]);
+        const hasRoutes  = routeRes.value.length > 0;
+        const hasDefault = (teamRec?.value || '').trim().length > 0;
+
+        if (hasRoutes)
+          return pass(`${routeRes.value.length} active route(s) configured`);
+        if (hasDefault)
+          return warn('No alert routes configured — all alerts will use the default Teams channel. Add routes below for solution-specific routing.');
+        return fail('No alert routes and no default Teams channel configured — alerts will be silently dropped');
+      } catch {
+        return warn('Could not query alert routes — ppmf_AlertRoute table may not be provisioned yet');
+      }
+    }
+  }
+];
+
+// Result helpers
+const pass = (detail)    => ({ state: 'pass', icon: '✅', detail });
+const warn = (detail)    => ({ state: 'warn', icon: '⚠️', detail });
+const fail = (detail)    => ({ state: 'fail', icon: '❌', detail });
+
+async function loadChecklist() {
+  const container = document.getElementById('checklist');
+  const summary   = document.getElementById('checklist-summary');
+
+  // Render loading state for all items
+  container.innerHTML = CHECKS.map(c => `
+    <div class="check-item loading" id="${c.id}">
+      <span class="check-icon"><span class="spinner"></span></span>
+      <div class="check-text">
+        <div class="check-label">${escHtml(c.label)}</div>
+        <div class="check-detail">${escHtml(c.detail)}</div>
+      </div>
+    </div>
+  `).join('');
+  summary.style.display = 'none';
+
+  // Run all checks in parallel
+  const results = await Promise.allSettled(CHECKS.map(c => c.run()));
+
+  let countPass = 0, countWarn = 0, countFail = 0;
+
+  results.forEach((r, i) => {
+    const check = CHECKS[i];
+    const el    = document.getElementById(check.id);
+    if (!el) return;
+
+    let result;
+    if (r.status === 'fulfilled') {
+      result = r.value;
+    } else {
+      result = warn('Check threw an error: ' + r.reason?.message);
+    }
+
+    el.className = `check-item ${result.state}`;
+    el.innerHTML = `
+      <span class="check-icon">${result.icon}</span>
+      <div class="check-text">
+        <div class="check-label">${escHtml(check.label)}</div>
+        <div class="check-detail">${escHtml(result.detail)}</div>
+      </div>
+    `;
+
+    if (result.state === 'pass') countPass++;
+    else if (result.state === 'warn') countWarn++;
+    else countFail++;
+  });
+
+  // Update summary bar
+  summary.style.display = 'flex';
+  summary.innerHTML = `
+    <span class="summary-item">✅ <strong>${countPass}</strong> passed</span>
+    ${countWarn ? `<span class="summary-item">⚠️ <strong>${countWarn}</strong> warning${countWarn > 1 ? 's' : ''}</span>` : ''}
+    ${countFail ? `<span class="summary-item">❌ <strong>${countFail}</strong> failed</span>` : ''}
+    <span class="summary-item" style="margin-left:auto;color:var(--text-secondary);font-size:11px">
+      ${countFail === 0 && countWarn === 0 ? '🎉 All checks passed — this environment is ready.' : ''}
+    </span>
+  `;
+}
+
+// ─── Alert Routes ─────────────────────────────────────────────────────────────
+
+async function loadAlertRoutes() {
+  const container = document.getElementById('routes-container');
+  try {
+    const res = await dvGet(
+      `ppmf_alertroutes?$select=ppmf_alertrouteid,ppmf_name,ppmf_solutionnamepattern,ppmf_minseverity,ppmf_teamid,ppmf_channelid,ppmf_isactive,ppmf_description&$orderby=ppmf_name asc`
+    );
+    const routes = res.value;
+
+    if (!routes.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📡</div>
+          No alert routes configured.<br>
+          All alerts will use the default Teams channel configured above.
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <table class="routes-table">
+        <thead>
+          <tr>
+            <th>Route Name</th>
+            <th>Solution Pattern</th>
+            <th>Min Severity</th>
+            <th>Teams Group ID</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${routes.map(r => `
+            <tr>
+              <td>
+                <strong>${escHtml(r.ppmf_name)}</strong>
+                ${r.ppmf_description
+                  ? `<div style="font-size:11px;color:var(--text-secondary)">${escHtml(r.ppmf_description)}</div>`
+                  : ''}
+              </td>
+              <td>${r.ppmf_solutionnamepattern
+                    ? escHtml(r.ppmf_solutionnamepattern)
+                    : '<span style="color:var(--text-disabled)">Any</span>'}</td>
+              <td>
+                <span class="badge ${SEVERITY_BADGE[r.ppmf_minseverity] || 'badge-info'}">
+                  ${escHtml(SEVERITY_LABELS[r.ppmf_minseverity] || 'Info')}+
+                </span>
+              </td>
+              <td style="font-size:11px;font-family:monospace">
+                ${r.ppmf_teamid ? escHtml(truncate(r.ppmf_teamid, 22)) : '<span style="color:var(--text-disabled)">—</span>'}
+              </td>
+              <td>
+                <span class="badge ${r.ppmf_isactive ? 'badge-active' : 'badge-inactive'}">
+                  ${r.ppmf_isactive ? 'Active' : 'Inactive'}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-secondary btn-sm"
+                    onclick="toggleRoute('${escHtml(r.ppmf_alertrouteid)}', ${!r.ppmf_isactive})">
+                    ${r.ppmf_isactive ? 'Disable' : 'Enable'}
+                  </button>
+                  <button class="btn btn-danger btn-sm"
+                    onclick="deleteRoute('${escHtml(r.ppmf_alertrouteid)}', ${JSON.stringify(r.ppmf_name)})">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+  } catch (e) {
+    container.innerHTML = `
+      <div class="empty-state">
+        ⚠️ Could not load alert routes.<br>
+        <small style="color:var(--text-secondary)">${escHtml(e.message)}</small><br>
+        <small>Run the New-PPMFTables.ps1 provisioning script if the table does not exist yet.</small>
+      </div>`;
+  }
+}
+
+async function toggleRoute(id, newState) {
+  try {
+    await dvPatch(`ppmf_alertroutes(${id})`, { ppmf_isactive: newState });
+    showToast(`Route ${newState ? 'enabled' : 'disabled'}`, 'success');
+    loadAlertRoutes();
+    loadChecklist();
+  } catch (e) {
+    showToast('Update failed: ' + e.message, 'error');
+  }
+}
+
+async function deleteRoute(id, name) {
+  if (!confirm(`Delete alert route "${name}"?\n\nThis action cannot be undone.`)) return;
+  try {
+    await dvDelete(`ppmf_alertroutes(${id})`);
+    showToast(`Route "${name}" deleted`, 'success');
+    loadAlertRoutes();
+    loadChecklist();
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+function toggleAddRoutePanel() {
+  const panel = document.getElementById('add-route-panel');
+  panel.classList.toggle('visible');
+  if (panel.classList.contains('visible')) {
+    document.getElementById('nr-name').focus();
+  }
+}
+
+async function createAlertRoute() {
+  const name      = document.getElementById('nr-name').value.trim();
+  const pattern   = document.getElementById('nr-pattern').value.trim();
+  const severity  = parseInt(document.getElementById('nr-severity').value, 10);
+  const teamId    = document.getElementById('nr-teamid').value.trim();
+  const channelId = document.getElementById('nr-channelid').value.trim();
+  const desc      = document.getElementById('nr-desc').value.trim();
+
+  if (!name)      { showToast('Route Name is required', 'error'); document.getElementById('nr-name').focus();      return; }
+  if (!teamId)    { showToast('Teams Group ID is required', 'error'); document.getElementById('nr-teamid').focus();   return; }
+  if (!channelId) { showToast('Teams Channel ID is required', 'error'); document.getElementById('nr-channelid').focus(); return; }
+
+  const body = {
+    ppmf_name:      name,
+    ppmf_minseverity: severity,
+    ppmf_teamid:    teamId,
+    ppmf_channelid: channelId,
+    ppmf_isactive:  true
+  };
+  if (pattern) body.ppmf_solutionnamepattern = pattern;
+  if (desc)    body.ppmf_description         = desc;
+
+  try {
+    await dvPost('ppmf_alertroutes', body);
+    showToast(`Route "${name}" created`, 'success');
+    // Clear the form
+    ['nr-name', 'nr-pattern', 'nr-teamid', 'nr-channelid', 'nr-desc']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('nr-severity').value = '2';
+    toggleAddRoutePanel();
+    loadAlertRoutes();
+    loadChecklist();
+  } catch (e) {
+    showToast('Create failed: ' + e.message, 'error');
+  }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
+}
+
+function truncate(str, len) {
+  return str.length > len ? str.substring(0, len) + '…' : str;
+}
+
+function showToast(message, type = '') {
+  const container = document.getElementById('toast-container');
+  const el        = document.createElement('div');
+  el.className    = `toast ${type}`;
+  const icon      = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  el.innerHTML    = `<span>${icon}</span><span>${escHtml(message)}</span>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s';
+    el.style.opacity    = '0';
+    setTimeout(() => el.remove(), 320);
+  }, 3800);
+}
+
+// ─── Initialise ───────────────────────────────────────────────────────────────
+
+(async function init() {
+  try {
+    await loadEnvVars();
+    await Promise.all([
+      loadChecklist(),
+      loadAlertRoutes()
+    ]);
+  } catch (e) {
+    showToast('Initialisation error: ' + e.message, 'error');
+  }
+}());
+</script>
+
+</body>
+</html>

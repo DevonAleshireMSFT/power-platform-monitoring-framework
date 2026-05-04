@@ -1,0 +1,310 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_teams-1": {
+        "runtimeSource": "invoker",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_TeamsConnectionReference"
+        },
+        "api": {
+          "name": "shared_teams"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Environment Name (ppmf_EnvironmentName)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_EnvironmentName",
+            "description": "A short, human-readable label that identifies this Power Platform environment in Teams alerts and on every error record. Use a clear, consistent name such as \"Production\", \"UAT\", or \"Dev\". This value is displayed in the subject line of every alert message posted to Teams, making it immediately clear which environment generated the error."
+          }
+        },
+        "Team ID (ppmf_TeamID)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_TeamID",
+            "description": "The Azure AD group ID (GUID) of the Microsoft Teams team where flow failure alerts will be posted by default. Every Microsoft Team is backed by a Microsoft 365 Group; this value is the Object ID of that group. Find it in Teams Admin Center under the team details, or from the team URL in the Teams client (the groupId query parameter). Used as the fallback destination when no Alert Route matches an incoming error."
+          }
+        },
+        "Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_FlowAlertsChannelID",
+            "description": "The Teams channel ID of the default channel where flow failure alert messages will be posted. This is the internal channel identifier starting with \"19:\" — visible in the channel URL after /channel/ in the Teams web or desktop client (URL-decode %3A to : and %40 to @). Used as the fallback destination when no Alert Route matches an incoming error. Add Alert Route records to route specific solutions to different channels."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "37b1a253-2f49-4fbb-8cc3-e422aafb4c08"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "FlowName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the flow name",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "FlowURL",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the flow URL",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_2": {
+                  "title": "FlowErrorMsg",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the flow error message",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_3": {
+                  "title": "SolutionName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the Solution Name",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_4": {
+                  "title": "FlowId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the flow Id",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text",
+                "text_1",
+                "text_2",
+                "text_3",
+                "text_4"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Respond_to_a_Power_App_or_flow": {
+          "runAfter": {
+            "Scope": [
+              "Succeeded",
+              "TimedOut",
+              "Failed"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "7b027e72-1519-4dd8-a0f0-b2d68db4088a"
+          },
+          "type": "Response",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "title": "status",
+                  "x-ms-dynamically-added": true,
+                  "type": "string"
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "status": "success"
+            }
+          }
+        },
+        "var_FlowName": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "e683d0fe-eef9-484f-be57-8eac95992f31"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "FlowName",
+                "type": "string",
+                "value": "@triggerBody()['text']"
+              }
+            ]
+          }
+        },
+        "var_FlowUrl": {
+          "runAfter": {
+            "var_FlowName": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "56b040da-279e-40e3-8e70-7c1bb2c08156"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Flow Url",
+                "type": "string",
+                "value": "@triggerBody()['text_1']"
+              }
+            ]
+          }
+        },
+        "var_Error_Message": {
+          "runAfter": {
+            "var_FlowUrl": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "abd12746-fa15-4b15-81bd-ac7c129333a5"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Error",
+                "type": "string",
+                "value": "@triggerBody()['text_2']"
+              }
+            ]
+          }
+        },
+        "Scope": {
+          "actions": {
+            "Post_card_in_a_chat_or_channel": {
+              "metadata": {
+                "operationMetadataId": "0498d721-639e-4355-8064-39fc9715a289"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "poster": "Flow bot",
+                  "location": "Channel",
+                  "body/recipient/groupId": "@parameters('Team ID (ppmf_TeamID)')",
+                  "body/recipient/channelId": "@parameters('Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)')",
+                  "body/messageBody": "{\n  \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n  \"type\": \"AdaptiveCard\",\n  \"version\": \"1.4\",\n  \"body\": [\n    {\n      \"type\": \"Container\",\n      \"style\": \"emphasis\",\n      \"bleed\": true,\n      \"items\": [\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"🚨 Flow Failure Alert\",\n          \"weight\": \"Bolder\",\n          \"size\": \"Medium\",\n          \"wrap\": true\n        },\n        {\n          \"type\": \"FactSet\",\n          \"facts\": [\n{\n  \"title\": \"📦 Solution:\",\n  \"value\": \"@{triggerBody()['text_3']}\"\n},\n            {\n              \"title\": \"⚙️ Workflow:\",\n              \"value\": \"@{variables('FlowName')}\"\n            },\n            {\n              \"title\": \"🧨 Error:\",\n              \"value\": \"@{variables('Error')}\"\n            }\n          ]\n        }\n      ]\n    }\n  ],\n  \"actions\": [\n    {\n      \"type\": \"Action.OpenUrl\",\n      \"title\": \"🔗 Open Flow Run\",\n      \"url\": \"@{variables('Flow Url')}\"\n    }\n  ]\n}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "operationId": "PostCardToConversation",
+                  "connectionName": "shared_teams-1"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            },
+            "Compose": {
+              "runAfter": {
+                "Post_card_in_a_chat_or_channel": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "25475923-fb35-4a0e-8e4f-37a0111e66ed"
+              },
+              "type": "Compose",
+              "inputs": {
+                "SourceType": "Flow",
+                "EnvironmentName": "@{parameters('Environment Name (ppmf_EnvironmentName)')}",
+                "SolutionName": "@{triggerBody()['text_3']}",
+                "ApplicationName": "",
+                "AppVersion": "",
+                "FlowName": "@{variables('FlowName')}",
+                "FlowRunId": "@{variables('Flow Id')}",
+                "FlowUrl": "@{variables('Flow Url')}",
+                "SessionId": "",
+                "CorrelationId": "",
+                "UserName": "",
+                "UserEmail": "",
+                "ActiveScreen": "",
+                "ErrorMessage": "@{variables('Error')}",
+                "ErrorSource": "",
+                "ErrorType": "Unknown",
+                "Severity": "",
+                "OccurredOn": "@{utcNow()}",
+                "RawPayload": ""
+              }
+            },
+            "Run_a_Child_Flow": {
+              "runAfter": {
+                "Compose": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "25e7c945-dda9-4acc-8578-f32c52552e8c"
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "b3819854-8f27-f111-8341-001dd8207276"
+                },
+                "body": {
+                  "text": "@string(outputs('Compose'))"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_variable_Flow_Id": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "457e98d8-0c71-43b7-815d-77b153a62f97"
+          },
+          "type": "Scope"
+        },
+        "Initialize_variable_Flow_Id": {
+          "runAfter": {
+            "var_Error_Message": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "15ec2f41-3f32-48e6-8363-9a9766b06a3e"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Flow Id",
+                "type": "string",
+                "value": "@triggerBody()['text_4']"
+              }
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

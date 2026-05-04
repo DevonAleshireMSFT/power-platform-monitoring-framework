@@ -1,0 +1,39 @@
+function displaySeverityIcon(rowData) {
+  var str = JSON.parse(rowData);
+  var severity = str.ppmf_severity_label
+    || str.ppmf_severity
+    || str["ppmf_severity@OData.Community.Display.V1.FormattedValue"]
+    || "";
+
+  if (!severity) return ["", ""];
+
+  var imgName = "";
+  var tooltip = "";
+
+  switch (severity) {
+    case "Critical":
+    case 3:
+      imgName = "ppmf_severity_critical";
+      tooltip = "Critical";
+      break;
+    case "Warning":
+    case 2:
+      imgName = "ppmf_severity_warning";
+      tooltip = "Warning";
+      break;
+    case "Info":
+    case 1:
+      imgName = "ppmf_severity_info";
+      tooltip = "Info";
+      break;
+    case "Unknown":
+    case 4:
+      imgName = "ppmf_severity_unknown";
+      tooltip = "Unknown";
+      break;
+    default:
+      return ["", ""];
+  }
+
+  return [imgName, tooltip];
+}

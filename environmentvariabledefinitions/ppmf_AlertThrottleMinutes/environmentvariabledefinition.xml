@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_AlertThrottleMinutes">
+  <defaultvalue>15</defaultvalue>
+  <description default="The suppression window in minutes that prevents repeat Teams alert messages for the same flow within a short period. When a flow fails and an alert is sent, subsequent failures of the same flow are silently logged to Dataverse but do not generate another Teams message until this window expires. This prevents channel flooding when a looping or repeatedly triggered flow fails continuously. Set to 0 to disable throttling and send an alert for every failure. Default: 15.">
+    <label description="The suppression window in minutes that prevents repeat Teams alert messages for the same flow within a short period. When a flow fails and an alert is sent, subsequent failures of the same flow are silently logged to Dataverse but do not generate another Teams message until this window expires. This prevents channel flooding when a looping or repeatedly triggered flow fails continuously. Set to 0 to disable throttling and send an alert for every failure. Default: 15." languagecode="1033" />
+  </description>
+  <displayname default="Alert Throttle Window (Minutes)">
+    <label description="Alert Throttle Window (Minutes)" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

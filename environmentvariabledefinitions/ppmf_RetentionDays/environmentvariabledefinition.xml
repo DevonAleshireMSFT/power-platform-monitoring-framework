@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_RetentionDays">
+  <defaultvalue>90</defaultvalue>
+  <description default="The number of days to retain promoted error event records before the weekly Delete Old Errors maintenance flow removes them. Only records with a triage status of Fixed, Duplicate, Won't Fix, or Closed and an occurrence date older than this threshold are deleted. Unresolved records are never deleted by the maintenance flow. Set to 0 to disable automatic deletion. Default: 90.">
+    <label description="The number of days to retain promoted error event records before the weekly Delete Old Errors maintenance flow removes them. Only records with a triage status of Fixed, Duplicate, Won't Fix, or Closed and an occurrence date older than this threshold are deleted. Unresolved records are never deleted by the maintenance flow. Set to 0 to disable automatic deletion. Default: 90." languagecode="1033" />
+  </description>
+  <displayname default="Error Retention Days">
+    <label description="Error Retention Days" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

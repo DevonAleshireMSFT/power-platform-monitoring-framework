@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ppmf_TeamID">
+  <description default="The Azure AD group ID (GUID) of the Microsoft Teams team where flow failure alerts will be posted by default. Every Microsoft Team is backed by a Microsoft 365 Group; this value is the Object ID of that group. Find it in Teams Admin Center under the team details, or from the team URL in the Teams client (the groupId query parameter). Used as the fallback destination when no Alert Route matches an incoming error.">
+    <label description="The Azure AD group ID (GUID) of the Microsoft Teams team where flow failure alerts will be posted by default. Every Microsoft Team is backed by a Microsoft 365 Group; this value is the Object ID of that group. Find it in Teams Admin Center under the team details, or from the team URL in the Teams client (the groupId query parameter). Used as the fallback destination when no Alert Route matches an incoming error." languagecode="1033" />
+  </description>
+  <displayname default="Team ID">
+    <label description="Team ID" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>
