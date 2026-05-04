@@ -71,6 +71,21 @@ For full instructions, integration guides, and field reference documentation, op
 
 ---
 
+## Security & Access Control
+
+Four purpose-built security roles are included in the solution. Assign from **Settings → Users + Permissions → Security Roles** in your environment.
+
+| Role | Assign To | Permissions |
+|---|---|---|
+| **PPMF - Admin** | Power Platform administrators and solution owners | Full Create/Read/Write/Delete/Append/Assign/Share at Organization level on all three PPMF tables |
+| **PPMF - Triager** | Support analysts and developers investigating errors | Read/Write on `ppmf_ErrorEvent` (Org); Create/Read/Write/Delete on own `ppmf_ErrorNote` records; Read-only on `ppmf_AlertRoute` |
+| **PPMF - Reader** | Stakeholders and auditors requiring visibility only | Read-only access to all three PPMF tables. No create, write, or delete privileges |
+| **PPMF - Service Account** | Application user for PPMF automation flows — **do not assign to human users** | Create/Read on `ppmf_ErrorEvent`; Create/Append on `ppmf_ErrorNote`; Read-only on `ppmf_AlertRoute` |
+
+> **Note:** The Service Account role is scoped to the minimum privileges required for the automation flows. Assigning it to a human user will prevent that user from accessing the PPMF Platform Monitor app.
+
+---
+
 ## Contributing
 
 This solution is stored in PAC-unpacked format for source control. To contribute:

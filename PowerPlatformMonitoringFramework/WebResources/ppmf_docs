@@ -447,6 +447,9 @@
     <a href="#retention">Data Retention</a>
     <a href="#canvas-apps">Canvas App Errors</a>
 
+    <div class="sidebar-section-label">Security</div>
+    <a href="#security">Security Roles</a>
+
     <div class="sidebar-section-label">About</div>
     <a href="#ai-disclosure">AI Disclosure</a>
     <a href="ppmf_releasenotes" target="_blank">Release Notes ↗</a>
@@ -1195,6 +1198,56 @@
         <div class="callout callout-info" style="margin-top:16px">
           <span class="callout-icon">ℹ️</span>
           <div><strong>Difference from the flow error path:</strong> Alert route lookup runs and resolves a matching route, but the Teams card is posted to the default channel from the environment variables regardless of the match. Per-solution channel routing is not applied to canvas app alerts. All other behaviour — throttle suppression and Dataverse logging — is consistent with the flow error path.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Security & Access Control ─────────────────────────────────────── -->
+    <div class="card doc-section" id="security">
+      <div class="card-header">
+        <span class="card-header-icon">🔐</span>
+        <div>
+          <div class="card-title">Security &amp; Access Control</div>
+          <div class="card-subtitle">Four purpose-built security roles — assign based on user responsibility</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="glossary-table">
+          <thead>
+            <tr><th>Role</th><th>Assign To</th><th>Permissions Summary</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-label">PPMF - Admin</span></td>
+              <td><span class="field-desc">Power Platform administrators and solution owners responsible for framework setup and ongoing configuration.</span></td>
+              <td><span class="field-desc">Full Create/Read/Write/Delete/Append/Append To/Assign/Share at Organization level on <code>ppmf_ErrorEvent</code>, <code>ppmf_ErrorNote</code>, and <code>ppmf_AlertRoute</code>.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-label">PPMF - Triager</span></td>
+              <td><span class="field-desc">Support analysts and developers responsible for investigating, updating, and resolving errors.</span></td>
+              <td><span class="field-desc"><code>ppmf_ErrorEvent</code>: Read/Write (Org), Append To (Org). <code>ppmf_ErrorNote</code>: Create/Read/Write/Delete/Append (User), Read (Org). <code>ppmf_AlertRoute</code>: Read (Org) only. Cannot modify Alert Routes.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-label">PPMF - Reader</span></td>
+              <td><span class="field-desc">Stakeholders and auditors who need visibility into error events without the ability to modify records.</span></td>
+              <td><span class="field-desc">Read-only access to <code>ppmf_ErrorEvent</code> (Org), <code>ppmf_ErrorNote</code> (Org), and <code>ppmf_AlertRoute</code> (Org). No create, write, or delete privileges on any PPMF table.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-label">PPMF - Service Account</span></td>
+              <td><span class="field-desc">The application user created for the PPMF automation flows. Do not assign to human users.</span></td>
+              <td><span class="field-desc"><code>ppmf_ErrorEvent</code>: Create/Read (Org), Append To (Org). <code>ppmf_ErrorNote</code>: Create (Org), Append (Org). <code>ppmf_AlertRoute</code>: Read (Org) only. Minimum privileges for the flow service principal.</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:20px">
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div>The <strong>PPMF - Service Account</strong> role is intended exclusively for the Power Automate application user. Assigning it to human users will prevent them from accessing the PPMF Platform Monitor app.</div>
+          </div>
+          <div class="callout callout-info" style="margin-top:8px">
+            <span class="callout-icon">ℹ️</span>
+            <div>All roles apply to <strong>Users and Teams</strong> except <strong>Service Account</strong>, which applies to <strong>Users</strong> only. Assign roles from the environment's <strong>Settings → Users + Permissions → Security Roles</strong>.</div>
+          </div>
         </div>
       </div>
     </div>
