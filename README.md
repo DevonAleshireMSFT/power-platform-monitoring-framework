@@ -1,6 +1,6 @@
 # Power Platform Monitoring Framework (PPMF)
 
-> **v1.0.0.9** · Unmanaged solution · Requires Dataverse and Microsoft Teams
+> **v1.0.0.10** · Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
 
 PPMF is an enterprise-ready observability solution for the Microsoft Power Platform. When a Power Automate flow fails or a Canvas App encounters an error, PPMF automatically captures structured error data into Dataverse, sends a formatted adaptive card alert to a Microsoft Teams channel, and creates a trackable triage record — without requiring any significant changes to your existing flows.
 
@@ -30,8 +30,8 @@ PPMF solves this by:
 | Component | Description |
 |---|---|
 | **3 Dataverse tables** | `ppmf_errorevent` (error records), `ppmf_alertroute` (routing rules), `ppmf_errornote` (triage notes) |
-| **8 Power Automate flows** | Error capture, Teams alerting, Canvas App handling, demo flow, and weekly maintenance |
-| **6 Environment variables** | All runtime configuration in one place — no flow edits required |
+| **11 Power Automate flows** | Error capture, Teams alerting, Canvas App handling, SharePoint write, SharePoint sync, demo flow, and weekly maintenance |
+| **12 Environment variables** | All runtime configuration in one place — no flow edits required |
 | **4 Security roles** | Admin, Triager, Reader, Service Account |
 | **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, and configuration |
 | **In-app documentation** | Full architecture overview, integration guides, and field reference |
@@ -43,8 +43,9 @@ PPMF solves this by:
 
 | Requirement | Notes |
 |---|---|
-| Power Platform environment with Dataverse | Commercial, GCC, GCC High, or DoD |
-| Microsoft Teams | The connection account must be a member of the target team |
+| Microsoft Teams | Required. The connection account must be a member of the target team |
+| Power Platform environment with Dataverse | Required for `Dataverse` or `Both` writing mode. Not required when using `SharePoint` mode |
+| SharePoint site with Contribute access | Required for `SharePoint` or `Both` writing mode. Not required when using `Dataverse` mode |
 | System Administrator or solution importer role | Required to import the solution |
 
 ---
@@ -64,8 +65,9 @@ The solution includes a guided setup experience. After import:
 
 1. Open **Configuration → Setup & Configuration** inside the PPMF Platform Monitor app.
 2. Follow the on-screen checklist — it covers connection references, flow activation, and environment variable configuration.
-3. The page runs 8 automated checks and displays a pass/warn/fail result for each. All checks must be green before PPMF will reliably process errors.
-4. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
+3. If deploying without Dataverse, set `ppmf_WritingMode` to `SharePoint`, configure the SharePoint site URL and list name, and assign the SharePoint connection reference. See the **SharePoint Error Store** section of the Setup page.
+4. The page runs 11 automated checks and displays a pass/warn/fail result for each. All checks must be green before PPMF will reliably process errors.
+5. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
 
 For full instructions, integration guides, and field reference documentation, open **Help → Documentation** inside the app.
 

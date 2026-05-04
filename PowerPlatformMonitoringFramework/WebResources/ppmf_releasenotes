@@ -220,7 +220,8 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-section-label">Releases</div>
-    <a href="#v1-0-0-9" class="active">v1.0.0.9</a>
+    <a href="#v1-0-0-10" class="active">v1.0.0.10</a>
+    <a href="#v1-0-0-9">v1.0.0.9</a>
     <a href="#v1-0-0-8">v1.0.0.8</a>
   </nav>
 
@@ -229,11 +230,126 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <main class="app-main" id="main-content">
 
+    <!-- ── v1.0.0.10 ───────────────────────────────────────────────────────── -->
+    <div class="release-card" id="v1-0-0-10">
+      <div class="release-header">
+        <span class="release-version">v1.0.0.10</span>
+        <span class="badge badge-new" style="font-size:12px">Latest</span>
+        <span class="release-date">May 4, 2026</span>
+      </div>
+      <div class="release-body">
+
+        <div class="change-group">
+          <div class="change-group-title">Portability — SharePoint Error Store</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Writing Mode environment variable</strong> (<code>ppmf_WritingMode</code>) — controls where error events are written. <strong>Dataverse</strong> (default, existing behavior), <strong>SharePoint</strong> (no Dataverse required), or <strong>Both</strong> (dual-store). Zero change to existing Dataverse deployments — default is <code>Dataverse</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>PPMF-Child-WriteErrorToSharePoint</strong> — sibling to <code>PPMF-Child-FlowWritetoIntakeList</code>. Accepts the same <code>ErrorPayload</code> JSON contract. Performs a deduplication check against the SharePoint list <code>FlowRunId</code> column before creating a list item. Responds with the same <code>result</code>/<code>recordid</code> schema for caller compatibility.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>PPMF-Child-FlowErrorHandler-SharePoint</strong> — full error handler for SharePoint mode. Replicates the error classification and severity logic from <code>PPMF-Child-FlowErrorHandler-JSON</code>. Calls <code>PPMF-Child-WriteErrorToSharePoint</code>, then conditionally posts a Teams alert card. Accepts a <code>SuppressTeamsAlert</code> input parameter so the <strong>Both</strong> mode caller can suppress the duplicate card from the SharePoint leg.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">SharePoint → Dataverse Sync Flow</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>PPMF-Sync-SharePointErrorsToDataverse</strong> — recurrence flow (every 15 minutes) that promotes unsynced SharePoint error items into the Dataverse <code>ppmf_errorevent</code> table. Ships in the <strong>Off</strong> state; must be turned on manually when Dataverse is available. Deduplicates against <code>ppmf_flowrunid</code> before inserting. Uses a dead-letter cap of 3 failed sync attempts per item to prevent queue stall. Updates <code>SyncedToDataverse</code>, <code>DataverseRecordId</code>, <code>SyncAttempts</code>, and <code>LastSyncAttempt</code> columns on each SharePoint item.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Dataverse Sync Enabled variable</strong> (<code>ppmf_DataverseSyncEnabled</code>) — soft enable/disable for the sync flow. Defaults to <code>No</code>. When <code>No</code>, the recurrence trigger fires but the flow terminates immediately without processing any records. Allows the flow to remain scheduled while acting as a no-op until Dataverse is ready.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">New Environment Variables</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_WritingMode</strong> — write destination control. Values: <code>Dataverse</code> (default), <code>SharePoint</code>, <code>Both</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_SharePointSiteUrl</strong> — full URL of the SharePoint site hosting the error events list. Required when Writing Mode is <code>SharePoint</code> or <code>Both</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_SharePointListName</strong> — exact display name of the SharePoint list. Default: <code>PPMF Error Events</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_DataverseSyncEnabled</strong> — soft enable for the sync flow. Default: <code>No</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_SyncIntervalMinutes</strong> — documented recurrence interval. Default: <code>15</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_SyncBatchSize</strong> — maximum items processed per sync run. Default: <code>100</code>.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">Connection References</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_SharePointConnectionReference</strong> — SharePoint Online connection reference. Required when Writing Mode is <code>SharePoint</code> or <code>Both</code>. Assign to an account with Contribute access to the target SharePoint site.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">Flow Changes</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-changed">Changed</span>
+              <span class="change-item-text"><strong>PPMF-Child-ProcessFlowError</strong> — added <code>ppmf_WritingMode</code> parameter binding. The <code>Scope-Record_Error</code> action is replaced by a <code>Switch_WritingMode</code> action that branches to the Dataverse handler (default), the SharePoint handler, or both in parallel based on the configured mode. No change to behavior when Writing Mode is <code>Dataverse</code>.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">Setup &amp; Configuration Page</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>SharePoint Error Store card</strong> — new configuration section with Writing Mode selector (preset buttons for Dataverse / SharePoint / Both), SharePoint Site URL, SharePoint List Name, and Dataverse Sync Enabled fields. Section is always visible to prompt intentional configuration of Writing Mode.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Writing Mode check</strong> (<code>chk-writing-mode</code>) — validates that <code>ppmf_WritingMode</code> is set to a recognised value.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>SharePoint configuration check</strong> (<code>chk-sp-config</code>) — validates SharePoint Site URL is set and the SharePoint connection reference is assigned when Writing Mode is <code>SharePoint</code> or <code>Both</code>. Shows pass with “Not applicable” when Writing Mode is <code>Dataverse</code>.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Sync flow state check</strong> (<code>chk-sync-flow</code>) — cross-validates the on/off state of <code>PPMF-Sync-SharePointErrorsToDataverse</code> against the <code>ppmf_DataverseSyncEnabled</code> variable. Warns if the flow is On but the variable is not <code>Yes</code>, or fails if the variable is <code>Yes</code> but the flow is Off.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ── v1.0.0.9 ───────────────────────────────────────────────────────── -->
     <div class="release-card" id="v1-0-0-9">
       <div class="release-header">
         <span class="release-version">v1.0.0.9</span>
-        <span class="badge badge-new" style="font-size:12px">Latest</span>
         <span class="release-date">May 3, 2026</span>
       </div>
       <div class="release-body">
