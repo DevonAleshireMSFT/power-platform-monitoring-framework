@@ -1,0 +1,63 @@
+# Packaged solutions
+*.zip
+
+# Deployment scripts
+deploy.ps1
+download.ps1
+
+# Environment & secrets
+.env
+.env.*
+*.env
+*.pfx
+*.cer
+*.key
+connection.json
+appsettings.*.json
+
+# Power Platform CLI
+.pac/
+.powerapps/
+**/.crm/
+
+# Node / PCF controls
+node_modules/
+dist/
+out/
+*.js.map
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.js
+!*.config.js
+tsconfig.tsbuildinfo
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build & publish output
+bin/
+obj/
+publish/
+TestResults/
+*.nupkg
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+ehthumbs.db
+
+# Logs & temp
+*.log
+*.tmp
+*.temp
+~$*
