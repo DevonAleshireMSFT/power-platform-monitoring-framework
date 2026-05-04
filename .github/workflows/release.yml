@@ -92,6 +92,15 @@ jobs:
           solution-type: Unmanaged
           process-canvas-apps: false
 
+      # ── Flip Solution.xml to Managed for managed pack ─────────────────────
+      - name: Set Solution.xml Managed flag
+        shell: pwsh
+        run: |
+          $path = "PowerPlatformMonitoringFramework/Other/Solution.xml"
+          (Get-Content $path -Raw) -replace '<Managed>0</Managed>', '<Managed>1</Managed>' |
+            Set-Content $path -NoNewline
+          Write-Host "Solution.xml <Managed> set to 1"
+
       # ── Pack managed ──────────────────────────────────────────────────────
       - name: Pack solution (managed)
         uses: microsoft/powerplatform-actions/pack-solution@v1
