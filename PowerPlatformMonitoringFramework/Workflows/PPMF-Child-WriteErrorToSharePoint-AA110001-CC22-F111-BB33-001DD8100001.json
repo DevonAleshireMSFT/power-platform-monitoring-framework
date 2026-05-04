@@ -1,0 +1,322 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_SharePointConnectionReference"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "SharePoint Site URL (ppmf_SharePointSiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_SharePointSiteUrl",
+            "description": "The full URL of the SharePoint site that hosts the PPMF Error Events list. Required when Writing Mode is SharePoint or Both. Example: https://contoso.sharepoint.com/sites/PPMF. Do not include a trailing slash."
+          }
+        },
+        "SharePoint List Name (ppmf_SharePointListName)": {
+          "defaultValue": "PPMF Error Events",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_SharePointListName",
+            "description": "The exact display name of the SharePoint list used to store PPMF error events. Default: PPMF Error Events."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "aa110001-cc22-0001-bb33-001dd8100001"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "ErrorPayload",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Json Error Payload",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Parse_JSON": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "aa110001-cc22-0002-bb33-001dd8100001"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()['text']",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "SourceType": {
+                  "type": "string",
+                  "description": "PowerApp or Flow"
+                },
+                "EnvironmentName": {
+                  "type": "string"
+                },
+                "SolutionName": {
+                  "type": "string"
+                },
+                "ApplicationName": {
+                  "type": "string"
+                },
+                "AppVersion": {
+                  "type": "string"
+                },
+                "FlowName": {
+                  "type": "string"
+                },
+                "FlowRunId": {
+                  "type": "string"
+                },
+                "FlowUrl": {
+                  "type": "string"
+                },
+                "SessionId": {
+                  "type": "string"
+                },
+                "CorrelationId": {
+                  "type": "string"
+                },
+                "UserName": {
+                  "type": "string"
+                },
+                "UserEmail": {
+                  "type": "string"
+                },
+                "ActiveScreen": {
+                  "type": "string"
+                },
+                "ErrorMessage": {
+                  "type": "string"
+                },
+                "ErrorSource": {
+                  "type": "string"
+                },
+                "ErrorType": {
+                  "type": "string"
+                },
+                "Severity": {
+                  "type": "string"
+                },
+                "OccurredOn": {
+                  "type": "string"
+                },
+                "RawPayload": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SourceType",
+                "EnvironmentName",
+                "ErrorMessage",
+                "OccurredOn"
+              ]
+            }
+          },
+          "description": "Required: SourceType, EnvironmentName, ErrorMessage, OccurredOn"
+        },
+        "Get_items_dedup_check": {
+          "runAfter": {
+            "Parse_JSON": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110001-cc22-0003-bb33-001dd8100001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+              "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+              "$filter": "FlowRunId eq '@{body('Parse_JSON')?['FlowRunId']}'",
+              "$top": 1
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline-1"
+            },
+            "retryPolicy": {
+              "type": "fixed",
+              "count": 3,
+              "interval": "PT20S"
+            }
+          }
+        },
+        "Condition_is_duplicate": {
+          "runAfter": {
+            "Get_items_dedup_check": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110001-cc22-0004-bb33-001dd8100001"
+          },
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greater": [
+                  "@length(body('Get_items_dedup_check')?['value'])",
+                  0
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Respond_duplicate": {
+              "metadata": {
+                "operationMetadataId": "aa110001-cc22-0005-bb33-001dd8100001"
+              },
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    },
+                    "recordid": {
+                      "title": "recordid",
+                      "x-ms-dynamically-added": true,
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": {}
+                },
+                "statusCode": 200,
+                "body": {
+                  "result": "Duplicate",
+                  "recordid": 0
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Create_item": {
+                "metadata": {
+                  "operationMetadataId": "aa110001-cc22-0006-bb33-001dd8100001"
+                },
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "parameters": {
+                    "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+                    "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                    "item/Title": "@coalesce(body('Parse_JSON')?['FlowName'], body('Parse_JSON')?['ApplicationName'], 'Error')",
+                    "item/SourceType": "@body('Parse_JSON')?['SourceType']",
+                    "item/EnvironmentName": "@body('Parse_JSON')?['EnvironmentName']",
+                    "item/SolutionName": "@body('Parse_JSON')?['SolutionName']",
+                    "item/ApplicationName": "@body('Parse_JSON')?['ApplicationName']",
+                    "item/AppVersion": "@body('Parse_JSON')?['AppVersion']",
+                    "item/FlowName": "@body('Parse_JSON')?['FlowName']",
+                    "item/FlowRunId": "@body('Parse_JSON')?['FlowRunId']",
+                    "item/FlowUrl": "@body('Parse_JSON')?['FlowUrl']",
+                    "item/SessionId": "@body('Parse_JSON')?['SessionId']",
+                    "item/CorrelationId": "@body('Parse_JSON')?['CorrelationId']",
+                    "item/UserName": "@body('Parse_JSON')?['UserName']",
+                    "item/UserEmail": "@body('Parse_JSON')?['UserEmail']",
+                    "item/ActiveScreen": "@body('Parse_JSON')?['ActiveScreen']",
+                    "item/ErrorMessage": "@body('Parse_JSON')?['ErrorMessage']",
+                    "item/ErrorSource": "@body('Parse_JSON')?['ErrorSource']",
+                    "item/ErrorType": "@body('Parse_JSON')?['ErrorType']",
+                    "item/Severity": "@body('Parse_JSON')?['Severity']",
+                    "item/OccurredOn": "@body('Parse_JSON')?['OccurredOn']",
+                    "item/RawPayload": "@body('Parse_JSON')?['RawPayload']",
+                    "item/TriageStatus": "New",
+                    "item/SyncedToDataverse": false,
+                    "item/SyncAttempts": 0
+                  },
+                  "host": {
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                    "operationId": "PostItem",
+                    "connectionName": "shared_sharepointonline-1"
+                  },
+                  "retryPolicy": {
+                    "type": "fixed",
+                    "count": 3,
+                    "interval": "PT20S"
+                  }
+                }
+              },
+              "Respond_success": {
+                "runAfter": {
+                  "Create_item": [
+                    "Succeeded"
+                  ]
+                },
+                "metadata": {
+                  "operationMetadataId": "aa110001-cc22-0007-bb33-001dd8100001"
+                },
+                "type": "Response",
+                "kind": "PowerApp",
+                "inputs": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "title": "result",
+                        "x-ms-dynamically-added": true,
+                        "type": "string"
+                      },
+                      "recordid": {
+                        "title": "recordid",
+                        "x-ms-dynamically-added": true,
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "statusCode": 200,
+                  "body": {
+                    "result": "Success",
+                    "recordid": "@outputs('Create_item')?['body/ID']"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

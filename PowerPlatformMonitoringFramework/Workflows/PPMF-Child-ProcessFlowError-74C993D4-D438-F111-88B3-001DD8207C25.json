@@ -20,6 +20,14 @@
             "schemaName": "ppmf_PortalBaseUrl",
             "description": "The base URL of the Power Automate portal for this cloud environment. Used to construct direct deep links to failed flow runs inside Teams alert messages. Set to the correct endpoint for your cloud: Commercial — https://make.powerautomate.com, GCC High — https://make.powerautomate.appsplatform.us, DoD — https://make.powerautomate.appsplatform.mil. Do not include a trailing slash."
           }
+        },
+        "Writing Mode (ppmf_WritingMode)": {
+          "defaultValue": "Dataverse",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_WritingMode",
+            "description": "Controls where error events are written. Dataverse — writes only to Dataverse (default). SharePoint — writes only to SharePoint (use in environments without Dataverse). Both — writes to both simultaneously. Accepted values: Dataverse, SharePoint, Both."
+          }
         }
       },
       "triggers": {
@@ -83,7 +91,7 @@
         },
         "Respond_to_a_Power_App_or_flow": {
           "runAfter": {
-            "Scope-Record_Error": [
+            "Switch_WritingMode": [
               "Succeeded",
               "Failed",
               "Skipped",
@@ -339,51 +347,192 @@
             ]
           }
         },
-        "Scope-Record_Error": {
-          "actions": {
-            "Run_a_Child_Flow": {
-              "metadata": {
-                "operationMetadataId": "84d61202-9912-4c09-a95b-128bf59d831b"
-              },
-              "type": "Workflow",
-              "inputs": {
-                "host": {
-                  "workflowReferenceName": "d3f874c5-271f-f111-8341-001dd808cec5"
-                },
-                "body": {
-                  "text_3": "@string(outputs('Compose_ErrorPayload'))",
-                  "text": "@triggerBody()['text']"
-                },
-                "retryPolicy": {
-                  "type": "none"
-                }
-              }
-            },
-            "Set_variable": {
-              "runAfter": {
-                "Run_a_Child_Flow": [
-                  "Succeeded"
-                ]
-              },
-              "metadata": {
-                "operationMetadataId": "d892cb1f-370a-41c4-b9c4-5a423199003c"
-              },
-              "type": "SetVariable",
-              "inputs": {
-                "name": "varSuccess",
-                "value": "@true"
-              }
-            }
-          },
+        "Switch_WritingMode": {
           "runAfter": {
             "Compose_ErrorPayload": [
               "Succeeded"
             ]
           },
           "metadata": {
-            "operationMetadataId": "ead8f8e3-21d0-44b7-a605-c22e36c5a97d"
+            "operationMetadataId": "aa110005-cc22-f111-bb33-001dd8100005"
           },
-          "type": "Scope"
+          "type": "Switch",
+          "expression": "@parameters('Writing Mode (ppmf_WritingMode)')",
+          "cases": {
+            "CaseSharePoint": {
+              "case": "SharePoint",
+              "actions": {
+                "Scope-Record_Error_SharePoint": {
+                  "metadata": {
+                    "operationMetadataId": "aa110005-cc22-f111-bb33-001dd8100006"
+                  },
+                  "type": "Scope",
+                  "actions": {
+                    "Run_FlowErrorHandler_SharePoint": {
+                      "metadata": {
+                        "operationMetadataId": "aa110005-cc22-f111-bb33-001dd8100007"
+                      },
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "aa110002-cc22-f111-bb33-001dd8100002"
+                        },
+                        "body": {
+                          "text_3": "@string(outputs('Compose_ErrorPayload'))",
+                          "text": "@triggerBody()['text']",
+                          "text_1": "false"
+                        },
+                        "retryPolicy": {
+                          "type": "none"
+                        }
+                      }
+                    },
+                    "Set_variable_SharePoint": {
+                      "runAfter": {
+                        "Run_FlowErrorHandler_SharePoint": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "aa110005-cc22-f111-bb33-001dd8100008"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varSuccess",
+                        "value": "@true"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "CaseBoth": {
+              "case": "Both",
+              "actions": {
+                "Scope-Record_Error_Dataverse_Both": {
+                  "metadata": {
+                    "operationMetadataId": "aa110005-cc22-f111-bb33-001dd8100009"
+                  },
+                  "type": "Scope",
+                  "actions": {
+                    "Run_a_Child_Flow_Dataverse_Both": {
+                      "metadata": {
+                        "operationMetadataId": "aa110005-cc22-f111-bb33-001dd810000a"
+                      },
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "d3f874c5-271f-f111-8341-001dd808cec5"
+                        },
+                        "body": {
+                          "text_3": "@string(outputs('Compose_ErrorPayload'))",
+                          "text": "@triggerBody()['text']"
+                        },
+                        "retryPolicy": {
+                          "type": "none"
+                        }
+                      }
+                    },
+                    "Set_variable_Both_Dataverse": {
+                      "runAfter": {
+                        "Run_a_Child_Flow_Dataverse_Both": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "aa110005-cc22-f111-bb33-001dd810000b"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varSuccess",
+                        "value": "@true"
+                      }
+                    }
+                  }
+                },
+                "Scope-Record_Error_SharePoint_Both": {
+                  "runAfter": {
+                    "Scope-Record_Error_Dataverse_Both": [
+                      "Succeeded",
+                      "Failed",
+                      "Skipped",
+                      "TimedOut"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "aa110005-cc22-f111-bb33-001dd810000c"
+                  },
+                  "type": "Scope",
+                  "actions": {
+                    "Run_FlowErrorHandler_SharePoint_Both": {
+                      "metadata": {
+                        "operationMetadataId": "aa110005-cc22-f111-bb33-001dd810000d"
+                      },
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "aa110002-cc22-f111-bb33-001dd8100002"
+                        },
+                        "body": {
+                          "text_3": "@string(outputs('Compose_ErrorPayload'))",
+                          "text": "@triggerBody()['text']",
+                          "text_1": "true"
+                        },
+                        "retryPolicy": {
+                          "type": "none"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "actions": {
+              "Scope-Record_Error": {
+                "metadata": {
+                  "operationMetadataId": "ead8f8e3-21d0-44b7-a605-c22e36c5a97d"
+                },
+                "type": "Scope",
+                "actions": {
+                  "Run_a_Child_Flow": {
+                    "metadata": {
+                      "operationMetadataId": "84d61202-9912-4c09-a95b-128bf59d831b"
+                    },
+                    "type": "Workflow",
+                    "inputs": {
+                      "host": {
+                        "workflowReferenceName": "d3f874c5-271f-f111-8341-001dd808cec5"
+                      },
+                      "body": {
+                        "text_3": "@string(outputs('Compose_ErrorPayload'))",
+                        "text": "@triggerBody()['text']"
+                      },
+                      "retryPolicy": {
+                        "type": "none"
+                      }
+                    }
+                  },
+                  "Set_variable": {
+                    "runAfter": {
+                      "Run_a_Child_Flow": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "d892cb1f-370a-41c4-b9c4-5a423199003c"
+                    },
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "varSuccess",
+                      "value": "@true"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },

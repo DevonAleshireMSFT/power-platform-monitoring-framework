@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_SyncBatchSize">
+  <defaultvalue>100</defaultvalue>
+  <description default="The maximum number of SharePoint error event items to process in a single run of the PPMF-Sync-SharePointErrorsToDataverse flow. Limits the volume of Dataverse write operations per sync cycle to prevent throttling and runaway execution costs. Increase if the sync consistently has a large backlog; decrease if Dataverse or SharePoint throttle errors appear in the sync flow run history. Default: 100.">
+    <label description="The maximum number of SharePoint error event items to process in a single run of the PPMF-Sync-SharePointErrorsToDataverse flow. Limits the volume of Dataverse write operations per sync cycle to prevent throttling and runaway execution costs. Increase if the sync consistently has a large backlog; decrease if Dataverse or SharePoint throttle errors appear in the sync flow run history. Default: 100." languagecode="1033" />
+  </description>
+  <displayname default="Sync Batch Size">
+    <label description="Sync Batch Size" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

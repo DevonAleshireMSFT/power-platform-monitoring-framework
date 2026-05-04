@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ppmf_SharePointSiteUrl">
+  <description default="The full URL of the SharePoint site that hosts the PPMF Error Events list. Required when Writing Mode is SharePoint or Both. Example: https://contoso.sharepoint.com/sites/PPMF. Do not include a trailing slash. The account used by the PPMF SharePoint connection reference must have Contribute access to this site.">
+    <label description="The full URL of the SharePoint site that hosts the PPMF Error Events list. Required when Writing Mode is SharePoint or Both. Example: https://contoso.sharepoint.com/sites/PPMF. Do not include a trailing slash. The account used by the PPMF SharePoint connection reference must have Contribute access to this site." languagecode="1033" />
+  </description>
+  <displayname default="SharePoint Site URL">
+    <label description="SharePoint Site URL" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

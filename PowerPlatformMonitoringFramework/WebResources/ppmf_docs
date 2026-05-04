@@ -355,14 +355,14 @@
           <div class="qs-num">1</div>
           <div>
             <div class="qs-step-title">Assign connection references</div>
-            <div class="qs-step-desc">Go to Solutions → Power Platform Monitoring Framework → Connection References. Assign a Dataverse connection to <code>ppmf_DataverseConnectionReference</code> and a Microsoft Teams connection to <code>ppmf_TeamsConnectionReference</code>.</div>
+            <div class="qs-step-desc">Go to Solutions → Power Platform Monitoring Framework → Connection References. Assign a Dataverse connection to <code>ppmf_DataverseConnectionReference</code> and a Microsoft Teams connection to <code>ppmf_TeamsConnectionReference</code>. If your environment uses SharePoint mode (<code>ppmf_WritingMode</code> = <code>SharePoint</code> or <code>Both</code>), also assign a SharePoint connection to <code>ppmf_SharePointConnectionReference</code>.</div>
           </div>
         </div>
         <div class="qs-step">
           <div class="qs-num">2</div>
           <div>
             <div class="qs-step-title">Activate child flows</div>
-            <div class="qs-step-desc">All four <strong>PPMF-Child-*</strong> flows must be set to Active before error handling will work: <em>ProcessFlowError</em>, <em>FlowErrorHandler-JSON</em>, <em>FlowErrorHandler-Parameters</em>, and <em>FlowWritetoIntakeList</em>. Turn them on from the Solutions flow list. If you are using canvas app error handling, also activate <em>PPMF-Power-Apps-Error-Handler-JSON</em>.</div>
+            <div class="qs-step-desc">All required <strong>PPMF-Child-*</strong> flows must be Active before error handling will work. For Dataverse mode, turn on: <em>ProcessFlowError</em>, <em>FlowErrorHandler-JSON</em>, <em>FlowErrorHandler-Parameters</em>, and <em>FlowWritetoIntakeList</em>. For SharePoint or Both mode, also turn on: <em>FlowErrorHandler-SharePoint</em> and <em>WriteErrorToSharePoint</em>. If using canvas app error handling, also activate <em>PPMF-Power-Apps-Error-Handler-JSON</em>.</div>
           </div>
         </div>
         <div class="qs-step">
@@ -383,7 +383,7 @@
           <div class="qs-num">4</div>
           <div>
             <div class="qs-step-title">Run the deployment checklist</div>
-            <div class="qs-step-desc">Open <strong>Configuration → Setup &amp; Configuration</strong>. The page automatically runs 8 checks on load and displays a pass / warn / fail result for each. Click <strong>↻ Re-validate</strong> at any time to re-run. All 8 checks must show green before PPMF will reliably capture and alert on errors. Any red (fail) result must be resolved; amber (warn) results indicate degraded functionality.</div>
+            <div class="qs-step-desc">Open <strong>Configuration → Setup &amp; Configuration</strong>. The page automatically runs 11 checks on load and displays a pass / warn / fail result for each. Click <strong>↻ Re-validate</strong> at any time to re-run. All checks must show green before PPMF will reliably capture and alert on errors. Any red (fail) result must be resolved; amber (warn) results indicate degraded functionality. The three SharePoint checks show <em>Not applicable</em> when Writing Mode is <code>Dataverse</code>.</div>
           </div>
         </div>
         <div class="qs-step">
@@ -433,6 +433,7 @@
     <a href="#env-vars">Environment Variables</a>
     <a href="#connections">Connection References</a>
     <a href="#alert-routes">Alert Routes</a>
+    <a href="#sharepoint-store">SharePoint Error Store</a>
 
     <div class="sidebar-section-label">Flows</div>
     <a href="#flow-reference">Flow Reference</a>
@@ -476,7 +477,7 @@
 
         <div class="callout callout-info" style="margin-top:8px">
           <span class="callout-icon">ℹ️</span>
-          <div>PPMF requires a Dataverse connection and a Microsoft Teams connection. Both must be assigned to their connection references before any flows will process errors.</div>
+          <div>PPMF can run in environments <strong>with or without Dataverse</strong>. Set <code>ppmf_WritingMode</code> to <code>SharePoint</code> to log errors to a SharePoint list instead of Dataverse. When Dataverse is available, the <code>PPMF-Sync-SharePointErrorsToDataverse</code> flow can be turned on to promote SharePoint records into Dataverse on a schedule. Set <code>ppmf_WritingMode</code> to <code>Dataverse</code> (default) or <code>Both</code> when Dataverse is available. A Microsoft Teams connection is always required.</div>
         </div>
       </div>
     </div>
@@ -553,7 +554,7 @@
             <div class="step-num">1</div>
             <div class="step-content">
               <div class="step-title">Assign the Dataverse connection reference</div>
-              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_DataverseConnectionReference</strong> → select or create a Dataverse connection.</div>
+              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_DataverseConnectionReference</strong> → select or create a Dataverse connection. <em>Skip if deploying in SharePoint-only mode (ppmf_WritingMode = SharePoint).</em></div>
             </div>
           </div>
           <div class="step">
@@ -566,33 +567,54 @@
           <div class="step">
             <div class="step-num">3</div>
             <div class="step-content">
-              <div class="step-title">Activate all PPMF-Child-* flows</div>
-              <div class="step-desc">Flows may be in draft state after import. Turn on all four PPMF-Child-* flows from the Solutions flow list before proceeding. If using canvas app error handling, also activate <strong>PPMF-Power-Apps-Error-Handler-JSON</strong>.</div>
+              <div class="step-title">Assign the SharePoint connection reference (if using SharePoint mode)</div>
+              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_SharePointConnectionReference</strong> → select or create a SharePoint connection. Required when <code>ppmf_WritingMode</code> is <code>SharePoint</code> or <code>Both</code>. The account must have Contribute access to the target SharePoint site.</div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">4</div>
             <div class="step-content">
-              <div class="step-title">Open the Setup &amp; Configuration page</div>
-              <div class="step-desc">Navigate to <strong>Configuration → Setup &amp; Configuration</strong> in this app. Configure the four required environment variables.</div>
+              <div class="step-title">Create the SharePoint list (if using SharePoint mode)</div>
+              <div class="step-desc">On the target SharePoint site, create a list named <strong>PPMF Error Events</strong> with the required column schema (see the SharePoint Error Store section). Must be created before activating the SharePoint child flows. Required when <code>ppmf_WritingMode</code> is <code>SharePoint</code> or <code>Both</code>.</div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">5</div>
             <div class="step-content">
-              <div class="step-title">Run the deployment checklist</div>
-              <div class="step-desc">The Setup page runs 8 automated checks. All must show green before PPMF will reliably capture and alert.</div>
+              <div class="step-title">Activate all required child flows</div>
+              <div class="step-desc">Flows may be in draft state after import. For <strong>Dataverse mode</strong>: turn on all four <code>PPMF-Child-*</code> flows. For <strong>SharePoint mode</strong>: also turn on <code>PPMF-Child-WriteErrorToSharePoint</code> and <code>PPMF-Child-FlowErrorHandler-SharePoint</code>. If using canvas app error handling, also activate <strong>PPMF-Power-Apps-Error-Handler-JSON</strong>.</div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">6</div>
             <div class="step-content">
-              <div class="step-title">Run the demo flow</div>
-              <div class="step-desc">Manually trigger <strong>PPMF-Demo-Flow-Failure</strong> with a test solution name. Confirm: an alert card arrives in Teams, and an error record appears in the Triage view.</div>
+              <div class="step-title">Open the Setup &amp; Configuration page</div>
+              <div class="step-desc">Navigate to <strong>Configuration → Setup &amp; Configuration</strong> in this app. Configure all required environment variables, including <code>ppmf_WritingMode</code> and the SharePoint variables if applicable.</div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">7</div>
+            <div class="step-content">
+              <div class="step-title">Run the deployment checklist</div>
+              <div class="step-desc">The Setup page runs 11 automated checks. All must show green before PPMF will reliably capture and alert. The three new SharePoint checks are context-aware — they report “Not applicable” when Writing Mode is <code>Dataverse</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">8</div>
+            <div class="step-content">
+              <div class="step-title">Run the demo flow</div>
+              <div class="step-desc">Manually trigger <strong>PPMF-Demo-Flow-Failure</strong> with a test solution name. Confirm: an alert card arrives in Teams, and an error record appears in the configured store (Dataverse triage view or SharePoint list).</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">9</div>
+            <div class="step-content">
+              <div class="step-title">Enable the sync flow when Dataverse becomes available (SharePoint mode only)</div>
+              <div class="step-desc">Turn on <strong>PPMF-Sync-SharePointErrorsToDataverse</strong> and set <code>ppmf_DataverseSyncEnabled</code> to <code>Yes</code>. The flow will promote unsynced SharePoint items to Dataverse every 15 minutes. The sync flow ships Off and defaults to a no-op to prevent accidental writes.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">10</div>
             <div class="step-content">
               <div class="step-title">Configure Alert Routes (optional)</div>
               <div class="step-desc">Add Alert Route records from the Setup page to route specific solutions to dedicated Teams channels. If no routes are configured, all alerts use the default channel.</div>
@@ -608,7 +630,7 @@
         <span class="card-header-icon">🌐</span>
         <div>
           <div class="card-title">Environment Variables</div>
-          <div class="card-subtitle">Six variables control all runtime behavior. Configure from the Setup &amp; Configuration page.</div>
+          <div class="card-subtitle">Twelve variables control all runtime behavior. Configure from the Setup &amp; Configuration page.</div>
         </div>
       </div>
       <div class="card-body" style="padding:0">
@@ -672,7 +694,7 @@
               </td>
               <td><span class="badge badge-optional">Optional</span></td>
               <td><strong>15</strong></td>
-              <td>Suppression window in minutes. After an alert fires for a given flow, subsequent failures of that same flow within this window are logged to Dataverse but do not post a Teams message. Set to <code>0</code> to disable throttling entirely.</td>
+              <td>Suppression window in minutes. After an alert fires for a given flow, subsequent failures of that same flow within this window are logged but do not post a Teams message. Set to <code>0</code> to disable throttling entirely.</td>
             </tr>
             <tr>
               <td>
@@ -681,7 +703,61 @@
               </td>
               <td><span class="badge badge-optional">Optional</span></td>
               <td><strong>90</strong></td>
-              <td>Days after which resolved error records are deleted by the weekly maintenance flow. Only records with status <em>Fixed</em>, <em>Duplicate</em>, <em>Won't Fix</em>, or <em>Closed</em> are eligible. Records with status <em>New</em> or <em>In Progress</em> are never deleted. Set to <code>0</code> to disable automatic deletion.</td>
+              <td>Days after which resolved Dataverse error records are deleted by the weekly maintenance flow. Records with status <em>New</em> or <em>In Progress</em> are never deleted. Set to <code>0</code> to disable automatic deletion.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_WritingMode</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Writing Mode</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>Dataverse</strong></td>
+              <td>Controls where error events are written. <strong>Dataverse</strong> — existing behavior, requires Dataverse. <strong>SharePoint</strong> — writes to the configured SharePoint list; no Dataverse required. <strong>Both</strong> — writes to both simultaneously. Accepted values are case-sensitive.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_SharePointSiteUrl</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">SharePoint Site URL</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td style="color:var(--text-disabled)">—</td>
+              <td>Full URL of the SharePoint site hosting the PPMF Error Events list. No trailing slash. Required when Writing Mode is <code>SharePoint</code> or <code>Both</code>.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_SharePointListName</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">SharePoint List Name</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>PPMF Error Events</strong></td>
+              <td>Exact display name of the SharePoint list used to store error events. Required when Writing Mode is <code>SharePoint</code> or <code>Both</code>. The list must be created with the required column schema before first use.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_DataverseSyncEnabled</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Dataverse Sync Enabled</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>No</strong></td>
+              <td>Soft-enable for the SharePoint → Dataverse sync flow. Set to <code>Yes</code> only after the sync flow is turned on and the Dataverse connection reference is assigned. When <code>No</code>, the sync flow fires its recurrence trigger but terminates immediately without processing any records.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_SyncIntervalMinutes</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Sync Interval (Minutes)</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>15</strong></td>
+              <td>Documented recurrence interval for the sync flow. The trigger interval is fixed in the flow definition — edit the Recurrence trigger directly to change the actual frequency.</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="schema-name">ppmf_SyncBatchSize</div>
+                <div style="font-weight:600;font-size:12px;margin-top:2px">Sync Batch Size</div>
+              </td>
+              <td><span class="badge badge-optional">Optional</span></td>
+              <td><strong>100</strong></td>
+              <td>Maximum number of SharePoint items processed per sync run. Limits Dataverse write operations per cycle to prevent throttling. Increase if there is a persistent large backlog; decrease if throttle errors appear in the sync flow run history.</td>
             </tr>
           </tbody>
         </table>
@@ -698,11 +774,12 @@
         </div>
       </div>
       <div class="card-body prose">
-        <p><strong>ppmf_DataverseConnectionReference</strong> — used by flows that read and write <code>ppmf_errorevent</code> records in Dataverse. Requires a Dataverse connection authenticated to an account with access to this environment.</p>
-        <p><strong>ppmf_TeamsConnectionReference</strong> — used by the error handler flows to post adaptive card alerts. Requires a Teams connection authenticated to an account that is a member of the target Teams team.</p>
+        <p><strong>ppmf_DataverseConnectionReference</strong> — used by flows that read and write <code>ppmf_errorevent</code> records in Dataverse. Requires a Dataverse connection authenticated to an account with access to this environment. <em>Not required when Writing Mode is SharePoint.</em></p>
+        <p><strong>ppmf_TeamsConnectionReference</strong> — used by the error handler flows to post adaptive card alerts. Requires a Teams connection authenticated to an account that is a member of the target Teams team. <em>Always required.</em></p>
+        <p><strong>ppmf_SharePointConnectionReference</strong> — used by <code>PPMF-Child-WriteErrorToSharePoint</code>, <code>PPMF-Child-FlowErrorHandler-SharePoint</code>, and <code>PPMF-Sync-SharePointErrorsToDataverse</code> to read and write the PPMF Error Events SharePoint list. Requires a SharePoint connection authenticated to an account with Contribute access to the target site. <em>Required when Writing Mode is SharePoint or Both.</em></p>
         <div class="callout callout-warning">
           <span class="callout-icon">⚠️</span>
-          <div>If either connection reference is unassigned, flows that depend on it will fail silently at the connection step. The deployment checklist on the Setup page will flag unassigned references.</div>
+          <div>If a required connection reference is unassigned, flows that depend on it will fail silently at the connection step. The deployment checklist on the Setup page will flag unassigned references.</div>
         </div>
       </div>
     </div>
@@ -735,13 +812,84 @@
       </div>
     </div>
 
+    <!-- ── SharePoint Error Store ─────────────────────────────────────────── -->
+    <div class="card doc-section" id="sharepoint-store">
+      <div class="card-header">
+        <span class="card-header-icon">📋</span>
+        <div>
+          <div class="card-title">SharePoint Error Store</div>
+          <div class="card-subtitle">Run PPMF in environments without Dataverse using a SharePoint list as the error store</div>
+        </div>
+      </div>
+      <div class="card-body prose">
+
+        <p><strong>Writing Mode</strong> — set the <code>ppmf_WritingMode</code> environment variable to one of three values:</p>
+        <table class="glossary-table" style="margin:8px 0 16px">
+          <thead><tr><th>Value</th><th>Behavior</th><th>When to use</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="field-label">Dataverse</span></td>
+              <td>Writes to Dataverse only. Original behavior.</td>
+              <td>Environments with Dataverse. Default.</td>
+            </tr>
+            <tr>
+              <td><span class="field-label">SharePoint</span></td>
+              <td>Writes to SharePoint list only. No Dataverse connection required.</td>
+              <td>Environments without a Dataverse database, or where SharePoint is the preferred store.</td>
+            </tr>
+            <tr>
+              <td><span class="field-label">Both</span></td>
+              <td>Writes to both Dataverse and SharePoint simultaneously. Teams alert fires once (from the Dataverse leg).</td>
+              <td>Migration or dual-store scenarios. Both connection references must be assigned.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>SharePoint list setup</strong> — create a list on the target SharePoint site before activating the SharePoint child flows. The list can be named anything; the name must match <code>ppmf_SharePointListName</code>. Create the following columns:</p>
+
+        <table class="glossary-table" style="margin:8px 0 16px">
+          <thead><tr><th>Column Name</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Title</td><td>Single line of text</td><td>Built-in column. Used for Flow Name.</td></tr>
+            <tr><td>FlowRunId</td><td>Single line of text</td><td>Used for deduplication.</td></tr>
+            <tr><td>FlowUrl</td><td>Single line of text</td><td>Portal deep link URL.</td></tr>
+            <tr><td>SolutionName</td><td>Single line of text</td><td></td></tr>
+            <tr><td>EnvironmentName</td><td>Single line of text</td><td></td></tr>
+            <tr><td>ErrorType</td><td>Single line of text</td><td></td></tr>
+            <tr><td>ErrorMessage</td><td>Multiple lines of text</td><td>Plain text.</td></tr>
+            <tr><td>Severity</td><td>Single line of text</td><td>Critical / Warning / Info / Unknown</td></tr>
+            <tr><td>OccurredOn</td><td>Date and Time</td><td></td></tr>
+            <tr><td>TriageStatus</td><td>Single line of text</td><td>Default: New</td></tr>
+            <tr><td>SyncedToDataverse</td><td>Yes/No</td><td>Default: No. Set by sync flow.</td></tr>
+            <tr><td>DataverseRecordId</td><td>Single line of text</td><td>Populated by sync flow after Dataverse write.</td></tr>
+            <tr><td>SyncAttempts</td><td>Number</td><td>Default: 0. Incremented by sync flow on failure.</td></tr>
+            <tr><td>LastSyncAttempt</td><td>Date and Time</td><td>Set by sync flow on each attempt.</td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>Sync flow</strong> — <code>PPMF-Sync-SharePointErrorsToDataverse</code> ships in the <strong>Off</strong> state. To enable it:</p>
+        <ol style="margin:8px 0 12px 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
+          <li>Assign the Dataverse connection reference (<code>ppmf_DataverseConnectionReference</code>).</li>
+          <li>Turn the flow <strong>On</strong> from the Solutions flow list or the Setup page.</li>
+          <li>Set <code>ppmf_DataverseSyncEnabled</code> to <code>Yes</code>.</li>
+        </ol>
+        <p>To disable the sync: set <code>ppmf_DataverseSyncEnabled</code> to <code>No</code>. The flow will continue firing its recurrence trigger every 15 minutes but will exit immediately without reading or writing any data. Turn the flow <strong>Off</strong> entirely to stop the trigger firing.</p>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ️</span>
+          <div><strong>Deduplication:</strong> Both the SharePoint write flow and the sync flow deduplicate on <code>FlowRunId</code>. If a run ID already exists in the target store, the write is skipped and the result is returned as <code>Duplicate</code>. Items that fail to sync are retried up to 3 times before being skipped (<code>SyncAttempts ≥ 3</code>). Failed items remain in the SharePoint list and can be manually retried by resetting <code>SyncAttempts</code> to <code>0</code>.</div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ── Flow Reference ────────────────────────────────────────────────── -->
     <div class="card doc-section" id="flow-reference">
       <div class="card-header">
         <span class="card-header-icon">⚡</span>
         <div>
           <div class="card-title">Flow Reference</div>
-          <div class="card-subtitle">All 8 flows in the solution</div>
+          <div class="card-subtitle">All 11 flows in the solution</div>
         </div>
       </div>
       <div class="card-body" style="padding:0">
@@ -753,12 +901,17 @@
             <tr>
               <td><span class="field-name">PPMF-Child-ProcessFlowError</span></td>
               <td><span class="badge badge-info">Child</span></td>
-              <td>Primary entry point. Parses <code>workflow()</code> JSON to extract flow name, run ID, and environment. Constructs the portal deep link URL. Calls FlowErrorHandler-JSON.</td>
+              <td>Primary entry point. Parses <code>workflow()</code> JSON to extract flow name, run ID, and environment. Constructs the portal deep link URL. Branches on <code>ppmf_WritingMode</code> to call the Dataverse handler, the SharePoint handler, or both.</td>
             </tr>
             <tr>
               <td><span class="field-name">PPMF-Child-FlowErrorHandler-JSON</span></td>
               <td><span class="badge badge-info">Child</span></td>
-              <td>Core alert logic. Resolves alert route, checks throttle window, calls WriteToIntakeList, posts Teams card if not throttled.</td>
+              <td>Core alert logic for Dataverse mode. Resolves alert route, checks throttle window, calls WriteToIntakeList, posts Teams card if not throttled.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Child-FlowErrorHandler-SharePoint</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Core alert logic for SharePoint mode. Applies the same error classification and severity logic as the JSON variant. Calls WriteErrorToSharePoint, conditionally posts Teams card. Accepts a <code>SuppressTeamsAlert</code> input to suppress the Teams card when called from Both mode (avoids duplicate alerts).</td>
             </tr>
             <tr>
               <td><span class="field-name">PPMF-Child-FlowErrorHandler-Parameters</span></td>
@@ -768,7 +921,17 @@
             <tr>
               <td><span class="field-name">PPMF-Child-FlowWritetoIntakeList</span></td>
               <td><span class="badge badge-info">Child</span></td>
-              <td>Creates the <code>ppmf_errorevent</code> Dataverse record and writes to the SharePoint intake list. Always runs — every failure is logged regardless of throttle state.</td>
+              <td>Creates the <code>ppmf_errorevent</code> Dataverse record. Deduplicates on <code>ppmf_flowrunid</code>. Always runs in Dataverse or Both mode — every failure is logged regardless of throttle state.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Child-WriteErrorToSharePoint</span></td>
+              <td><span class="badge badge-info">Child</span></td>
+              <td>Creates an item in the PPMF Error Events SharePoint list. Deduplicates on <code>FlowRunId</code> column. Responds with the same <code>result</code>/<code>recordid</code> schema as <code>PPMF-Child-FlowWritetoIntakeList</code>. Always runs in SharePoint or Both mode.</td>
+            </tr>
+            <tr>
+              <td><span class="field-name">PPMF-Sync-SharePointErrorsToDataverse</span></td>
+              <td><span class="badge badge-warning">Scheduled</span></td>
+              <td>Recurrence flow (every 15 minutes). Queries the SharePoint list for items where <code>SyncedToDataverse = No</code> and <code>SyncAttempts &lt; 3</code>. For each item, deduplicates against Dataverse <code>ppmf_flowrunid</code>, creates the Dataverse record if new, then marks the SharePoint item as synced. Ships <strong>Off</strong> by default. Controlled by <code>ppmf_DataverseSyncEnabled</code>.</td>
             </tr>
             <tr>
               <td><span class="field-name">PPMF-Power-Apps-Error-Handler-JSON</span></td>

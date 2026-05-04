@@ -1,0 +1,419 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_teams-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_TeamsConnectionReference"
+        },
+        "api": {
+          "name": "shared_teams"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Team ID (ppmf_TeamID)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_TeamID",
+            "description": "The Azure AD group ID (GUID) of the Microsoft Teams team where flow failure alerts will be posted by default."
+          }
+        },
+        "Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_FlowAlertsChannelID",
+            "description": "The Teams channel ID of the default channel where flow failure alert messages will be posted."
+          }
+        },
+        "Environment Name (ppmf_EnvironmentName)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_EnvironmentName",
+            "description": "A short, human-readable label that identifies this Power Platform environment in Teams alerts and on every error record."
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0001-bb33-001dd8100002"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text_3": {
+                  "description": "Provide the error payload JSON (timestamp, flow, primaryErrorMessage, error array).",
+                  "title": "ErrorPayload",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text": {
+                  "title": "SolutionName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Provide the solution name",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "SuppressTeamsAlert",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Pass true to skip the Teams alert (use in Both mode to avoid duplicate alerts). Default: false.",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text_3",
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Respond_to_a_Power_App_or_flow": {
+          "runAfter": {
+            "Scope_SharePoint_Handler": [
+              "Succeeded",
+              "TimedOut",
+              "Failed"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0002-bb33-001dd8100002"
+          },
+          "type": "Response",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "title": "status",
+                  "x-ms-dynamically-added": true,
+                  "type": "string"
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "status": "success"
+            }
+          }
+        },
+        "Parse_JSON_ErrorPayload": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0003-bb33-001dd8100002"
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@triggerBody()?['text_3']",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "Id": {
+                      "type": "string"
+                    },
+                    "Url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "primaryErrorMessage": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "startTime": { "type": "string" },
+                      "endTime": { "type": "string" },
+                      "trackingId": { "type": "string" },
+                      "clientTrackingId": { "type": "string" },
+                      "code": { "type": "string" },
+                      "status": { "type": "string" },
+                      "error": {
+                        "type": "object",
+                        "properties": {
+                          "code": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "var_FlowName": {
+          "runAfter": {
+            "Parse_JSON_ErrorPayload": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0004-bb33-001dd8100002"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "FlowName",
+                "type": "string",
+                "value": "@{body('Parse_JSON_ErrorPayload')?['flow']?['name']}"
+              }
+            ]
+          }
+        },
+        "var_FlowUrl": {
+          "runAfter": {
+            "var_FlowName": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0005-bb33-001dd8100002"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "FlowUrl",
+                "type": "string",
+                "value": "@body('Parse_JSON_ErrorPayload')?['flow']?['Url']"
+              }
+            ]
+          }
+        },
+        "Initialize_variable_Flow_Id": {
+          "runAfter": {
+            "var_FlowUrl": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0006-bb33-001dd8100002"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Flow Id",
+                "type": "string",
+                "value": "@{body('Parse_JSON_ErrorPayload')?['flow']?['Id']}"
+              }
+            ]
+          }
+        },
+        "var_Error_Message": {
+          "runAfter": {
+            "Initialize_variable_Flow_Id": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0007-bb33-001dd8100002"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Error",
+                "type": "string",
+                "value": "@{coalesce(\r\n    body('Parse_JSON_ErrorPayload')?['error']?[0]?['error']?['message'],\r\n    body('Parse_JSON_ErrorPayload')?['error']?[0]?['outputs']?['body']?['message'],\r\n    body('Parse_JSON_ErrorPayload')?['error']?[0]?['message'],\r\n    body('Parse_JSON_ErrorPayload')?['error']?[0]?['code'],\r\n    string(body('Parse_JSON_ErrorPayload')?['error']?[0]),\r\n    'Unknown error'\r\n)}"
+              }
+            ]
+          }
+        },
+        "Scope_SharePoint_Handler": {
+          "actions": {
+            "Compose_Error_Text": {
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0008-bb33-001dd8100002"
+              },
+              "type": "Compose",
+              "inputs": "@toLower(\r\n  concat(\r\n    coalesce(first(body('Parse_JSON_ErrorPayload')?['error'])?['name'], ''), ' | ',\r\n    coalesce(first(body('Parse_JSON_ErrorPayload')?['error'])?['code'], ''), ' | ',\r\n    coalesce(first(body('Parse_JSON_ErrorPayload')?['error'])?['status'], ''), ' | ',\r\n    coalesce(first(body('Parse_JSON_ErrorPayload')?['error'])?['error']?['code'], ''), ' | ',\r\n    coalesce(\r\n      body('Parse_JSON_ErrorPayload')?['primaryErrorMessage'],\r\n      first(body('Parse_JSON_ErrorPayload')?['error'])?['error']?['message'],\r\n      ''\r\n    )\r\n  )\r\n)"
+            },
+            "Compose_Error_Type": {
+              "runAfter": {
+                "Compose_Error_Text": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0009-bb33-001dd8100002"
+              },
+              "type": "Compose",
+              "inputs": "@if(\r\n  or(\r\n    contains(outputs('Compose_Error_Text'), 'timed out'),\r\n    contains(outputs('Compose_Error_Text'), 'actiontimedout'),\r\n    contains(outputs('Compose_Error_Text'), 'timeout'),\r\n    contains(outputs('Compose_Error_Text'), 'deadline exceeded')\r\n  ),\r\n  'Timeout',\r\n  if(\r\n    or(\r\n      contains(outputs('Compose_Error_Text'), 'forbidden'),\r\n      contains(outputs('Compose_Error_Text'), 'unauthorized'),\r\n      contains(outputs('Compose_Error_Text'), 'accessdenied'),\r\n      contains(outputs('Compose_Error_Text'), 'access denied'),\r\n      contains(outputs('Compose_Error_Text'), 'insufficient privileges'),\r\n      contains(outputs('Compose_Error_Text'), 'authorization_requestdenied'),\r\n      contains(outputs('Compose_Error_Text'), 'requestdenied'),\r\n      contains(outputs('Compose_Error_Text'), '403'),\r\n      contains(outputs('Compose_Error_Text'), 'permission')\r\n    ),\r\n    'Permission',\r\n    if(\r\n      or(\r\n        contains(outputs('Compose_Error_Text'), 'badgateway'),\r\n        contains(outputs('Compose_Error_Text'), 'gateway'),\r\n        contains(outputs('Compose_Error_Text'), 'econnreset'),\r\n        contains(outputs('Compose_Error_Text'), 'enotfound'),\r\n        contains(outputs('Compose_Error_Text'), 'host not found'),\r\n        contains(outputs('Compose_Error_Text'), 'service unavailable'),\r\n        contains(outputs('Compose_Error_Text'), 'temporarily unavailable')\r\n      ),\r\n      'Network',\r\n      if(\r\n        or(\r\n          contains(outputs('Compose_Error_Text'), 'connection reference'),\r\n          contains(outputs('Compose_Error_Text'), 'not configured'),\r\n          contains(outputs('Compose_Error_Text'), 'environment variable'),\r\n          contains(outputs('Compose_Error_Text'), 'invalid connection'),\r\n          contains(outputs('Compose_Error_Text'), 'missing connection'),\r\n          contains(outputs('Compose_Error_Text'), 'manual creation of the user failed'),\r\n          contains(outputs('Compose_Error_Text'), 'auto-creation of the user failed')\r\n        ),\r\n        'Configuration',\r\n        if(\r\n          or(\r\n            contains(outputs('Compose_Error_Text'), 'invalidtemplate'),\r\n            contains(outputs('Compose_Error_Text'), 'divide by zero'),\r\n            contains(outputs('Compose_Error_Text'), 'is not valid'),\r\n            contains(outputs('Compose_Error_Text'), 'invalid input'),\r\n            contains(outputs('Compose_Error_Text'), 'required'),\r\n            contains(outputs('Compose_Error_Text'), 'cannot convert'),\r\n            contains(outputs('Compose_Error_Text'), 'malformed')\r\n          ),\r\n          'Validation',\r\n          if(\r\n            or(\r\n              contains(outputs('Compose_Error_Text'), 'duplicate'),\r\n              contains(outputs('Compose_Error_Text'), 'type mismatch'),\r\n              contains(outputs('Compose_Error_Text'), 'null value'),\r\n              contains(outputs('Compose_Error_Text'), 'empty value'),\r\n              contains(outputs('Compose_Error_Text'), 'lookup'),\r\n              contains(outputs('Compose_Error_Text'), 'parse')\r\n            ),\r\n            'Data',\r\n            if(\r\n              or(\r\n                contains(outputs('Compose_Error_Text'), 'connector'),\r\n                contains(outputs('Compose_Error_Text'), 'openapioperationparametervalidationfailed'),\r\n                contains(outputs('Compose_Error_Text'), 'throttl')\r\n              ),\r\n              'Connector',\r\n              'Unknown'\r\n            )\r\n          )\r\n        )\r\n      )\r\n    )\r\n  )\r\n)"
+            },
+            "Compose_Severity": {
+              "runAfter": {
+                "Compose_Error_Type": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0010-bb33-001dd8100002"
+              },
+              "type": "Compose",
+              "inputs": "@if(\r\n  equals(outputs('Compose_Error_Type'), 'Unknown'),\r\n  'Unknown',\r\n  if(\r\n    or(\r\n      and(\r\n        equals(outputs('Compose_Error_Type'), 'Permission'),\r\n        or(\r\n          contains(outputs('Compose_Error_Text'), 'unauthorized'),\r\n          contains(outputs('Compose_Error_Text'), 'forbidden'),\r\n          contains(outputs('Compose_Error_Text'), 'authorization_requestdenied'),\r\n          contains(outputs('Compose_Error_Text'), 'requestdenied'),\r\n          contains(outputs('Compose_Error_Text'), '403'),\r\n          contains(outputs('Compose_Error_Text'), 'token'),\r\n          contains(outputs('Compose_Error_Text'), 'authentication')\r\n        )\r\n      ),\r\n      and(\r\n        equals(outputs('Compose_Error_Type'), 'Configuration'),\r\n        or(\r\n          contains(outputs('Compose_Error_Text'), 'connection reference'),\r\n          contains(outputs('Compose_Error_Text'), 'environment variable'),\r\n          contains(outputs('Compose_Error_Text'), 'not configured'),\r\n          contains(outputs('Compose_Error_Text'), 'missing connection')\r\n        )\r\n      ),\r\n      and(\r\n        equals(outputs('Compose_Error_Type'), 'Network'),\r\n        or(\r\n          contains(outputs('Compose_Error_Text'), 'badgateway'),\r\n          contains(outputs('Compose_Error_Text'), 'service unavailable'),\r\n          contains(outputs('Compose_Error_Text'), 'gateway'),\r\n          contains(outputs('Compose_Error_Text'), 'temporarily unavailable')\r\n        )\r\n      )\r\n    ),\r\n    'Critical',\r\n    'Warning'\r\n  )\r\n)"
+            },
+            "Compose_Error_Payload": {
+              "runAfter": {
+                "Compose_Severity": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0011-bb33-001dd8100002"
+              },
+              "type": "Compose",
+              "inputs": {
+                "SourceType": "Flow",
+                "EnvironmentName": "@{parameters('Environment Name (ppmf_EnvironmentName)')}",
+                "SolutionName": "@{triggerBody()['text']}",
+                "ApplicationName": "",
+                "AppVersion": "",
+                "FlowName": "@{variables('FlowName')}",
+                "FlowRunId": "@{variables('Flow Id')}",
+                "FlowUrl": "@{variables('FlowUrl')}",
+                "SessionId": "",
+                "CorrelationId": "",
+                "UserName": "",
+                "UserEmail": "",
+                "ActiveScreen": "",
+                "ErrorMessage": "@{variables('Error')}",
+                "ErrorSource": "",
+                "ErrorType": "@{outputs('Compose_Error_Type')}",
+                "Severity": "@{outputs('Compose_Severity')}",
+                "OccurredOn": "@{utcNow()}",
+                "RawPayload": "@{triggerBody()['text_3']}"
+              }
+            },
+            "Run_WriteErrorToSharePoint": {
+              "runAfter": {
+                "Compose_Error_Payload": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0012-bb33-001dd8100002"
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "aa110001-cc22-f111-bb33-001dd8100001"
+                },
+                "body": {
+                  "text": "@string(outputs('Compose_Error_Payload'))"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            },
+            "Condition_SuppressTeamsAlert": {
+              "runAfter": {
+                "Run_WriteErrorToSharePoint": [
+                  "Succeeded",
+                  "Failed",
+                  "Skipped",
+                  "TimedOut"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110002-cc22-0013-bb33-001dd8100002"
+              },
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@coalesce(triggerBody()?['text_1'], 'false')",
+                        "true"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "actions": {
+                "Post_card_in_a_chat_or_channel": {
+                  "metadata": {
+                    "operationMetadataId": "aa110002-cc22-0014-bb33-001dd8100002"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "@parameters('Team ID (ppmf_TeamID)')",
+                      "body/recipient/channelId": "@parameters('Flow Alerts Channel ID (ppmf_FlowAlertsChannelID)')",
+                      "body/messageBody": "{\n  \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n  \"type\": \"AdaptiveCard\",\n  \"version\": \"1.4\",\n  \"body\": [\n    {\n      \"type\": \"Container\",\n      \"style\": \"emphasis\",\n      \"bleed\": true,\n      \"items\": [\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"🚨 Flow Failure Alert\",\n          \"weight\": \"Bolder\",\n          \"size\": \"Medium\",\n          \"wrap\": true\n        },\n        {\n          \"type\": \"FactSet\",\n          \"facts\": [\n            {\n              \"title\": \"🌐 Environment:\",\n              \"value\": \"@{parameters('Environment Name (ppmf_EnvironmentName)')}\"\n            },\n            {\n              \"title\": \"📦 Solution:\",\n              \"value\": \"@{triggerBody()['text']}\"\n            },\n            {\n              \"title\": \"⚙️ Workflow:\",\n              \"value\": \"@{variables('FlowName')}\"\n            },\n            {\n              \"title\": \"🧨 Error:\",\n              \"value\": \"@{variables('Error')}\"\n            },\n            {\n              \"title\": \"📊 Severity:\",\n              \"value\": \"@{outputs('Compose_Severity')}\"\n            }\n          ]\n        }\n      ]\n    }\n  ],\n  \"actions\": [\n    {\n      \"type\": \"Action.OpenUrl\",\n      \"title\": \"🔗 Open Flow Run\",\n      \"url\": \"@{trim(variables('FlowUrl'))}\"\n    }\n  ]\n}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "operationId": "PostCardToConversation",
+                      "connectionName": "shared_teams-1"
+                    },
+                    "retryPolicy": {
+                      "type": "none"
+                    }
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              }
+            }
+          },
+          "runAfter": {
+            "var_Error_Message": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "aa110002-cc22-0015-bb33-001dd8100002"
+          },
+          "type": "Scope"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

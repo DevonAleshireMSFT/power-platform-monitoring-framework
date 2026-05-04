@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_SharePointListName">
+  <defaultvalue>PPMF Error Events</defaultvalue>
+  <description default="The exact display name of the SharePoint list used to store PPMF error events. Required when Writing Mode is SharePoint or Both. The list must be created on the site specified by ppmf_SharePointSiteUrl before the first flow run in SharePoint or Both mode. Refer to the PPMF deployment documentation for the required column schema. Default: PPMF Error Events.">
+    <label description="The exact display name of the SharePoint list used to store PPMF error events. Required when Writing Mode is SharePoint or Both. The list must be created on the site specified by ppmf_SharePointSiteUrl before the first flow run in SharePoint or Both mode. Refer to the PPMF deployment documentation for the required column schema. Default: PPMF Error Events." languagecode="1033" />
+  </description>
+  <displayname default="SharePoint List Name">
+    <label description="SharePoint List Name" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

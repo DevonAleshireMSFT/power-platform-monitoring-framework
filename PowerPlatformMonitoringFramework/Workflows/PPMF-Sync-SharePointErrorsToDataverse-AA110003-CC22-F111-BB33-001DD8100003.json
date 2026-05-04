@@ -1,0 +1,343 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_SharePointConnectionReference"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "ppmf_DataverseConnectionReference"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Dataverse Sync Enabled (ppmf_DataverseSyncEnabled)": {
+          "defaultValue": "No",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_DataverseSyncEnabled",
+            "description": "Soft-enable switch for the sync flow. Set to Yes to allow syncing unsynced SharePoint items to Dataverse. Default: No."
+          }
+        },
+        "SharePoint Site URL (ppmf_SharePointSiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_SharePointSiteUrl",
+            "description": "The full URL of the SharePoint site that hosts the PPMF Error Events list."
+          }
+        },
+        "SharePoint List Name (ppmf_SharePointListName)": {
+          "defaultValue": "PPMF Error Events",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_SharePointListName",
+            "description": "The exact display name of the SharePoint list used to store PPMF error events. Default: PPMF Error Events."
+          }
+        },
+        "Sync Batch Size (ppmf_SyncBatchSize)": {
+          "defaultValue": "100",
+          "type": "String",
+          "metadata": {
+            "schemaName": "ppmf_SyncBatchSize",
+            "description": "Maximum number of SharePoint items to process per sync run. Default: 100."
+          }
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 15
+          },
+          "metadata": {
+            "operationMetadataId": "aa110003-cc22-0001-bb33-001dd8100003"
+          },
+          "type": "Recurrence"
+        }
+      },
+      "actions": {
+        "Condition_SyncEnabled": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "aa110003-cc22-0002-bb33-001dd8100003"
+          },
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@parameters('Dataverse Sync Enabled (ppmf_DataverseSyncEnabled)')",
+                  "Yes"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Get_items_to_sync": {
+              "metadata": {
+                "operationMetadataId": "aa110003-cc22-0003-bb33-001dd8100003"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+                  "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                  "$filter": "SyncedToDataverse eq 0 and SyncAttempts lt 3",
+                  "$orderby": "OccurredOn asc",
+                  "$top": "@int(parameters('Sync Batch Size (ppmf_SyncBatchSize)'))"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "GetItems",
+                  "connectionName": "shared_sharepointonline-1"
+                },
+                "retryPolicy": {
+                  "type": "fixed",
+                  "count": 3,
+                  "interval": "PT20S"
+                }
+              }
+            },
+            "Apply_to_each": {
+              "runAfter": {
+                "Get_items_to_sync": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aa110003-cc22-0004-bb33-001dd8100003"
+              },
+              "type": "Foreach",
+              "foreach": "@body('Get_items_to_sync')?['value']",
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 1
+                }
+              },
+              "actions": {
+                "Scope_sync_item": {
+                  "metadata": {
+                    "operationMetadataId": "aa110003-cc22-0005-bb33-001dd8100003"
+                  },
+                  "type": "Scope",
+                  "actions": {
+                    "List_rows_dedup_check": {
+                      "metadata": {
+                        "operationMetadataId": "aa110003-cc22-0006-bb33-001dd8100003"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "ppmf_errorevents",
+                          "$select": "ppmf_erroreventid",
+                          "$filter": "ppmf_flowrunid eq '@{items('Apply_to_each')?['FlowRunId']}'",
+                          "$top": 1
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "connectionName": "shared_commondataserviceforapps-1"
+                        }
+                      }
+                    },
+                    "Condition_record_exists_in_dataverse": {
+                      "runAfter": {
+                        "List_rows_dedup_check": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "aa110003-cc22-0007-bb33-001dd8100003"
+                      },
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "greater": [
+                              "@length(body('List_rows_dedup_check')?['value'])",
+                              0
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Update_item_already_synced": {
+                          "metadata": {
+                            "operationMetadataId": "aa110003-cc22-0008-bb33-001dd8100003"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+                              "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                              "id": "@items('Apply_to_each')?['ID']",
+                              "item/SyncedToDataverse": true,
+                              "item/DataverseRecordId": "@{body('List_rows_dedup_check')?['value']?[0]?['ppmf_erroreventid']}"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                              "operationId": "PatchItem",
+                              "connectionName": "shared_sharepointonline-1"
+                            },
+                            "retryPolicy": {
+                              "type": "fixed",
+                              "count": 3,
+                              "interval": "PT20S"
+                            }
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {
+                          "Add_a_new_row": {
+                            "metadata": {
+                              "operationMetadataId": "aa110003-cc22-0009-bb33-001dd8100003"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "entityName": "ppmf_errorevents",
+                                "item/ppmf_appversion": "@items('Apply_to_each')?['AppVersion']",
+                                "item/ppmf_applicationname": "@items('Apply_to_each')?['ApplicationName']",
+                                "item/ppmf_correlationid": "@items('Apply_to_each')?['CorrelationId']",
+                                "item/ppmf_environmentname": "@items('Apply_to_each')?['EnvironmentName']",
+                                "item/ppmf_errormessage": "@items('Apply_to_each')?['ErrorMessage']",
+                                "item/ppmf_errorsource": "@items('Apply_to_each')?['ErrorSource']",
+                                "item/ppmf_flowname": "@items('Apply_to_each')?['FlowName']",
+                                "item/ppmf_flowrunid": "@items('Apply_to_each')?['FlowRunId']",
+                                "item/ppmf_flowurl": "@items('Apply_to_each')?['FlowUrl']",
+                                "item/ppmf_occurredon": "@items('Apply_to_each')?['OccurredOn']",
+                                "item/ppmf_rawpayload": "@items('Apply_to_each')?['RawPayload']",
+                                "item/ppmf_sessionid": "@items('Apply_to_each')?['SessionId']",
+                                "item/ppmf_solutionname": "@items('Apply_to_each')?['SolutionName']",
+                                "item/ppmf_triagestatus": 1,
+                                "item/ppmf_uniquekey": "@items('Apply_to_each')?['FlowRunId']",
+                                "item/ppmf_useremail": "@items('Apply_to_each')?['UserEmail']",
+                                "item/ppmf_username": "@items('Apply_to_each')?['UserName']"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                "operationId": "CreateRecord",
+                                "connectionName": "shared_commondataserviceforapps-1"
+                              }
+                            }
+                          },
+                          "Update_item_synced": {
+                            "runAfter": {
+                              "Add_a_new_row": [
+                                "Succeeded"
+                              ]
+                            },
+                            "metadata": {
+                              "operationMetadataId": "aa110003-cc22-0010-bb33-001dd8100003"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+                                "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                                "id": "@items('Apply_to_each')?['ID']",
+                                "item/SyncedToDataverse": true,
+                                "item/DataverseRecordId": "@{outputs('Add_a_new_row')?['body/ppmf_erroreventid']}"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                "operationId": "PatchItem",
+                                "connectionName": "shared_sharepointonline-1"
+                              },
+                              "retryPolicy": {
+                                "type": "fixed",
+                                "count": 3,
+                                "interval": "PT20S"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "Scope_error_handler": {
+                  "runAfter": {
+                    "Scope_sync_item": [
+                      "Failed",
+                      "TimedOut"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "aa110003-cc22-0011-bb33-001dd8100003"
+                  },
+                  "type": "Scope",
+                  "actions": {
+                    "Update_item_increment_attempts": {
+                      "metadata": {
+                        "operationMetadataId": "aa110003-cc22-0012-bb33-001dd8100003"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
+                          "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                          "id": "@items('Apply_to_each')?['ID']",
+                          "item/SyncAttempts": "@add(coalesce(items('Apply_to_each')?['SyncAttempts'], 0), 1)",
+                          "item/LastSyncAttempt": "@utcNow()"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "PatchItem",
+                          "connectionName": "shared_sharepointonline-1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Terminate_sync_disabled": {
+                "metadata": {
+                  "operationMetadataId": "aa110003-cc22-0013-bb33-001dd8100003"
+                },
+                "type": "Terminate",
+                "inputs": {
+                  "runStatus": "Succeeded",
+                  "runError": {
+                    "code": "SyncDisabled",
+                    "message": "Dataverse sync is disabled (ppmf_DataverseSyncEnabled = No). Set to Yes to enable SharePoint-to-Dataverse synchronisation."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

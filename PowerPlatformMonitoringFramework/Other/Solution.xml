@@ -8,7 +8,7 @@
     <Descriptions>
       <Description description="The Power Platform Monitoring Framework (PPMF) provides automated error capture, alerting, and triage management for Power Automate cloud flows across any Power Platform environment.&#xA;&#xA;When a flow fails, PPMF automatically captures structured error data into Dataverse, sends a formatted alert to a configured Microsoft Teams channel, and creates a trackable error record for triage. Alert routing rules allow different solutions to target dedicated Teams channels with configurable severity thresholds.&#xA;&#xA;Key capabilities:&#xA;- Automatic error capture and Teams alerting for all monitored flows&#xA;- Dataverse-backed error record management with triage status tracking&#xA;- Solution-specific alert routing with per-route severity filtering&#xA;- Configurable retention, throttle windows, and environment identity&#xA;- Post-import configuration page with guided deployment checklist&#xA;&#xA;Designed for enterprise deployment in Commercial, GCC High, and DoD cloud environments. Compatible with managed solution distribution. Requires a Microsoft Teams connection for alert delivery." languagecode="1033" />
     </Descriptions>
-    <Version>1.0.0.9</Version>
+    <Version>1.0.0.10</Version>
     <Managed>0</Managed>
     <ConfigurationPage>ppmf_config_setup</ConfigurationPage>
     <Publisher>
@@ -98,6 +98,9 @@
       <RootComponent type="29" id="{b3819854-8f27-f111-8341-001dd8207276}" behavior="0" />
       <RootComponent type="29" id="{d3f874c5-271f-f111-8341-001dd808cec5}" behavior="0" />
       <RootComponent type="29" id="{da8c9045-6024-f111-8341-001dd8207b15}" behavior="0" />
+      <RootComponent type="29" id="{aa110001-cc22-f111-bb33-001dd8100001}" behavior="0" />
+      <RootComponent type="29" id="{aa110002-cc22-f111-bb33-001dd8100002}" behavior="0" />
+      <RootComponent type="29" id="{aa110003-cc22-f111-bb33-001dd8100003}" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_base" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_config_setup" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_docs" behavior="0" />
