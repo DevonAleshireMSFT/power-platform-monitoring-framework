@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_DataverseSyncEnabled">
+  <defaultvalue>No</defaultvalue>
+  <description default="Soft-enable switch for the PPMF-Sync-SharePointErrorsToDataverse flow. When set to Yes, the recurrence sync flow will query the SharePoint error list for unsynced items and promote them into the Dataverse ppmf_ErrorEvent table. When set to No (default), the sync flow trigger fires but immediately terminates without processing any records. Set to Yes only after the Dataverse tables are provisioned and the Dataverse connection reference is assigned. Accepted values: Yes, No. Default: No.">
+    <label description="Soft-enable switch for the PPMF-Sync-SharePointErrorsToDataverse flow. When set to Yes, the recurrence sync flow will query the SharePoint error list for unsynced items and promote them into the Dataverse ppmf_ErrorEvent table. When set to No (default), the sync flow trigger fires but immediately terminates without processing any records. Set to Yes only after the Dataverse tables are provisioned and the Dataverse connection reference is assigned. Accepted values: Yes, No. Default: No." languagecode="1033" />
+  </description>
+  <displayname default="Dataverse Sync Enabled">
+    <label description="Dataverse Sync Enabled" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

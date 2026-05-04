@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_SyncIntervalMinutes">
+  <defaultvalue>15</defaultvalue>
+  <description default="The recurrence interval in minutes for the PPMF-Sync-SharePointErrorsToDataverse flow. Note: this value is read by the flow at runtime but the trigger recurrence interval is fixed at 15 minutes in the flow definition. To change the trigger frequency, edit the flow directly and update the Recurrence trigger interval. This variable is retained for documentation and future use. Default: 15.">
+    <label description="The recurrence interval in minutes for the PPMF-Sync-SharePointErrorsToDataverse flow. Note: this value is read by the flow at runtime but the trigger recurrence interval is fixed at 15 minutes in the flow definition. To change the trigger frequency, edit the flow directly and update the Recurrence trigger interval. This variable is retained for documentation and future use. Default: 15." languagecode="1033" />
+  </description>
+  <displayname default="Sync Interval (Minutes)">
+    <label description="Sync Interval (Minutes)" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

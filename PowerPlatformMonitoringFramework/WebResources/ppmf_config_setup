@@ -380,7 +380,76 @@
   </div><!-- end grid-2 -->
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       Section 4: Alert Routes
+       Section 4: SharePoint Error Store
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="card" id="sp-settings-card">
+    <div class="card-header">
+      <span class="card-header-icon">📋</span>
+      <div>
+        <div class="card-title">SharePoint Error Store</div>
+        <div class="card-subtitle">Required when Writing Mode is SharePoint or Both — configure the SharePoint list used as the error log</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="grid-2">
+
+        <div>
+          <div class="field">
+            <label>Writing Mode</label>
+            <div class="field-desc">Controls where error events are written. <strong>Dataverse</strong> — existing behaviour (default). <strong>SharePoint</strong> — no Dataverse required. <strong>Both</strong> — writes to both stores simultaneously.</div>
+            <div class="preset-row">
+              <button class="preset-btn" onclick="setPreset('writing-mode','Dataverse')">Dataverse</button>
+              <button class="preset-btn" onclick="setPreset('writing-mode','SharePoint')">SharePoint</button>
+              <button class="preset-btn" onclick="setPreset('writing-mode','Both')">Both</button>
+            </div>
+            <div class="input-row">
+              <input type="text" id="writing-mode" placeholder="Dataverse">
+              <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_WritingMode','writing-mode')">Save</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Dataverse Sync Enabled</label>
+            <div class="field-desc">Soft-enable the SharePoint → Dataverse sync flow. Set to <strong>Yes</strong> only after the sync flow is turned on and the Dataverse connection reference is assigned.</div>
+            <div class="preset-row">
+              <button class="preset-btn" onclick="setPreset('dv-sync-enabled','No')">No (default)</button>
+              <button class="preset-btn" onclick="setPreset('dv-sync-enabled','Yes')">Yes</button>
+            </div>
+            <div class="input-row">
+              <input type="text" id="dv-sync-enabled" placeholder="No">
+              <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_DataverseSyncEnabled','dv-sync-enabled')">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field">
+            <label>SharePoint Site URL</label>
+            <div class="field-desc">Full URL of the SharePoint site hosting the PPMF Error Events list. No trailing slash. Required when Writing Mode is SharePoint or Both.</div>
+            <div class="input-row">
+              <input type="text" id="sp-site-url" placeholder="https://contoso.sharepoint.com/sites/PPMF">
+              <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_SharePointSiteUrl','sp-site-url')">Save</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>SharePoint List Name</label>
+            <div class="field-desc">Exact display name of the SharePoint list. The list must be created with the PPMF column schema before first use. Default: PPMF Error Events.</div>
+            <div class="input-row">
+              <input type="text" id="sp-list-name" placeholder="PPMF Error Events">
+              <button class="btn btn-primary btn-sm" onclick="saveEnvVar('ppmf_SharePointListName','sp-list-name')">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Section 5: Alert Routes
   ═══════════════════════════════════════════════════════════════════════ -->
   <div class="card">
     <div class="card-header">
@@ -465,7 +534,11 @@ const ENV_VAR_SCHEMA_NAMES = [
   'ppmf_RetentionDays',
   'ppmf_TeamID',
   'ppmf_FlowAlertsChannelID',
-  'ppmf_AlertThrottleMinutes'
+  'ppmf_AlertThrottleMinutes',
+  'ppmf_WritingMode',
+  'ppmf_SharePointSiteUrl',
+  'ppmf_SharePointListName',
+  'ppmf_DataverseSyncEnabled'
 ];
 
 const SEVERITY_LABELS = { 1: 'Info', 2: 'Warning', 3: 'Critical' };
@@ -561,12 +634,16 @@ async function loadEnvVars() {
     }
 
     // 3. Populate form inputs
-    setInput('env-name',       'ppmf_EnvironmentName');
-    setInput('portal-url',     'ppmf_PortalBaseUrl');
-    setInput('retention-days', 'ppmf_RetentionDays');
-    setInput('team-id',        'ppmf_TeamID');
-    setInput('channel-id',     'ppmf_FlowAlertsChannelID');
-    setInput('throttle-mins',  'ppmf_AlertThrottleMinutes');
+setInput('env-name',           'ppmf_EnvironmentName');
+    setInput('portal-url',         'ppmf_PortalBaseUrl');
+    setInput('retention-days',     'ppmf_RetentionDays');
+    setInput('team-id',            'ppmf_TeamID');
+    setInput('channel-id',         'ppmf_FlowAlertsChannelID');
+    setInput('throttle-mins',      'ppmf_AlertThrottleMinutes');
+    setInput('writing-mode',       'ppmf_WritingMode');
+    setInput('sp-site-url',        'ppmf_SharePointSiteUrl');
+    setInput('sp-list-name',       'ppmf_SharePointListName');
+    setInput('dv-sync-enabled',    'ppmf_DataverseSyncEnabled');
 
     // 4. Update header subtitle with env name
     const envNameRec = envCache['ppmf_EnvironmentName'];
@@ -750,6 +827,74 @@ const CHECKS = [
         return pass(`${res.value.length} child flow(s) are active`);
       } catch {
         return warn('Could not query flows — verify you have System Customizer or higher privileges');
+      }
+    }
+  },
+  {
+    id:     'chk-writing-mode',
+    label:  'Writing Mode is configured',
+    detail: 'ppmf_WritingMode must be set to Dataverse, SharePoint, or Both',
+    run: async () => {
+      const rec = envCache['ppmf_WritingMode'];
+      if (!rec) return fail('Environment variable definition not found — verify the solution was imported correctly');
+      const val = (rec.value || rec.defaultValue || '').trim();
+      if (!val) return warn('Not configured — defaults to Dataverse. Set explicitly to make intent clear.');
+      const valid = ['Dataverse', 'SharePoint', 'Both'];
+      if (!valid.includes(val)) return fail(`"${val}" is not a recognised value — accepted values are: Dataverse, SharePoint, Both (case-sensitive)`);
+      if (val === 'Dataverse') return pass('Set to Dataverse — using existing Dataverse write path');
+      return pass(`Set to: "${val}"`);
+    }
+  },
+  {
+    id:     'chk-sp-config',
+    label:  'SharePoint configuration is complete (when Writing Mode is SharePoint or Both)',
+    detail: 'ppmf_SharePointSiteUrl must be set and ppmf_SharePointConnectionReference must be assigned when Writing Mode includes SharePoint',
+    run: async () => {
+      const modeRec = envCache['ppmf_WritingMode'];
+      const mode    = (modeRec?.value || modeRec?.defaultValue || 'Dataverse').trim();
+      if (mode === 'Dataverse') return pass('Not applicable — Writing Mode is Dataverse');
+
+      const urlRec  = envCache['ppmf_SharePointSiteUrl'];
+      const listRec = envCache['ppmf_SharePointListName'];
+      const urlVal  = (urlRec?.value  || urlRec?.defaultValue  || '').trim();
+      const listVal = (listRec?.value || listRec?.defaultValue || '').trim();
+
+      if (!urlVal)  return fail('ppmf_SharePointSiteUrl is not set — required for SharePoint or Both mode');
+      if (!listVal) return warn('ppmf_SharePointListName is not set — will default to "PPMF Error Events"');
+
+      try {
+        const res = await dvGet(
+          `connectionreferences?$select=connectionreferencedisplayname,connectionid&$filter=connectionreferencelogicalname eq 'ppmf_SharePointConnectionReference'`
+        );
+        if (!res.value.length) return fail('SharePoint connection reference record not found — verify the solution was imported correctly');
+        const cid = res.value[0].connectionid;
+        if (!cid) return fail('No SharePoint connection assigned — go to Solutions → Connection References and assign a SharePoint connection');
+        return pass(`Site: ${truncate(urlVal, 50)} | Connection assigned`);
+      } catch {
+        return warn('Could not query SharePoint connection reference — verify you have System Customizer or higher privileges');
+      }
+    }
+  },
+  {
+    id:     'chk-sync-flow',
+    label:  'SharePoint → Dataverse sync flow state is appropriate',
+    detail: 'PPMF-Sync-SharePointErrorsToDataverse should be On when Dataverse Sync Enabled = Yes, and Off otherwise',
+    run: async () => {
+      const syncRec     = envCache['ppmf_DataverseSyncEnabled'];
+      const syncEnabled = (syncRec?.value || syncRec?.defaultValue || 'No').trim();
+      try {
+        const res = await dvGet(
+          `workflows?$select=name,statecode&$filter=category eq 5 and contains(name,'PPMF-Sync-SharePointErrorsToDataverse')`
+        );
+        if (!res.value.length) return warn('Sync flow not found — verify the solution was imported correctly');
+        const flow     = res.value[0];
+        const isActive = flow.statecode === 1;
+        if (syncEnabled === 'Yes' && !isActive) return fail('ppmf_DataverseSyncEnabled = Yes but the sync flow is Off — turn on PPMF-Sync-SharePointErrorsToDataverse in the flow list');
+        if (syncEnabled !== 'Yes' && isActive)  return warn('Sync flow is On but ppmf_DataverseSyncEnabled ≠ Yes — the flow will terminate each run without syncing');
+        if (syncEnabled === 'Yes' && isActive)  return pass('Sync flow is On and ppmf_DataverseSyncEnabled = Yes — sync is active');
+        return pass('Sync flow is Off and ppmf_DataverseSyncEnabled = No — sync correctly disabled');
+      } catch {
+        return warn('Could not query sync flow state — verify you have System Customizer or higher privileges');
       }
     }
   },

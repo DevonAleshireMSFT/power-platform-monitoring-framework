@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="ppmf_WritingMode">
+  <defaultvalue>Dataverse</defaultvalue>
+  <description default="Controls where error events are written when a flow failure is captured. Dataverse — writes only to the Dataverse ppmf_ErrorEvent table (default, existing behavior, requires Dataverse). SharePoint — writes only to the configured SharePoint list; use this in environments where Dataverse is not available. Both — writes to both Dataverse and SharePoint simultaneously; use during migration or for dual-store redundancy. Accepted values (case-sensitive): Dataverse, SharePoint, Both. Default: Dataverse.">
+    <label description="Controls where error events are written when a flow failure is captured. Dataverse — writes only to the Dataverse ppmf_ErrorEvent table (default, existing behavior, requires Dataverse). SharePoint — writes only to the configured SharePoint list; use this in environments where Dataverse is not available. Both — writes to both Dataverse and SharePoint simultaneously; use during migration or for dual-store redundancy. Accepted values (case-sensitive): Dataverse, SharePoint, Both. Default: Dataverse." languagecode="1033" />
+  </description>
+  <displayname default="Writing Mode">
+    <label description="Writing Mode" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.10</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>
