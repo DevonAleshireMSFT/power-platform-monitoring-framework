@@ -449,6 +449,7 @@
 
     <div class="sidebar-section-label">About</div>
     <a href="#ai-disclosure">AI Disclosure</a>
+    <a href="ppmf_releasenotes" target="_blank">Release Notes ↗</a>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════════════════
@@ -828,7 +829,7 @@
         <span class="card-header-icon">📋</span>
         <div>
           <div class="card-title">Error Event Field Glossary</div>
-          <div class="card-subtitle">ppmf_errorevent — all custom fields</div>
+          <div class="card-subtitle">ppmf_errorevent — all custom fields, grouped by purpose</div>
         </div>
       </div>
       <div class="card-body" style="padding:0">
@@ -837,6 +838,25 @@
             <tr><th>Schema Name</th><th>Label</th><th>Description</th></tr>
           </thead>
           <tbody>
+            <!-- ─ Identity & Intake ──────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Identity &amp; Intake</td></tr>
+            <tr>
+              <td><span class="field-name">ppmf_name</span></td>
+              <td><span class="field-label">Error ID</span></td>
+              <td><span class="field-desc">Auto-generated unique identifier for the error event record (e.g. ERR-000001). Primary reference for tracking and communication.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_uniquekey</span></td>
+              <td><span class="field-label">Unique Key</span></td>
+              <td><span class="field-desc">GUID generated at intake to prevent duplicate records from retried flows or replayed payloads.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_sourcetype</span></td>
+              <td><span class="field-label">Source Type</span></td>
+              <td><span class="field-desc">Choice: 1 = Power App, 2 = Flow, 3 = Child Flow. Identifies the component that generated the error. Controls which sections are visible on the form — the Flow section is shown for Flow/Child Flow; the User section is shown for Power App.</span></td>
+            </tr>
+            <!-- ─ Capture Context ─────────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Capture Context</td></tr>
             <tr>
               <td><span class="field-name">ppmf_environmentname</span></td>
               <td><span class="field-label">Environment Name</span></td>
@@ -845,12 +865,12 @@
             <tr>
               <td><span class="field-name">ppmf_solutionname</span></td>
               <td><span class="field-label">Solution Name</span></td>
-              <td><span class="field-desc">The solution name string passed by the calling flow. Used for alert route matching and record filtering.</span></td>
+              <td><span class="field-desc">The solution name string passed by the calling flow or app. Used for alert route matching and record filtering.</span></td>
             </tr>
             <tr>
               <td><span class="field-name">ppmf_applicationname</span></td>
               <td><span class="field-label">Application Name</span></td>
-              <td><span class="field-desc">Canvas App name when the error source is an app rather than a flow.</span></td>
+              <td><span class="field-desc">Canvas App display name when the error source is an app (ppmf_sourcetype = Power App).</span></td>
             </tr>
             <tr>
               <td><span class="field-name">ppmf_appversion</span></td>
@@ -865,7 +885,7 @@
             <tr>
               <td><span class="field-name">ppmf_flowrunid</span></td>
               <td><span class="field-label">Flow Run ID</span></td>
-              <td><span class="field-desc">The specific flow run GUID. Used by the throttle check to avoid self-referential suppression and as a deduplication key.</span></td>
+              <td><span class="field-desc">The specific flow run GUID. Used as a deduplication key and to prevent self-referential throttle suppression.</span></td>
             </tr>
             <tr>
               <td><span class="field-name">ppmf_flowurl</span></td>
@@ -873,34 +893,137 @@
               <td><span class="field-desc">Direct deep link to the failed flow run in the Power Automate portal. Constructed from ppmf_PortalBaseUrl + the run path. Appears as a clickable link in Teams alert cards.</span></td>
             </tr>
             <tr>
+              <td><span class="field-name">ppmf_occurredon</span></td>
+              <td><span class="field-label">Occurred On</span></td>
+              <td><span class="field-desc">Timestamp when the error occurred as reported by the source system. Used by the retention maintenance flow for age-based deletion eligibility.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_alertsenton</span></td>
+              <td><span class="field-label">Alert Sent On</span></td>
+              <td><span class="field-desc">Timestamp of the most recent Teams alert posted for this record. Used by throttle logic to suppress duplicate notifications. Blank when the record was created during a throttle suppression window.</span></td>
+            </tr>
+            <!-- ─ Error Detail ────────────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Error Detail</td></tr>
+            <tr>
+              <td><span class="field-name">ppmf_errormessage</span></td>
+              <td><span class="field-label">Error Message</span></td>
+              <td><span class="field-desc">Full error message text from the failed action or app error event.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_errorsource</span></td>
+              <td><span class="field-label">Error Source</span></td>
+              <td><span class="field-desc">Control name, action name, or flow step where the error originated.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_errortype</span></td>
+              <td><span class="field-label">Error Type</span></td>
+              <td><span class="field-desc">Categorizes the raw error into a manageable group for trend analysis and filtering.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_correlationid</span></td>
+              <td><span class="field-label">Correlation ID</span></td>
+              <td><span class="field-desc">Links related error events across multiple systems or flows for end-to-end tracing.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_rawpayload</span></td>
+              <td><span class="field-label">Raw Payload</span></td>
+              <td><span class="field-desc">Complete JSON payload submitted at intake. Useful for full diagnostic detail when the parsed fields alone are insufficient.</span></td>
+            </tr>
+            <!-- ─ Canvas App ──────────────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Canvas App</td></tr>
+            <tr>
+              <td><span class="field-name">ppmf_activescreen</span></td>
+              <td><span class="field-label">Active Screen</span></td>
+              <td><span class="field-desc">Screen name in the Canvas App where the error occurred. Populated from the ErrorPayload JSON.</span></td>
+            </tr>
+            <tr>
               <td><span class="field-name">ppmf_sessionid</span></td>
               <td><span class="field-label">Session ID</span></td>
               <td><span class="field-desc">Groups multiple errors from the same app session or execution context. Most useful for Canvas App errors.</span></td>
             </tr>
             <tr>
-              <td><span class="field-name">ppmf_errormessage</span></td>
-              <td><span class="field-label">Error Message</span></td>
-              <td><span class="field-desc">The full error message text from the failed action or app error event.</span></td>
+              <td><span class="field-name">ppmf_username</span></td>
+              <td><span class="field-label">User Name</span></td>
+              <td><span class="field-desc">Display name of the user who experienced the error.</span></td>
             </tr>
+            <tr>
+              <td><span class="field-name">ppmf_useremail</span></td>
+              <td><span class="field-label">User Email</span></td>
+              <td><span class="field-desc">Email address of the affected user. Handle per organizational PII policy before sharing or reporting.</span></td>
+            </tr>
+            <!-- ─ Triage ──────────────────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Triage</td></tr>
             <tr>
               <td><span class="field-name">ppmf_severity</span></td>
               <td><span class="field-label">Severity</span></td>
-              <td><span class="field-desc">Choice field: 1 = Info (blue), 2 = Warning (amber), 3 = Critical (red), 4 = Unknown (grey). Set during triage. Displayed as a colored left border indicator on the form and as a colored dot in the view.</span></td>
+              <td><span class="field-desc">Choice: 1 = Info (blue), 2 = Warning (amber), 3 = Critical (red), 4 = Unknown (grey). Used for prioritization. Displayed as a colored left border on the form.</span></td>
             </tr>
             <tr>
-              <td><span class="field-name">ppmf_triagingstatus</span></td>
-              <td><span class="field-label">Triaging Status</span></td>
-              <td><span class="field-desc">Triage workflow state: New → In Progress → Fixed / Duplicate / Won't Fix / Closed. Records with status New or In Progress are never deleted by the retention maintenance flow.</span></td>
+              <td><span class="field-name">ppmf_triagestatus</span></td>
+              <td><span class="field-label">Triage Status</span></td>
+              <td><span class="field-desc">Current workflow state: New → In Progress → Fixed / Duplicate / Won't Fix / Closed. Records with status New or In Progress are never deleted by the retention maintenance flow.</span></td>
             </tr>
             <tr>
-              <td><span class="field-name">ppmf_occurredon</span></td>
-              <td><span class="field-label">Occurred On</span></td>
-              <td><span class="field-desc">Timestamp of when the failure occurred. Used by the retention maintenance flow to determine age eligibility for deletion.</span></td>
+              <td><span class="field-name">ppmf_assignedtoid</span></td>
+              <td><span class="field-label">Assigned To</span></td>
+              <td><span class="field-desc">Dataverse user assigned to investigate or resolve this error. Enables personal views and programmatic assignment from flows.</span></td>
             </tr>
             <tr>
-              <td><span class="field-name">ppmf_alertsent</span></td>
-              <td><span class="field-label">Alert Sent</span></td>
-              <td><span class="field-desc">Indicates whether a Teams alert card was posted for this record. False when the record was created during a throttle suppression window.</span></td>
+              <td><span class="field-name">ppmf_customerimpact</span></td>
+              <td><span class="field-label">Customer Impact</span></td>
+              <td><span class="field-desc">Description of the business or user impact this error causes. Useful for prioritization and executive reporting.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_probablecause</span></td>
+              <td><span class="field-label">Probable Cause</span></td>
+              <td><span class="field-desc">Root cause as identified by the triager or AI analysis.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_suggestedfix</span></td>
+              <td><span class="field-label">Suggested Fix</span></td>
+              <td><span class="field-desc">Recommended remediation steps from the analyst or AI agent.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_confidencelevel</span></td>
+              <td><span class="field-label">Confidence Level</span></td>
+              <td><span class="field-desc">Confidence in the suggested fix; populated by the AI agent or analyst during review.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_reviewedon</span></td>
+              <td><span class="field-label">Reviewed On</span></td>
+              <td><span class="field-desc">Timestamp when this error event was last reviewed by an analyst or AI agent.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_resolutiontype</span></td>
+              <td><span class="field-label">Resolution Type</span></td>
+              <td><span class="field-desc">How the issue was or will be resolved. Used in reporting and trend tracking.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_relatederroreventid</span></td>
+              <td><span class="field-label">Related Error Event</span></td>
+              <td><span class="field-desc">Points to the original canonical error record when this event is marked as Duplicate.</span></td>
+            </tr>
+            <!-- ─ Resolution Tracking ─────────────────────────────────────── -->
+            <tr><td colspan="3" style="background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);padding:10px 12px 6px;border-bottom:1px solid var(--border)">Resolution Tracking</td></tr>
+            <tr>
+              <td><span class="field-name">ppmf_fixversiontarget</span></td>
+              <td><span class="field-label">Fix Version Target</span></td>
+              <td><span class="field-desc">Solution version the fix is targeted for deployment in.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_fixdeployed</span></td>
+              <td><span class="field-label">Fix Deployed</span></td>
+              <td><span class="field-desc">Indicates whether the fix has been deployed to the production environment.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_fixedon</span></td>
+              <td><span class="field-label">Fixed On</span></td>
+              <td><span class="field-desc">Date the fix was confirmed as deployed.</span></td>
+            </tr>
+            <tr>
+              <td><span class="field-name">ppmf_workitemlink</span></td>
+              <td><span class="field-label">Work Item Link</span></td>
+              <td><span class="field-desc">URL to the related work item in ADO, Jira, ServiceNow, or similar tracking system.</span></td>
             </tr>
           </tbody>
         </table>

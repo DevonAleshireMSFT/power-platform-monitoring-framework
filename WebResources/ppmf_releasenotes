@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Platform Monitoring Framework — Release Notes</title>
+  <style>
+    :root {
+      --primary:          #0078d4;
+      --primary-dark:     #005a9e;
+      --primary-light:    #e1effa;
+      --success:          #107c10;
+      --success-light:    #f0faf0;
+      --success-border:   #c3e6c3;
+      --warning-light:    #fffbee;
+      --warning-border:   #fde7a0;
+      --error:            #d13438;
+      --error-light:      #fff3f3;
+      --error-border:     #f3c6c7;
+      --bg:               #f3f2f1;
+      --surface:          #ffffff;
+      --border:           #edebe9;
+      --border-strong:    #8a8886;
+      --text:             #323130;
+      --text-secondary:   #605e5c;
+      --text-disabled:    #a19f9d;
+      --radius:           4px;
+      --shadow:           0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .app-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-header-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    .app-body { display: flex; min-height: calc(100vh - 76px); }
+
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      height: calc(100vh - 76px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-disabled);
+      padding: 12px 20px 4px;
+    }
+    .sidebar-section-label:first-child { padding-top: 4px; }
+
+    .sidebar a {
+      display: block;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: color .1s, background .1s, border-color .1s;
+    }
+    .sidebar a:hover { color: var(--primary); background: var(--primary-light); }
+    .sidebar a.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-light); font-weight: 600; }
+
+    .app-main { flex: 1; padding: 28px 36px; max-width: 860px; overflow-y: auto; }
+
+    /* ── Release card ────────────────────────────────────────────────────── */
+    .release-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+      scroll-margin-top: 20px;
+    }
+    .release-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .release-version {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+    .release-date {
+      font-size: 12px;
+      color: var(--text-disabled);
+      margin-left: auto;
+    }
+    .release-body { padding: 20px; }
+
+    /* ── Change type badges ──────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .badge-new      { background: #dce9f8; color: #004578; }
+    .badge-improved { background: var(--success-border); color: #0e5a0e; }
+    .badge-fixed    { background: var(--error-border); color: #6b0c0e; }
+    .badge-changed  { background: var(--warning-border); color: #4d3700; }
+
+    /* ── Change list ─────────────────────────────────────────────────────── */
+    .change-group { margin-bottom: 18px; }
+    .change-group:last-child { margin-bottom: 0; }
+    .change-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-disabled);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .change-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .change-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 13px;
+    }
+    .change-item .badge { flex-shrink: 0; margin-top: 1px; }
+    .change-item-text { color: var(--text-secondary); line-height: 1.5; }
+    .change-item-text strong { color: var(--text); }
+
+    code {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--primary-dark);
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 16px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
+    .btn-secondary:hover { background: rgba(255,255,255,.12); }
+    .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 740px) {
+      .sidebar { display: none; }
+      .app-main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Header
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="app-header">
+  <div class="app-header-icon">📋</div>
+  <div>
+    <h1>Power Platform Monitoring Framework</h1>
+    <p>Release Notes</p>
+  </div>
+  <div style="margin-left:auto">
+    <a class="btn btn-secondary btn-sm" href="ppmf_docs" target="_blank">📖 Documentation</a>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Sidebar Navigation
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Releases</div>
+    <a href="#v1-0-0-9" class="active">v1.0.0.9</a>
+    <a href="#v1-0-0-8">v1.0.0.8</a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Main Content
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <main class="app-main" id="main-content">
+
+    <!-- ── v1.0.0.9 ───────────────────────────────────────────────────────── -->
+    <div class="release-card" id="v1-0-0-9">
+      <div class="release-header">
+        <span class="release-version">v1.0.0.9</span>
+        <span class="badge badge-new" style="font-size:12px">Latest</span>
+        <span class="release-date">May 3, 2026</span>
+      </div>
+      <div class="release-body">
+
+        <div class="change-group">
+          <div class="change-group-title">Forms</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Error Event form section visibility</strong> — the Flow section and User section on the Error Event main form now show and hide automatically based on <code>ppmf_sourcetype</code>. Flow/Child Flow errors show the Flow section; Power App errors show the User section; unset records show both.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">Web Resources</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_base</strong> — foundation script establishing the shared <code>PPMF</code> namespace and <code>PPMF.utils</code> helper module (<code>setSectionVisible</code>, <code>getOptionSetValue</code>). Must be registered as the first library on any form using other PPMF scripts.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_errorEventForm</strong> — Error Event main form controller. Implements <code>PPMF.ErrorEvent.onLoad</code> and <code>PPMF.ErrorEvent.onSourceTypeChange</code> to apply section visibility rules on load and on change.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_releasenotes</strong> — this release notes page, accessible from the Documentation sidebar.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="change-group">
+          <div class="change-group-title">Documentation</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-improved">Improved</span>
+              <span class="change-item-text"><strong>Error Event Field Glossary expanded</strong> — all 30+ custom fields now documented and organized into logical groups: Identity &amp; Intake, Capture Context, Error Detail, Canvas App, Triage, and Resolution Tracking.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-fixed">Fixed</span>
+              <span class="change-item-text"><strong>Incorrect schema names corrected</strong> — <code>ppmf_triagingstatus</code> corrected to <code>ppmf_triagestatus</code>; <code>ppmf_alertsent</code> (boolean) corrected to <code>ppmf_alertsenton</code> (datetime).</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>ppmf_sourcetype</strong> added to the Field Glossary with description of its form visibility behavior.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── v1.0.0.8 ───────────────────────────────────────────────────────── -->
+    <div class="release-card" id="v1-0-0-8">
+      <div class="release-header">
+        <span class="release-version">v1.0.0.8</span>
+        <span class="release-date">May 2026</span>
+      </div>
+      <div class="release-body">
+
+        <div class="change-group">
+          <div class="change-group-title">Initial Release</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Core flow error capture</strong> — <code>PPMF-Child-ProcessFlowError</code> entry point parses <code>workflow()</code> JSON, extracts flow name and run ID, and constructs portal deep links.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Teams alerting</strong> — <code>PPMF-Child-FlowErrorHandler-JSON</code> and <code>PPMF-Child-FlowErrorHandler-Parameters</code> resolve alert routes, check throttle windows, and post adaptive card alerts to Teams.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Dataverse error logging</strong> — <code>PPMF-Child-FlowWritetoIntakeList</code> creates <code>ppmf_errorevent</code> records on every failure, regardless of throttle state.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Canvas App error handling</strong> — <code>PPMF-Power-Apps-Error-Handler-JSON</code> accepts a JSON error payload via PowerAppV2 trigger, applies throttle logic, and logs to Dataverse.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Alert Routes</strong> — <code>ppmf_alertroute</code> table enables per-solution Teams channel routing with configurable minimum severity thresholds.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Severity Badge</strong> — <code>ppmf_severityBadgeForm</code> renders a colored left-border indicator on the <code>ppmf_severity</code> header field on the Error Event form.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Automated retention</strong> — <code>PPMF-Delete-Old-Errors</code> runs weekly to delete resolved error records older than the configured retention threshold.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Setup &amp; Configuration page</strong> — guided post-import checklist with 8 automated deployment validation checks.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Documentation page</strong> — in-app HTML documentation covering architecture, configuration, field glossaries, and integration guides.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Demo flow</strong> — <code>PPMF-Demo-Flow-Failure</code> for end-to-end validation after setup.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Environment variables</strong> — six configurable variables: Environment Name, Portal Base URL, Teams Group ID, Flow Alerts Channel ID, Alert Throttle Minutes (default 15), and Error Retention Days (default 90).</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Security roles</strong> — four roles included: PPMF Admin, PPMF Reader, PPMF Service Account, and PPMF Triager.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Active sidebar link on scroll ─────────────────────────────────────────
+  const sections = document.querySelectorAll('.release-card');
+  const navLinks = document.querySelectorAll('.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

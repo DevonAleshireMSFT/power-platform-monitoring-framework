@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{d4e5f6a7-b8c9-4a0b-cdef-001dd8020013}</WebResourceId>
+  <Name>ppmf_releasenotes</Name>
+  <DisplayName>PPMF - Release Notes</DisplayName>
+  <Description>Release notes for the Power Platform Monitoring Framework. Lists all changes, new features, and fixes for each version.</Description>
+  <LanguageCode>0</LanguageCode>
+  <WebResourceType>1</WebResourceType>
+  <IntroducedVersion>1.0.0.9</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/ppmf_releasenotesD4E5F6A7-B8C9-4A0B-CDEF-001DD8020013</FileName>
+</WebResource>
