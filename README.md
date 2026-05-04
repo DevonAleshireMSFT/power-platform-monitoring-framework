@@ -82,7 +82,7 @@ Four purpose-built security roles are included in the solution. Assign from **Se
 | **PPMF - Reader** | Stakeholders and auditors requiring visibility only | Read-only access to all three PPMF tables. No create, write, or delete privileges |
 | **PPMF - Service Account** | Dataverse application user backed by an **Azure AD app registration (service principal)** — **do not assign to human users** | Create/Read on `ppmf_ErrorEvent`; Create/Append on `ppmf_ErrorNote`; Read-only on `ppmf_AlertRoute` |
 
-> **Service principal, not a licensed service account:** This role is designed for a Dataverse **application user** created from an Azure AD app registration. A service principal does not require a Power Platform licence. Do not create a licensed user account for this purpose. To set this up: register an app in Azure AD, create a Dataverse application user linked to that app registration, and assign it the **PPMF - Service Account** role. Assigning this role to a human user will prevent that user from accessing the PPMF Platform Monitor app.
+> **Service principal, not a licensed service account:** This role is designed for a Dataverse **application user** created from an Azure AD app registration. A service principal does not require a Power Platform license. Do not create a licensed user account for this purpose. To set this up: register an app in Azure AD, create a Dataverse application user linked to that app registration, and assign it the **PPMF - Service Account** role. Assigning this role to a human user will prevent that user from accessing the PPMF Platform Monitor app.
 
 ---
 

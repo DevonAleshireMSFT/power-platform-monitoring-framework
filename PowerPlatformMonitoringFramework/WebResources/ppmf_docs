@@ -608,7 +608,7 @@
         <span class="card-header-icon">🌐</span>
         <div>
           <div class="card-title">Environment Variables</div>
-          <div class="card-subtitle">Six variables control all runtime behaviour. Configure from the Setup &amp; Configuration page.</div>
+          <div class="card-subtitle">Six variables control all runtime behavior. Configure from the Setup &amp; Configuration page.</div>
         </div>
       </div>
       <div class="card-body" style="padding:0">
@@ -1197,7 +1197,7 @@
 
         <div class="callout callout-info" style="margin-top:16px">
           <span class="callout-icon">ℹ️</span>
-          <div><strong>Difference from the flow error path:</strong> Alert route lookup runs and resolves a matching route, but the Teams card is posted to the default channel from the environment variables regardless of the match. Per-solution channel routing is not applied to canvas app alerts. All other behaviour — throttle suppression and Dataverse logging — is consistent with the flow error path.</div>
+          <div><strong>Difference from the flow error path:</strong> Alert route lookup runs and resolves a matching route, but the Teams card is posted to the default channel from the environment variables regardless of the match. Per-solution channel routing is not applied to canvas app alerts. All other behavior — throttle suppression and Dataverse logging — is consistent with the flow error path.</div>
         </div>
       </div>
     </div>
