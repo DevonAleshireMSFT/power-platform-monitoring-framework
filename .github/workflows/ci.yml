@@ -1,0 +1,49 @@
+# =============================================================================
+# CI – Validate Solution Pack
+#
+# Triggered on every pull request targeting `dev` or `main`.
+# Packs the solution as unmanaged to verify the source tree is packable.
+# Fails the PR if pac solution pack exits non-zero or produces no output file.
+#
+# No credentials or environment connection is required — this is a local pack
+# operation only.
+# =============================================================================
+name: CI – Validate Solution Pack
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'PowerPlatformMonitoringFramework/**'
+      - '.github/workflows/**'
+
+jobs:
+  validate-pack:
+    name: Pack (unmanaged) – validation only
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: Pack solution (unmanaged)
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: PowerPlatformMonitoringFramework
+          solution-file: out/PowerPlatformMonitoringFramework_unmanaged.zip
+          solution-type: Unmanaged
+          process-canvas-apps: false
+
+      - name: Verify output
+        shell: pwsh
+        run: |
+          $zip = "out/PowerPlatformMonitoringFramework_unmanaged.zip"
+          if (-not (Test-Path $zip)) {
+            Write-Error "Pack output not found – pack step may have silently failed."
+            exit 1
+          }
+          $size = (Get-Item $zip).Length
+          Write-Host "Pack succeeded – zip size: $([math]::Round($size / 1KB, 1)) KB"
