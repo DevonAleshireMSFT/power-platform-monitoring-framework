@@ -1,0 +1,70 @@
+# =============================================================================
+# Deploy – Dev Environment
+#
+# Triggered on every push to `dev` that touches the solution source or
+# workflow files. Can also be triggered manually via workflow_dispatch.
+#
+# Packs the solution as unmanaged and imports it to the dev Power Platform
+# environment using a service principal.
+#
+# Required GitHub Secrets (set under Settings → Secrets → Actions):
+#   PP_CLIENT_ID            Azure App Registration client ID
+#   PP_CLIENT_SECRET        Azure App Registration client secret
+#   PP_TENANT_ID            Azure AD tenant ID
+#   PP_DEV_ENVIRONMENT_URL  Dev environment URL
+#                           e.g. https://org05d9d92f.crm.microsoftdynamics.us/
+#
+# Service principal setup:
+#   1. Register an app in Entra ID.
+#   2. In the Power Platform admin centre, add the app as an application user
+#      in the dev environment and assign it the System Administrator role.
+#   3. Store the client ID, secret, and tenant ID as secrets above.
+# =============================================================================
+name: Deploy – Dev Environment
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'PowerPlatformMonitoringFramework/**'
+      - '.github/workflows/deploy-dev.yml'
+  workflow_dispatch:
+
+# Prevent parallel deploys to the same environment.
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy-dev:
+    name: Pack & import to Dev
+    runs-on: windows-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: Pack solution (unmanaged)
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: PowerPlatformMonitoringFramework
+          solution-file: out/PowerPlatformMonitoringFramework_unmanaged.zip
+          solution-type: Unmanaged
+          process-canvas-apps: false
+
+      - name: Import to Dev environment
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_DEV_ENVIRONMENT_URL }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          cloud: UsGovHigh
+          solution-file: out/PowerPlatformMonitoringFramework_unmanaged.zip
+          force-overwrite: true
+          publish-changes: true
+          skip-dependency-check: false

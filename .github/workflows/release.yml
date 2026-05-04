@@ -1,0 +1,128 @@
+# =============================================================================
+# Release – Pack, Publish, and Deploy Production
+#
+# Triggered when a version tag matching v#.#.#.# is pushed to the repository.
+# Example: git tag v1.0.0.10 && git push origin v1.0.0.10
+#
+# Steps:
+#   1. Validate that the tag version matches Solution.xml <Version>.
+#   2. Pack unmanaged and managed solution zips.
+#   3. Create a GitHub Release with both zips as downloadable assets.
+#   4. Import the managed solution to the production environment.
+#
+# Pre-release checklist (do this before tagging):
+#   - Update <Version> in PowerPlatformMonitoringFramework/Other/Solution.xml
+#   - Merge feature branches → dev, validate in dev, then merge dev → main
+#   - Tag main: git tag v1.0.0.10 && git push origin v1.0.0.10
+#
+# Required GitHub Secrets (set under Settings → Secrets → Actions):
+#   PP_CLIENT_ID             Azure App Registration client ID
+#   PP_CLIENT_SECRET         Azure App Registration client secret
+#   PP_TENANT_ID             Azure AD tenant ID
+#   PP_PROD_ENVIRONMENT_URL  Production environment URL
+#                            e.g. https://yourorg.crm.microsoftdynamics.us/
+#
+# The same service principal used for dev can be used here if it has been
+# added as an application user with System Administrator in the prod environment.
+# For tighter security, use a separate production-only service principal and
+# store its credentials as separate secrets (PP_PROD_CLIENT_ID, etc.).
+# =============================================================================
+name: Release – Pack & Deploy Production
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    name: Pack, publish release, deploy to Production
+    runs-on: windows-latest
+    environment: production
+
+    # Required to create a GitHub Release and upload assets.
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Extract version from tag ──────────────────────────────────────────
+      - name: Extract version
+        id: version
+        shell: pwsh
+        run: |
+          $tag     = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "TAG=$tag"         | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Tag: $tag  |  Version: $version"
+
+      # ── Validate tag matches Solution.xml ────────────────────────────────
+      - name: Validate version matches Solution.xml
+        shell: pwsh
+        run: |
+          $xml             = [xml](Get-Content "PowerPlatformMonitoringFramework/Other/Solution.xml" -Raw)
+          $solutionVersion = $xml.ImportExportXml.SolutionManifest.Version
+          $tagVersion      = "${{ steps.version.outputs.VERSION }}"
+
+          if ($solutionVersion -ne $tagVersion) {
+            Write-Error @"
+          Version mismatch detected.
+            Tag version      : $tagVersion
+            Solution.xml     : $solutionVersion
+          Update <Version> in Solution.xml and re-tag.
+          "@
+            exit 1
+          }
+
+          Write-Host "Version confirmed: $solutionVersion"
+
+      # ── Install PAC CLI ───────────────────────────────────────────────────
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # ── Pack unmanaged ────────────────────────────────────────────────────
+      - name: Pack solution (unmanaged)
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: PowerPlatformMonitoringFramework
+          solution-file: out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_unmanaged.zip
+          solution-type: Unmanaged
+          process-canvas-apps: false
+
+      # ── Pack managed ──────────────────────────────────────────────────────
+      - name: Pack solution (managed)
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: PowerPlatformMonitoringFramework
+          solution-file: out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_managed.zip
+          solution-type: Managed
+          process-canvas-apps: false
+
+      # ── Create GitHub Release ─────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Power Platform Monitoring Framework ${{ steps.version.outputs.TAG }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_unmanaged.zip
+            out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_managed.zip
+
+      # ── Deploy managed to Production ──────────────────────────────────────
+      - name: Import managed solution to Production
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_PROD_ENVIRONMENT_URL }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          cloud: UsGovHigh
+          solution-file: out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_managed.zip
+          force-overwrite: true
+          publish-changes: true
+          skip-dependency-check: false
