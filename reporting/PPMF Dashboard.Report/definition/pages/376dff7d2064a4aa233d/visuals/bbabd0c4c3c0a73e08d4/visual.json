@@ -1,0 +1,263 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "bbabd0c4c3c0a73e08d4",
+  "position": {
+    "x": 0,
+    "y": 217.87234042553192,
+    "z": 1000,
+    "height": 501.88449848024317,
+    "width": 765.47112462006078,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Application Name"
+                }
+              },
+              "queryRef": "Error Events.Application Name",
+              "nativeQueryRef": "Application Name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Environment Name"
+                }
+              },
+              "queryRef": "Error Events.Environment Name",
+              "nativeQueryRef": "Environment Name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Severity"
+                }
+              },
+              "queryRef": "Error Events.Severity",
+              "nativeQueryRef": "Severity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Occurred On"
+                }
+              },
+              "queryRef": "Error Events.Occurred On",
+              "nativeQueryRef": "Occurred On"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Is Critical"
+                }
+              },
+              "queryRef": "Error Events.Is Critical",
+              "nativeQueryRef": "Is Critical"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Is Open"
+                }
+              },
+              "queryRef": "Error Events.Is Open",
+              "nativeQueryRef": "Is Open"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Alert Was Sent"
+                }
+              },
+              "queryRef": "Error Events.Alert Was Sent",
+              "nativeQueryRef": "Alert Was Sent"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1071f768cd4092dbe3ba",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Application Name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "42f5733063d147860ab8",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Environment Name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "d0bdf353d337917e6914",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Severity"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "4b27030699b103d53da3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Occurred On"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "642ca4542098c2840a00",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Is Critical"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "fe8649ce0a9a48656d77",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Is Open"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "e",
+              "Entity": "Error Events",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "e"
+                          }
+                        },
+                        "Property": "Is Open"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "true"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "3fcdb88c34c453005952",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Alert Was Sent"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

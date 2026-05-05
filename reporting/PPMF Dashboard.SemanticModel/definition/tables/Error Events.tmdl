@@ -1,0 +1,303 @@
+table 'Error Events'
+	lineageTag: bebdaa97-310d-4ad3-b415-c8cd3d7071b3
+
+	measure 'Total Errors' = COUNTROWS('Error Events')
+		formatString: 0
+		lineageTag: 0b7a0dba-550b-47e3-b43e-af86808d6c01
+
+	measure 'Open Errors' = CALCULATE([Total Errors], 'Error Events'[Is Open])
+		formatString: 0
+		lineageTag: e8c65933-27fc-427a-aebe-5405d654e1c7
+
+	measure 'Critical Errors' = CALCULATE([Total Errors], 'Error Events'[Is Critical])
+		formatString: 0
+		lineageTag: 76d908f3-8b23-47c5-8040-453b6466f57c
+
+	measure 'Open Critical' = CALCULATE([Critical Errors], 'Error Events'[Is Open])
+		formatString: 0
+		lineageTag: 5df265a9-494e-42ea-91fd-1dd63580bf73
+
+	measure 'Resolution Rate' = DIVIDE(CALCULATE([Total Errors], 'Error Events'[ppmf_triagestatus] = 3), [Total Errors])
+		lineageTag: 7e8497db-9807-45a4-a6c5-604f239ad02b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Days To Resolve' =
+			
+			COALESCE(
+			    AVERAGEX(
+			        FILTER('Error Events', NOT(ISBLANK('Error Events'[Fixed On]))),
+			        'Error Events'[Days To Resolve]
+			    ),
+			    LASTNONBLANKVALUE(
+			        'Date'[Year-Month],
+			        AVERAGEX(
+			            FILTER('Error Events', NOT(ISBLANK('Error Events'[Fixed On]))),
+			            'Error Events'[Days To Resolve]
+			        )
+			    )
+			)
+		lineageTag: 9149db39-e043-4b86-9ace-969a92361e4f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Error Event'
+		dataType: string
+		lineageTag: acfb6fd2-e67c-4e1c-ae16-f4aa6f8efc38
+		summarizeBy: none
+		sourceColumn: ppmf_erroreventid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Created On'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 01a6a82f-797c-413f-882a-e72c9e5af9f0
+		summarizeBy: none
+		sourceColumn: createdon
+
+		variation Variation
+			isDefault
+			relationship: e8326c29-62e2-41f5-abfb-769748a14525
+			defaultHierarchy: LocalDateTable_bcd105a5-d8ca-4ccc-88e7-bb4b47f95c3f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: int64
+		formatString: 0
+		lineageTag: 2fbea4ba-de61-49af-93e2-d2670317f947
+		summarizeBy: sum
+		sourceColumn: statecode
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Error ID'
+		dataType: string
+		lineageTag: 87d06deb-490e-478f-a27d-6bea7c5683ef
+		summarizeBy: none
+		sourceColumn: ppmf_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Alert Sent On'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a4dc7713-c0ab-45a0-93c8-203e1d4c4af4
+		summarizeBy: none
+		sourceColumn: ppmf_alertsenton
+
+		variation Variation
+			isDefault
+			relationship: 47f2c78e-cf14-4fcb-b20f-8da5f02b73da
+			defaultHierarchy: LocalDateTable_6225ae8b-9ead-487f-aa50-1a2cf6f60a6f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Application Name'
+		dataType: string
+		lineageTag: 1068d1e4-c064-43de-ba68-6e64650dea93
+		summarizeBy: none
+		sourceColumn: ppmf_applicationname
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer Impact'
+		dataType: string
+		lineageTag: eec1aae3-3fb5-45d6-9989-ef66fae35f1b
+		summarizeBy: none
+		sourceColumn: ppmf_customerimpact
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Environment Name'
+		dataType: string
+		lineageTag: 79c393a4-d6bb-4225-aba5-19fbc24d9301
+		summarizeBy: none
+		sourceColumn: ppmf_environmentname
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Error Message'
+		dataType: string
+		lineageTag: adaf2fec-ac39-4fa9-8831-03054290c4b2
+		summarizeBy: none
+		sourceColumn: ppmf_errormessage
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Error Source'
+		dataType: string
+		lineageTag: 34f837bd-e054-46a3-b6b1-afed8ec979cd
+		summarizeBy: none
+		sourceColumn: ppmf_errorsource
+
+		annotation SummarizationSetBy = Automatic
+
+	column ppmf_fixdeployed
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: af090afb-c518-4490-aae6-e5126eef4aa5
+		summarizeBy: none
+		sourceColumn: ppmf_fixdeployed
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fixed On'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 94c7e8c2-e696-4986-9b21-a4f54a7b080c
+		summarizeBy: none
+		sourceColumn: ppmf_fixedon
+
+		variation Variation
+			isDefault
+			relationship: 3c3fb74a-e19b-4631-abb9-fcc8d8d916be
+			defaultHierarchy: LocalDateTable_7e3ef689-6796-4db7-a3bd-65975e33e62a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Flow Name'
+		dataType: string
+		lineageTag: d669dd84-3a54-41a5-a352-333c62e7cf81
+		summarizeBy: none
+		sourceColumn: ppmf_flowname
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Occurred On'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 56deb0b9-e306-4845-9265-eb735bbaac87
+		summarizeBy: none
+		sourceColumn: ppmf_occurredon
+
+		variation Variation
+			isDefault
+			relationship: 3784ce4c-5773-43bf-b65b-72e6673f3ed6
+			defaultHierarchy: LocalDateTable_739603d0-9677-4c75-8342-0f69342a835e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ppmf_severity
+		dataType: int64
+		formatString: 0
+		lineageTag: 86cb9ee0-6d10-4721-821b-ce2275824292
+		summarizeBy: sum
+		sourceColumn: ppmf_severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Solution Name'
+		dataType: string
+		lineageTag: 45c28732-826a-4977-94b7-bb115921433b
+		summarizeBy: none
+		sourceColumn: ppmf_solutionname
+
+		annotation SummarizationSetBy = Automatic
+
+	column ppmf_sourcetype
+		dataType: int64
+		formatString: 0
+		lineageTag: 80815376-83d1-4aa6-ba09-32e0bed45717
+		summarizeBy: sum
+		sourceColumn: ppmf_sourcetype
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Suggested Fix'
+		dataType: string
+		lineageTag: f7492aea-8eb3-4b94-ab28-bb9898923745
+		summarizeBy: none
+		sourceColumn: ppmf_suggestedfix
+
+		annotation SummarizationSetBy = Automatic
+
+	column ppmf_triagestatus
+		dataType: int64
+		formatString: 0
+		lineageTag: ce8860eb-2dbd-4e24-aaee-dd2608e21d12
+		summarizeBy: sum
+		sourceColumn: ppmf_triagestatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'User Email'
+		dataType: string
+		lineageTag: f1d57cd6-f598-4955-958d-731e6e90c604
+		summarizeBy: none
+		sourceColumn: ppmf_useremail
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'User Name'
+		dataType: string
+		lineageTag: 6ea06ef1-c840-4363-bc4b-3dfa8ba5ddd9
+		summarizeBy: none
+		sourceColumn: ppmf_username
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: string
+		lineageTag: b030e492-d5ea-4af0-ae31-40f426b733e4
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Severity = SWITCH([ppmf_severity], 1,"Info", 2,"Warning", 3,"Critical", "Unknown")
+		lineageTag: b21eca06-8339-440c-8aff-a69b3f5d02e8
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Triage Status' = SWITCH([ppmf_triagestatus], 1,"New", 2,"In Progress", 3,"Fixed", 4,"Duplicate", 5,"Won't Fix", 6,"Awaiting Info", 7,"Closed", "Unknown")
+		lineageTag: ffec5b18-ccf5-4936-ba17-43401b57820e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Open' = [ppmf_triagestatus] IN {1, 2, 6}
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 169d131c-e482-459e-8124-d4bb07e19fde
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Critical' = [ppmf_severity] = 3
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 9ba5c05b-307d-4ac3-bce4-afff06345082
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Alert Was Sent' = NOT(ISBLANK([Alert Sent On]))
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: eb65ec60-7241-4b7f-93e7-eb161861de4e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days To Resolve' = IF(NOT(ISBLANK([Fixed On])), DATEDIFF([Occurred On], [Fixed On], DAY), BLANK())
+		formatString: 0
+		lineageTag: 8fba75b4-a2e7-4792-b389-3d5f4a9c4cde
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Error Events' = m
+		mode: import
+		source =
+				let
+				    Source = CommonDataService.Database("org05d9d92f.crm.microsoftdynamics.us"),
+				    dbo_ppmf_errorevent = Source{[Schema="dbo",Item="ppmf_errorevent"]}[Data],
+				    #"Removed Other Columns" = Table.SelectColumns(dbo_ppmf_errorevent,{"ppmf_erroreventid", "createdon", "statecode", "ppmf_name", "ppmf_alertsenton", "ppmf_applicationname", "ppmf_customerimpact", "ppmf_environmentname", "ppmf_errormessage", "ppmf_errorsource", "ppmf_fixdeployed", "ppmf_fixedon", "ppmf_flowname", "ppmf_occurredon", "ppmf_severity", "ppmf_solutionname", "ppmf_sourcetype", "ppmf_suggestedfix", "ppmf_triagestatus", "ppmf_useremail", "ppmf_username"}),
+				    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "DateKey", each Date.Year(DateTime.Date([ppmf_occurredon])) * 10000 + Date.Month(DateTime.Date([ppmf_occurredon])) * 100 + Date.Day(DateTime.Date([ppmf_occurredon])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

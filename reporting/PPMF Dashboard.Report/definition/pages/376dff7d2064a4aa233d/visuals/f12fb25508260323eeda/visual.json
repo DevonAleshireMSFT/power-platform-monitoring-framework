@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "f12fb25508260323eeda",
+  "position": {
+    "x": 0,
+    "y": 47.659574468085111,
+    "z": 0,
+    "height": 169.24012158054711,
+    "width": 229.54407294832828,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Error Events"
+                    }
+                  },
+                  "Property": "Open Critical"
+                }
+              },
+              "queryRef": "Error Events.Open Critical",
+              "nativeQueryRef": "Open Critical"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Error Events"
+                  }
+                },
+                "Property": "Open Critical"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "a37b403b7d44b5e9b774",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Error Events"
+              }
+            },
+            "Property": "Open Critical"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+relationship e8326c29-62e2-41f5-abfb-769748a14525
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Error Events'.'Created On'
+	toColumn: LocalDateTable_bcd105a5-d8ca-4ccc-88e7-bb4b47f95c3f.Date
+
+relationship 47f2c78e-cf14-4fcb-b20f-8da5f02b73da
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Error Events'.'Alert Sent On'
+	toColumn: LocalDateTable_6225ae8b-9ead-487f-aa50-1a2cf6f60a6f.Date
+
+relationship 3c3fb74a-e19b-4631-abb9-fcc8d8d916be
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Error Events'.'Fixed On'
+	toColumn: LocalDateTable_7e3ef689-6796-4db7-a3bd-65975e33e62a.Date
+
+relationship 3784ce4c-5773-43bf-b65b-72e6673f3ed6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Error Events'.'Occurred On'
+	toColumn: LocalDateTable_739603d0-9677-4c75-8342-0f69342a835e.Date
+
+relationship 7dbf6cfd-99c5-ac66-c510-3082041cabd8
+	fromColumn: 'Error Events'.DateKey
+	toColumn: Date.'Date Key'
+

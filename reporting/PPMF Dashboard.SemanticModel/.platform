@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "PPMF Dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "4d88411e-b33f-4046-9430-e1b5e0c88ba3"
+  }
+}

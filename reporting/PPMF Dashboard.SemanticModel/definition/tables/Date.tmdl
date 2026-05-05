@@ -1,0 +1,50 @@
+table Date
+	lineageTag: 670e702d-5232-4335-9661-b6420be9b50d
+	dataCategory: Time
+
+	measure 'Avg Days Target' = 5
+		formatString: 0
+		lineageTag: 61e0d8da-ca07-455e-a0bf-1073ae0c3707
+
+	column Date
+		isKey
+		formatString: General Date
+		lineageTag: 1e377bae-8d9e-494f-a1a2-442b0a507ad1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year = YEAR([Date])
+		formatString: 0
+		lineageTag: 47f18209-c0b1-49d6-8155-fe5cb01ce2c5
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year-Month = FORMAT([Date], "YYYY-MM")
+		lineageTag: 371f4262-9b6f-4e24-b984-aaee6b5dffb2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name' = FORMAT([Date], "MMMM")
+		lineageTag: 9d761ca5-c542-499c-ab80-8a667558ea42
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date Key' = YEAR([Date]) * 10000 + MONTH([Date]) * 100 + DAY([Date])
+		formatString: 0
+		lineageTag: df22f7d1-ff11-4c65-9648-a5ab4f00ea3a
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = calculated
+		mode: import
+		source = CALENDAR(DATE(2025,1,1), DATE(2030,12,31))
+
+	annotation PBI_Id = 3893b3f9917542fcbc164e7286fa8703
+
