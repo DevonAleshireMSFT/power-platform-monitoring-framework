@@ -392,6 +392,29 @@
     </div>
     <div class="card-body">
 
+      <!-- List provisioning callout — shown when Writing Mode is SharePoint or Both -->
+      <div class="callout callout-info" id="sp-provision-callout" style="display:none;margin-bottom:20px;">
+        <div style="font-weight:600;margin-bottom:8px;">⚙️ Step required: Provision the SharePoint list before activating flows</div>
+        <p style="margin-bottom:10px;">
+          The SharePoint write flows validate column names against the real list schema at activation time.
+          The list must exist with the correct columns <strong>before</strong> you turn on
+          <code>PPMF-Child-WriteErrorToSharePoint</code> or <code>PPMF-Child-FlowErrorHandler-SharePoint</code>.
+        </p>
+        <p style="margin-bottom:10px;">
+          Run the included provisioning script once against your target SharePoint site.
+          It creates the list (or skips if it already exists) and adds all required columns automatically.
+        </p>
+        <div style="background:#f3f2f1;border:1px solid #edebe9;border-radius:4px;padding:10px 14px;font-family:monospace;font-size:12px;position:relative;">
+          <span id="sp-script-cmd">.\scripts\New-PPMFSharePointList.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/PPMF"</span>
+          <button onclick="copySpScript()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:2px 10px;font-size:11px;background:#0078d4;color:#fff;border:none;border-radius:3px;cursor:pointer;" title="Copy to clipboard">Copy</button>
+        </div>
+        <p style="margin-top:10px;font-size:12px;color:#605e5c;">
+          For GCC High add <code>-AzureEnvironment USGovernmentHigh</code>. Requires
+          <a href="https://pnp.github.io/powershell/" target="_blank" rel="noopener">PnP.PowerShell</a>
+          (<code>Install-Module PnP.PowerShell -Scope CurrentUser</code>).
+        </p>
+      </div>
+
       <div class="grid-2">
 
         <div>
@@ -645,6 +668,10 @@ setInput('env-name',           'ppmf_EnvironmentName');
     setInput('sp-list-name',       'ppmf_SharePointListName');
     setInput('dv-sync-enabled',    'ppmf_DataverseSyncEnabled');
 
+    // Show/hide SharePoint list provisioning callout based on current Writing Mode
+    const wmRec = envCache['ppmf_WritingMode'];
+    updateSpCallout((wmRec?.value || wmRec?.defaultValue || 'Dataverse').trim());
+
     // 4. Update header subtitle with env name
     const envNameRec = envCache['ppmf_EnvironmentName'];
     if (envNameRec) {
@@ -711,6 +738,32 @@ async function saveEnvVar(schemaName, inputId) {
 function setPreset(inputId, value) {
   const el = document.getElementById(inputId);
   if (el) el.value = value;
+  if (inputId === 'writing-mode') updateSpCallout(value);
+}
+
+function updateSpCallout(mode) {
+  const callout  = document.getElementById('sp-provision-callout');
+  const spScript = document.getElementById('sp-script-cmd');
+  if (!callout) return;
+  const needsSp = (mode === 'SharePoint' || mode === 'Both');
+  callout.style.display = needsSp ? '' : 'none';
+
+  // Update the script command with the current site URL if available
+  if (needsSp && spScript) {
+    const siteEl = document.getElementById('sp-site-url');
+    const site   = siteEl && siteEl.value.trim() ? siteEl.value.trim() : 'https://contoso.sharepoint.com/sites/PPMF';
+    spScript.textContent = `.\\scripts\\New-PPMFSharePointList.ps1 -SiteUrl "${site}"`;
+  }
+}
+
+function copySpScript() {
+  const cmd = document.getElementById('sp-script-cmd');
+  if (!cmd) return;
+  navigator.clipboard.writeText(cmd.textContent).then(() => {
+    showToast('Script command copied to clipboard', 'success');
+  }).catch(() => {
+    showToast('Could not copy — please copy the command manually', 'error');
+  });
 }
 
 // ─── Deployment Checklist ─────────────────────────────────────────────────────
