@@ -73,6 +73,37 @@ For full instructions, integration guides, and field reference documentation, op
 
 ---
 
+## Flow Activation Order
+
+> **Important:** Flows must be activated in the correct order. Each child flow is called by the flow above it in the pipeline. If a parent flow is turned on before its children are active, activation will fail with a `ChildFlowNeverPublished` error and error handling will not work.
+
+**Navigate to:** Solutions → Power Platform Monitoring Framework → Cloud flows → select each flow → **Turn on**. Wait for **On** status before activating the next flow.
+
+### Dataverse mode — activate in this exact order:
+
+| # | Flow |
+|---|---|
+| 1 | `PPMF-Child-FlowWritetoIntakeList` |
+| 2 | `PPMF-Child-ProcessFlowError` |
+| 3 | `PPMF-Child-FlowErrorHandler-JSON` |
+| 4 | `PPMF-Child-FlowErrorHandler-Parameters` |
+| 5 | `PPMF-Delete-Old-Errors` |
+| 6 | `PPMF-Demo-Flow-Failure` ← activate last |
+
+### SharePoint or Both mode — add these before step 4 above:
+
+| # | Flow |
+|---|---|
+| 1 | `PPMF-Child-WriteErrorToSharePoint` ← innermost, activate first |
+| 2 | `PPMF-Child-FlowErrorHandler-SharePoint` |
+
+### Canvas App error handling — also activate:
+- `PPMF-Power-Apps-Error-Handler-JSON` — activate before the demo flow
+
+> If a flow fails to activate with **"ChildFlowNeverPublished"**, one of its dependencies is still Off. Return to the bottom of the list and work upward again.
+
+---
+
 ## Security & Access Control
 
 Four purpose-built security roles are included in the solution. Assign from **Settings → Users + Permissions → Security Roles** in your environment.

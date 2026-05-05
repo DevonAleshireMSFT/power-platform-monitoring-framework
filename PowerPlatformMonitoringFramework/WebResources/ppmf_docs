@@ -361,8 +361,27 @@
         <div class="qs-step">
           <div class="qs-num">2</div>
           <div>
-            <div class="qs-step-title">Activate child flows</div>
-            <div class="qs-step-desc">All required <strong>PPMF-Child-*</strong> flows must be Active before error handling will work. For Dataverse mode, turn on: <em>ProcessFlowError</em>, <em>FlowErrorHandler-JSON</em>, <em>FlowErrorHandler-Parameters</em>, and <em>FlowWritetoIntakeList</em>. For SharePoint or Both mode, also turn on: <em>FlowErrorHandler-SharePoint</em> and <em>WriteErrorToSharePoint</em>. If using canvas app error handling, also activate <em>PPMF-Power-Apps-Error-Handler-JSON</em>.</div>
+            <div class="qs-step-title">Activate child flows — in the correct order</div>
+            <div class="qs-step-desc">
+              <p style="margin:0 0 8px 0">Child flows must be activated <strong>bottom-up</strong> — innermost children first, parent flows last. Each flow calls the ones below it; if a child is not yet active when its parent is turned on, activation will fail with a <em>ChildFlowNeverPublished</em> error.</p>
+              <p style="margin:0 0 6px 0"><strong>Navigate to:</strong> Solutions → Power Platform Monitoring Framework → Cloud flows → select each flow → Turn on.</p>
+              <p style="margin:0 0 4px 0"><strong>Dataverse mode — activate in this order:</strong></p>
+              <ol style="margin:0 0 8px 16px;line-height:2">
+                <li><code>PPMF-Child-FlowWritetoIntakeList</code></li>
+                <li><code>PPMF-Child-ProcessFlowError</code></li>
+                <li><code>PPMF-Child-FlowErrorHandler-JSON</code></li>
+                <li><code>PPMF-Child-FlowErrorHandler-Parameters</code></li>
+                <li><code>PPMF-Delete-Old-Errors</code></li>
+                <li><code>PPMF-Demo-Flow-Failure</code> ← activate last</li>
+              </ol>
+              <p style="margin:0 0 4px 0"><strong>If using SharePoint or Both mode</strong>, also activate these <em>before</em> FlowErrorHandler-Parameters:</p>
+              <ol style="margin:0 0 8px 16px;line-height:2">
+                <li><code>PPMF-Child-WriteErrorToSharePoint</code> ← first</li>
+                <li><code>PPMF-Child-FlowErrorHandler-SharePoint</code></li>
+              </ol>
+              <p style="margin:0 0 4px 0"><strong>If using Canvas App error handling</strong>, also activate <code>PPMF-Power-Apps-Error-Handler-JSON</code> before the demo flow.</p>
+              <p style="margin:0;color:var(--warn-color,#835B00)">⚠ Wait for each flow to show <strong>On</strong> status before activating the next one.</p>
+            </div>
           </div>
         </div>
         <div class="qs-step">
@@ -581,8 +600,27 @@
           <div class="step">
             <div class="step-num">5</div>
             <div class="step-content">
-              <div class="step-title">Activate all required child flows</div>
-              <div class="step-desc">Flows may be in draft state after import. For <strong>Dataverse mode</strong>: turn on all four <code>PPMF-Child-*</code> flows. For <strong>SharePoint mode</strong>: also turn on <code>PPMF-Child-WriteErrorToSharePoint</code> and <code>PPMF-Child-FlowErrorHandler-SharePoint</code>. If using canvas app error handling, also activate <strong>PPMF-Power-Apps-Error-Handler-JSON</strong>.</div>
+              <div class="step-title">Activate all required child flows — in the correct order</div>
+              <div class="step-desc">
+                <p style="margin:0 0 8px 0">Flows may be in draft state after import. They must be activated <strong>bottom-up</strong> — innermost children first, parent flows last. Each flow calls the ones below it in the pipeline; activating a parent before its children will fail with a <em>ChildFlowNeverPublished</em> error and prevent errors from being captured or alerted.</p>
+                <p style="margin:0 0 4px 0"><strong>Navigate to:</strong> Solutions → Power Platform Monitoring Framework → Cloud flows → select each flow → Turn on. Wait for <strong>On</strong> status before proceeding to the next.</p>
+                <p style="margin:0 0 4px 0"><strong>Dataverse mode — activate in this exact order:</strong></p>
+                <ol style="margin:0 0 8px 18px;line-height:2.1">
+                  <li><code>PPMF-Child-FlowWritetoIntakeList</code></li>
+                  <li><code>PPMF-Child-ProcessFlowError</code></li>
+                  <li><code>PPMF-Child-FlowErrorHandler-JSON</code></li>
+                  <li><code>PPMF-Child-FlowErrorHandler-Parameters</code></li>
+                  <li><code>PPMF-Delete-Old-Errors</code></li>
+                  <li><code>PPMF-Demo-Flow-Failure</code> ← activate last</li>
+                </ol>
+                <p style="margin:0 0 4px 0"><strong>SharePoint or Both mode</strong> — activate these <em>before</em> FlowErrorHandler-Parameters:</p>
+                <ol style="margin:0 0 8px 18px;line-height:2.1">
+                  <li><code>PPMF-Child-WriteErrorToSharePoint</code> ← innermost, activate first</li>
+                  <li><code>PPMF-Child-FlowErrorHandler-SharePoint</code></li>
+                </ol>
+                <p style="margin:0 0 4px 0"><strong>Canvas App error handling</strong> — also activate <code>PPMF-Power-Apps-Error-Handler-JSON</code> before the demo flow.</p>
+                <p style="margin:0;color:var(--warn-color,#835B00)">⚠ If a flow fails to activate with "ChildFlowNeverPublished", one of its child flows is still Off. Return to the bottom of the list and work upward again.</p>
+              </div>
             </div>
           </div>
           <div class="step">
