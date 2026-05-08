@@ -27,7 +27,7 @@
                 }
               },
               "queryRef": "Error Events.Alert Was Sent",
-              "nativeQueryRef": "Alert Was Sent1",
+              "nativeQueryRef": "Alert Was Sent",
               "active": true
             }
           ]
@@ -51,7 +51,7 @@
                 }
               },
               "queryRef": "CountNonNull(Error Events.Alert Was Sent)",
-              "nativeQueryRef": "Alert Was Sent"
+              "nativeQueryRef": "Count of Alert Was Sent"
             }
           ]
         }
@@ -80,6 +80,21 @@
         "isDefaultSort": true
       }
     },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "labelStyle": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Category, data value, percent of total'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "visualContainerObjects": {
       "title": [
         {
@@ -107,7 +122,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "c5fa0faee77000377ba2",
+        "name": "cd04d1fff56ae4245c2b",
         "field": {
           "Column": {
             "Expression": {
@@ -121,7 +136,7 @@
         "type": "Categorical"
       },
       {
-        "name": "a3b8c4609d5e080c1ed2",
+        "name": "320c27841bbaf17456b1",
         "field": {
           "Aggregation": {
             "Expression": {
