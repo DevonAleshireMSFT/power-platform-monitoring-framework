@@ -12,7 +12,7 @@
 #   PP_CLIENT_SECRET        Azure App Registration client secret
 #   PP_TENANT_ID            Azure AD tenant ID
 #   PP_DEV_ENVIRONMENT_URL  Dev environment URL
-#                           e.g. https://org05d9d92f.crm.microsoftdynamics.us/
+#                           e.g. https://orgXXXXXXXX.crm.microsoftdynamics.us/
 #   PP_DV_CONNECTION_ID     Dataverse connection ID from the maker portal
 #                           (Data → Connections → Dataverse → copy ID from URL)
 #   PP_TEAMS_CONNECTION_ID  Teams connection ID from the maker portal
