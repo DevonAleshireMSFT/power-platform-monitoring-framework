@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Workflow WorkflowId="{aa110003-cc22-f111-bb33-001dd8100003}" Name="PPMF-Sync-SharePointErrorsToDataverse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <JsonFileName>/Workflows/PPMF-Sync-SharePointErrorsToDataverse-AA110003-CC22-F111-BB33-001DD8100003.json</JsonFileName>
   <Type>1</Type>

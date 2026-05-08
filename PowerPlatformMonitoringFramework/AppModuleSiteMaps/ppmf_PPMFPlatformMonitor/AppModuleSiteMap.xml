@@ -21,7 +21,6 @@
           <Title LCID="1033" Title="Configuration" />
         </Titles>
         <SubArea Id="subarea_ppmf_config_setup" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="/WebResources/ppmf_config_setup" Title="Setup &amp; Configuration" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="false" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-        <SubArea Id="subarea_ppmf_connectionrefs" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="/WebResources/ppmf_connectionrefs" Title="Connection References" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="false" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_b4ae8638" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="ppmf_alertroute" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
       </Group>
       <Group Id="help_ppmf_docs" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
