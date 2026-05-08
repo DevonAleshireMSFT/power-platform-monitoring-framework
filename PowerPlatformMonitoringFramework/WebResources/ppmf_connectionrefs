@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Platform Monitoring Framework — Connection Reference Review</title>
+  <style>
+    :root {
+      --primary:          #0078d4;
+      --primary-dark:     #005a9e;
+      --primary-light:    #e1effa;
+      --success:          #107c10;
+      --success-light:    #f0faf0;
+      --success-border:   #c3e6c3;
+      --warning-light:    #fffbee;
+      --warning-border:   #fde7a0;
+      --error:            #d13438;
+      --error-light:      #fff3f3;
+      --error-border:     #f3c6c7;
+      --bg:               #f3f2f1;
+      --surface:          #ffffff;
+      --border:           #edebe9;
+      --border-strong:    #8a8886;
+      --text:             #323130;
+      --text-secondary:   #605e5c;
+      --text-disabled:    #a19f9d;
+      --radius:           4px;
+      --shadow:           0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .app-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-header-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    .app-main { padding: 24px 32px; }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header-icon { font-size: 18px; }
+    .card-title    { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .card-header-action { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .card-body { padding: 20px; }
+
+    /* ── Stat Cards ──────────────────────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-icon {
+      font-size: 24px;
+      width: 44px; height: 44px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-value { font-size: 28px; font-weight: 700; line-height: 1; color: var(--text); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+    .stat-card.stat-success .stat-value { color: var(--success); }
+    .stat-card.stat-error   .stat-value { color: var(--error); }
+    .stat-card.stat-warning .stat-value { color: #7a5c00; }
+
+    /* ── Filter bar ──────────────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-bar input[type="search"],
+    .filter-bar select {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      background: var(--surface);
+      transition: border-color .1s;
+    }
+    .filter-bar input[type="search"] { width: 240px; }
+    .filter-bar input[type="search"]:focus,
+    .filter-bar select:focus { border-color: var(--primary); }
+    .filter-count { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 14px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background .1s, opacity .1s;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary   { background: var(--primary);   color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-secondary:hover:not(:disabled) { background: var(--primary-light); }
+    .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+    .btn-icon {
+      height: 24px; width: 24px; padding: 0;
+      font-size: 12px; background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      transition: background .1s, border-color .1s;
+    }
+    .btn-icon:hover { background: var(--bg); border-color: var(--border-strong); }
+
+    /* ── Connection reference table ──────────────────────────────────────── */
+    .conn-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .conn-table th {
+      text-align: left;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: .04em;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky; top: 0;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .conn-table th:hover { color: var(--primary); }
+    .conn-table th .sort-icon { margin-left: 4px; opacity: .4; }
+    .conn-table th.sort-asc  .sort-icon,
+    .conn-table th.sort-desc .sort-icon { opacity: 1; color: var(--primary); }
+    .conn-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .conn-table tr:last-child td { border-bottom: none; }
+    .conn-table tr:hover td { background: #faf9f8; }
+    .conn-table tr.expanded td { background: var(--primary-light); }
+
+    .col-status   { width: 100px; }
+    .col-display  { min-width: 180px; }
+    .col-logical  { min-width: 200px; }
+    .col-connector{ width: 140px; }
+    .col-solution { width: 160px; }
+    .col-owner    { width: 160px; }
+    .col-connid   { width: 140px; }
+    .col-flows    { width: 100px; text-align: center; }
+    .col-actions  { width: 64px; text-align: right; }
+
+    /* ── Badges ──────────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: 10px; font-size: 11px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-assigned   { background: var(--success-border); color: #0e5a0e; }
+    .badge-unassigned { background: var(--error-border);   color: #6b0c0e; }
+    .badge-inactive   { background: var(--border);         color: var(--text-secondary); }
+    .badge-info       { background: #dce9f8;               color: #004578; }
+    .badge-solution   { background: var(--bg); border: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; }
+
+    /* ── Connector pill ──────────────────────────────────────────────────── */
+    .connector-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600;
+      color: var(--text);
+    }
+    .connector-pill .icon { font-size: 14px; }
+
+    /* ── Logical name ────────────────────────────────────────────────────── */
+    .logical-name {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px;
+      color: var(--primary-dark);
+    }
+
+    /* ── Connection ID ───────────────────────────────────────────────────── */
+    .conn-id-cell {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .conn-id-text {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* ── Flow count pill ─────────────────────────────────────────────────── */
+    .flow-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 20px;
+      padding: 0 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background .1s, border-color .1s, color .1s;
+    }
+    .flow-count:hover        { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+    .flow-count.has-flows    { background: #dce9f8; border-color: #b0d0ef; color: #004578; }
+    .flow-count.loading-pill { opacity: .5; cursor: default; }
+
+    /* ── Expand panel ────────────────────────────────────────────────────── */
+    .expand-row td { padding: 0; }
+    .expand-panel {
+      padding: 16px 20px;
+      background: var(--primary-light);
+      border-bottom: 1px solid var(--border);
+    }
+    .expand-panel h4 {
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: 10px;
+    }
+    .flow-list {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .flow-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+    }
+    .flow-item-icon { font-size: 14px; }
+    .flow-item-name { flex: 1; font-weight: 500; }
+    .flow-item-state { font-size: 11px; }
+
+    .expand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .expand-field { margin-bottom: 8px; }
+    .expand-field-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px; }
+    .expand-field-value { font-size: 12px; color: var(--text); word-break: break-all; }
+    .expand-field-value.mono {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px;
+      color: var(--primary-dark);
+    }
+
+    /* ── Empty / loading states ──────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 48px 16px;
+      color: var(--text-secondary); font-size: 13px;
+    }
+    .empty-state-icon { font-size: 40px; margin-bottom: 10px; }
+
+    /* ── Spinner ─────────────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ───────────────────────────────────────────────────────────── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 8px; z-index: 9999;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      background: #323130; color: #fff;
+      padding: 11px 16px; border-radius: var(--radius);
+      box-shadow: var(--shadow); font-size: 13px;
+      min-width: 260px; max-width: 420px;
+      animation: toast-in .2s ease;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--error); }
+    @keyframes toast-in { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── Callout ─────────────────────────────────────────────────────────── */
+    .callout {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 10px 14px; border-radius: var(--radius);
+      margin-bottom: 16px; font-size: 12px;
+    }
+    .callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .callout-info    { background: var(--primary-light); border: 1px solid #b0d0ef; }
+    .callout-warning { background: var(--warning-light); border: 1px solid var(--warning-border); }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .app-main   { padding: 16px; }
+      .stat-row   { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stat-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Header
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="app-header">
+  <div class="app-header-icon">🔌</div>
+  <div>
+    <h1>Power Platform Monitoring Framework</h1>
+    <p id="header-subtitle">Connection Reference Review</p>
+  </div>
+  <div style="margin-left:auto">
+    <button class="btn btn-secondary btn-sm" style="color:#fff;border-color:rgba(255,255,255,.5)" onclick="loadAll()" id="refresh-btn">
+      ↻ Refresh
+    </button>
+  </div>
+</div>
+
+<div class="app-main">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       Summary Stats
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div class="stat-row" id="stat-row">
+    <div class="stat-card">
+      <div class="stat-icon">🔌</div>
+      <div><div class="stat-value" id="stat-total">—</div><div class="stat-label">Total References</div></div>
+    </div>
+    <div class="stat-card stat-success">
+      <div class="stat-icon">✅</div>
+      <div><div class="stat-value" id="stat-assigned">—</div><div class="stat-label">Assigned</div></div>
+    </div>
+    <div class="stat-card stat-error">
+      <div class="stat-icon">⚠️</div>
+      <div><div class="stat-value" id="stat-unassigned">—</div><div class="stat-label">Unassigned</div></div>
+    </div>
+    <div class="stat-card stat-warning">
+      <div class="stat-icon">💤</div>
+      <div><div class="stat-value" id="stat-inactive">—</div><div class="stat-label">Inactive</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       Main Card
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">🗂️</span>
+      <div>
+        <div class="card-title">Connection References</div>
+        <div class="card-subtitle">All connection references in this environment, their assignment status, owners, and associated cloud flows</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- Filter bar -->
+      <div class="filter-bar" style="margin-bottom:16px">
+        <input type="search" id="search-input" placeholder="Search by name or logical name…" oninput="applyFilters()">
+        <select id="filter-status" onchange="applyFilters()">
+          <option value="">All statuses</option>
+          <option value="assigned">Assigned</option>
+          <option value="unassigned">Unassigned</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select id="filter-connector" onchange="applyFilters()">
+          <option value="">All connectors</option>
+        </select>
+        <select id="filter-solution" onchange="applyFilters()">
+          <option value="">All solutions</option>
+        </select>
+        <select id="filter-owner" onchange="applyFilters()">
+          <option value="">All owners</option>
+        </select>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;white-space:nowrap;height:32px">
+          <input type="checkbox" id="hide-system" onchange="applyFilters()" style="width:14px;height:14px;cursor:pointer"> Hide SYSTEM
+        </label>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Unassigned alert -->
+      <div class="callout callout-warning" id="unassigned-callout" style="display:none">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong id="unassigned-callout-text"></strong> — flows that depend on an unassigned connection reference will fail at runtime.
+          Go to <strong>Solutions → [Solution] → Connection References</strong> to assign connections.
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div id="table-container">
+        <div class="empty-state"><span class="spinner"></span><div style="margin-top:12px">Loading connection references…</div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JavaScript
+════════════════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+const API = `${window.location.origin}/api/data/v9.2`;
+
+const DV_HEADERS = {
+  'OData-MaxVersion': '4.0',
+  'OData-Version':    '4.0',
+  'Accept':           'application/json',
+  'Prefer':           'odata.include-annotations="*"'
+};
+
+// Loaded data
+let allRefs     = [];  // raw connection reference records
+let flowMap     = {};  // { connectionreferencelogicalname: [{ name, statecode }] }
+let solutionMap = {};  // { connectionreferenceid: [solutionFriendlyName] }
+let expandedId  = null;
+
+// ─── Friendly connector names ─────────────────────────────────────────────────
+
+const CONNECTOR_LABELS = {
+  'shared_commondataserviceforapps': { label: 'Dataverse',        icon: '🗄️' },
+  'shared_teams':                    { label: 'Microsoft Teams',   icon: '💬' },
+  'shared_sharepointonline':         { label: 'SharePoint',        icon: '📋' },
+  'shared_office365':                { label: 'Office 365 Outlook',icon: '📧' },
+  'shared_office365users':           { label: 'Office 365 Users',  icon: '👥' },
+  'shared_onedriveforbusiness':      { label: 'OneDrive',          icon: '☁️' },
+  'shared_approvals':                { label: 'Approvals',         icon: '✅' },
+  'shared_flowpush':                 { label: 'Notifications',     icon: '🔔' },
+  'shared_azureblob':                { label: 'Azure Blob Storage',icon: '📦' },
+  'shared_sql':                      { label: 'SQL Server',        icon: '🗃️' },
+  'shared_keyvault':                 { label: 'Azure Key Vault',   icon: '🔑' },
+  'shared_http':                     { label: 'HTTP',              icon: '🌐' },
+  'shared_sendgrid':                 { label: 'SendGrid',          icon: '✉️' },
+  'shared_powerbi':                  { label: 'Power BI',          icon: '📊' },
+  'shared_planner':                  { label: 'Planner',           icon: '📌' },
+};
+
+function connectorInfo(connectorId) {
+  if (!connectorId) return { label: 'Unknown', icon: '❓' };
+  // connectorId is like /providers/Microsoft.PowerApps/apis/shared_teams
+  const parts = connectorId.split('/');
+  const apiName = parts[parts.length - 1];
+  return CONNECTOR_LABELS[apiName] || { label: apiName, icon: '🔧' };
+}
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+
+async function dvGet(path) {
+  const res = await fetch(`${API}/${path}`, {
+    headers: DV_HEADERS,
+    credentials: 'include'
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}${text ? ': ' + text.substring(0, 200) : ''}`);
+  }
+  return res.json();
+}
+
+// ─── Load all data ────────────────────────────────────────────────────────────
+
+async function loadAll() {
+  const refreshBtn = document.getElementById('refresh-btn');
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = '↺ Loading…';
+  document.getElementById('table-container').innerHTML =
+    '<div class="empty-state"><span class="spinner"></span><div style="margin-top:12px">Loading connection references…</div></div>';
+  expandedId = null;
+
+  try {
+    // ── 1. Connection references ──────────────────────────────────────────
+    const refsRes = await dvGet(
+      'connectionreferences?' +
+      '$select=connectionreferenceid,connectionreferencedisplayname,connectionreferencelogicalname,' +
+      'connectionid,connectorid,description,statecode,statuscode,' +
+      '_ownerid_value,_createdby_value' +
+      '&$orderby=connectionreferencedisplayname asc'
+    );
+    allRefs = refsRes.value || [];
+
+    // ── 2. Solution components (componenttype 10059 = Connection Reference) ─
+    try {
+      const scRes = await dvGet(
+        'solutioncomponents?' +
+        '$select=objectid,_solutionid_value&' +
+        '$filter=componenttype eq 10059&' +
+        '$expand=solutionid($select=uniquename,friendlyname)'
+      );
+      solutionMap = {};
+      for (const sc of (scRes.value || [])) {
+        const id  = sc.objectid;
+        const sol = sc.solutionid;
+        if (!id || !sol) continue;
+        const name = sol.friendlyname || sol.uniquename || 'Unknown';
+        if (!solutionMap[id]) solutionMap[id] = [];
+        if (!solutionMap[id].includes(name)) solutionMap[id].push(name);
+      }
+    } catch {
+      solutionMap = {};
+      // Non-fatal — solution column will show "—"
+    }
+
+    // ── 3. Cloud flows and their connection reference usage ────────────────
+    try {
+      // Try expanding the relationship from connection references side
+      const flowRes = await dvGet(
+        'connectionreferences?' +
+        '$select=connectionreferencelogicalname&' +
+        '$expand=connectionreference_workflow($select=name,statecode)'
+      );
+      flowMap = {};
+      for (const cr of (flowRes.value || [])) {
+        const lname = cr.connectionreferencelogicalname;
+        const flows = cr['connectionreference_workflow'] || [];
+        if (lname && flows.length) flowMap[lname] = flows;
+      }
+    } catch {
+      // Fallback: query all cloud flows and scan their definitions
+      try {
+        const wfRes = await dvGet(
+          'workflows?' +
+          '$select=workflowid,name,statecode,clientdata&' +
+          '$filter=category eq 5&' +
+          '$top=200'
+        );
+        flowMap = {};
+        for (const wf of (wfRes.value || [])) {
+          if (!wf.clientdata) continue;
+          try {
+            const def = JSON.parse(wf.clientdata);
+            const connectionRefs = def?.properties?.connectionReferences
+                                || def?.connectionReferences
+                                || {};
+            for (const key of Object.keys(connectionRefs)) {
+              const lname = connectionRefs[key]?.connectionReferenceLogicalName
+                         || connectionRefs[key]?.connectionReferenceLogicalName;
+              if (!lname) continue;
+              if (!flowMap[lname]) flowMap[lname] = [];
+              flowMap[lname].push({ name: wf.name, statecode: wf.statecode });
+            }
+          } catch {
+            // unparseable flow definition — skip
+          }
+        }
+      } catch {
+        flowMap = {};
+      }
+    }
+
+    renderTable();
+    updateStats();
+    populateFilterDropdowns();
+
+  } catch (e) {
+    document.getElementById('table-container').innerHTML =
+      `<div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <div><strong>Failed to load connection references</strong></div>
+        <div style="margin-top:6px;font-size:12px">${escHtml(e.message)}</div>
+        <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="loadAll()">Retry</button></div>
+      </div>`;
+    showToast('Load failed: ' + e.message, 'error');
+  } finally {
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = '↻ Refresh';
+  }
+}
+
+// ─── Update summary stats ─────────────────────────────────────────────────────
+
+function updateStats() {
+  const total      = allRefs.length;
+  const assigned   = allRefs.filter(r => r.statecode === 0 && r.connectionid).length;
+  const unassigned = allRefs.filter(r => r.statecode === 0 && !r.connectionid).length;
+  const inactive   = allRefs.filter(r => r.statecode !== 0).length;
+
+  document.getElementById('stat-total').textContent     = total;
+  document.getElementById('stat-assigned').textContent  = assigned;
+  document.getElementById('stat-unassigned').textContent= unassigned;
+  document.getElementById('stat-inactive').textContent  = inactive;
+
+  // Unassigned warning callout
+  const callout = document.getElementById('unassigned-callout');
+  if (unassigned > 0) {
+    const plural = unassigned === 1 ? '1 connection reference is unassigned' : `${unassigned} connection references are unassigned`;
+    document.getElementById('unassigned-callout-text').textContent = plural;
+    callout.style.display = '';
+  } else {
+    callout.style.display = 'none';
+  }
+}
+
+// ─── Populate filter dropdowns ────────────────────────────────────────────────
+
+function populateFilterDropdowns() {
+  // Connectors
+  const connectorSel = document.getElementById('filter-connector');
+  const connectors   = [...new Set(allRefs.map(r => connectorInfo(r.connectorid).label))].sort();
+  connectorSel.innerHTML = '<option value="">All connectors</option>' +
+    connectors.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+
+  // Solutions
+  const solutionSel = document.getElementById('filter-solution');
+  const solutions   = [...new Set(Object.values(solutionMap).flat())].sort();
+  solutionSel.innerHTML = '<option value="">All solutions</option>' +
+    solutions.map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join('');
+
+  // Owners
+  const ownerSel = document.getElementById('filter-owner');
+  const owners   = [...new Set(allRefs.map(r =>
+    r['_ownerid_value@OData.Community.Display.V1.FormattedValue'] || 'SYSTEM'
+  ))].sort();
+  ownerSel.innerHTML = '<option value="">All owners</option>' +
+    owners.map(o => `<option value="${escHtml(o)}">${escHtml(o)}</option>`).join('');
+}
+
+// ─── Filters ──────────────────────────────────────────────────────────────────
+
+function getOwnerLabel(r) {
+  return r['_ownerid_value@OData.Community.Display.V1.FormattedValue'] || 'SYSTEM';
+}
+
+function getFilteredRefs() {
+  const search     = document.getElementById('search-input').value.toLowerCase().trim();
+  const status     = document.getElementById('filter-status').value;
+  const connector  = document.getElementById('filter-connector').value;
+  const solution   = document.getElementById('filter-solution').value;
+  const owner      = document.getElementById('filter-owner').value;
+  const hideSystem = document.getElementById('hide-system').checked;
+
+  return allRefs.filter(r => {
+    // Text search
+    if (search) {
+      const haystack = (r.connectionreferencedisplayname + ' ' + r.connectionreferencelogicalname).toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    // Status filter
+    if (status === 'assigned'   && !(r.statecode === 0 && r.connectionid))  return false;
+    if (status === 'unassigned' && !(r.statecode === 0 && !r.connectionid)) return false;
+    if (status === 'inactive'   && r.statecode === 0)                        return false;
+    // Connector filter
+    if (connector && connectorInfo(r.connectorid).label !== connector) return false;
+    // Solution filter
+    if (solution) {
+      const sols = solutionMap[r.connectionreferenceid] || [];
+      if (!sols.includes(solution)) return false;
+    }
+    // Owner filter
+    if (owner && getOwnerLabel(r) !== owner) return false;
+    // Hide SYSTEM toggle
+    if (hideSystem && getOwnerLabel(r) === 'SYSTEM') return false;
+    return true;
+  });
+}
+
+function applyFilters() {
+  renderTable();
+}
+
+// ─── Render table ─────────────────────────────────────────────────────────────
+
+function renderTable() {
+  const filtered = getFilteredRefs();
+  const count    = filtered.length;
+  const total    = allRefs.length;
+
+  document.getElementById('filter-count').textContent =
+    count === total ? `${total} connection reference${total !== 1 ? 's' : ''}` :
+                      `${count} of ${total} shown`;
+
+  if (!filtered.length) {
+    document.getElementById('table-container').innerHTML =
+      `<div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <div>No connection references match the current filters</div>
+      </div>`;
+    return;
+  }
+
+  const rows = filtered.map(r => buildRow(r)).join('');
+
+  document.getElementById('table-container').innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="conn-table" id="conn-table">
+        <thead>
+          <tr>
+            <th class="col-status">Status</th>
+            <th class="col-display">Display Name</th>
+            <th class="col-logical">Logical Name</th>
+            <th class="col-connector">Connector</th>
+            <th class="col-solution">Solution</th>
+            <th class="col-owner">Owner</th>
+            <th class="col-connid">Connection ID</th>
+            <th class="col-flows">Flows</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="conn-tbody">
+          ${rows}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function buildRow(r) {
+  const id       = r.connectionreferenceid;
+  const isActive = r.statecode === 0;
+  const assigned = isActive && !!r.connectionid;
+
+  // Status badge
+  let statusBadge;
+  if (!isActive) {
+    statusBadge = `<span class="badge badge-inactive">💤 Inactive</span>`;
+  } else if (assigned) {
+    statusBadge = `<span class="badge badge-assigned">✅ Assigned</span>`;
+  } else {
+    statusBadge = `<span class="badge badge-unassigned">⚠️ Unassigned</span>`;
+  }
+
+  // Connector
+  const ci = connectorInfo(r.connectorid);
+  const connPill = `<span class="connector-pill"><span class="icon">${ci.icon}</span>${escHtml(ci.label)}</span>`;
+
+  // Solution
+  const sols = (solutionMap[id] || []);
+  const solHtml = sols.length
+    ? sols.map(s => `<span class="badge badge-solution">${escHtml(s)}</span>`).join(' ')
+    : '<span style="color:var(--text-disabled);font-size:11px">—</span>';
+
+  // Owner
+  const ownerName = getOwnerLabel(r);
+  const ownerHtml = `<span title="${escHtml(ownerName)}">${escHtml(truncate(ownerName, 22))}</span>`;
+
+  // Connection ID
+  const connIdHtml = r.connectionid
+    ? `<div class="conn-id-cell">
+         <span class="conn-id-text" title="${escHtml(r.connectionid)}">${escHtml(r.connectionid.substring(0, 8))}…</span>
+         <button class="btn-icon" title="Copy connection ID" onclick="event.stopPropagation();copyText('${escHtml(r.connectionid)}','Connection ID')">⧉</button>
+       </div>`
+    : '<span style="color:var(--text-disabled);font-size:11px">Not assigned</span>';
+
+  // Flows count
+  const flows     = flowMap[r.connectionreferencelogicalname] || [];
+  const flowClass = flows.length ? 'has-flows' : '';
+  const flowTitle = flows.length
+    ? flows.map(f => `${f.name} (${f.statecode === 1 ? 'Active' : 'Inactive'})`).join('\n')
+    : 'No flows found';
+  const flowPill  = `<span class="flow-count ${flowClass}" title="${escHtml(flowTitle)}" onclick="toggleExpand('${id}')">${flows.length}</span>`;
+
+  const isExpanded = expandedId === id;
+  const trClass    = isExpanded ? ' class="expanded"' : '';
+
+  return `<tr${trClass} onclick="toggleExpand('${id}')" style="cursor:pointer" id="row-${id}">
+    <td>${statusBadge}</td>
+    <td><strong>${escHtml(r.connectionreferencedisplayname || '—')}</strong></td>
+    <td><span class="logical-name">${escHtml(r.connectionreferencelogicalname || '—')}</span></td>
+    <td>${connPill}</td>
+    <td>${solHtml}</td>
+    <td>${ownerHtml}</td>
+    <td>${connIdHtml}</td>
+    <td style="text-align:center">${flowPill}</td>
+    <td style="text-align:right">
+      <button class="btn-icon" title="${isExpanded ? 'Collapse' : 'Expand'}" onclick="event.stopPropagation();toggleExpand('${id}')">${isExpanded ? '▲' : '▼'}</button>
+    </td>
+  </tr>
+  ${isExpanded ? buildExpandRow(r) : ''}`;
+}
+
+function buildExpandRow(r) {
+  const flows  = flowMap[r.connectionreferencelogicalname] || [];
+  const ci     = connectorInfo(r.connectorid);
+  const sols   = solutionMap[r.connectionreferenceid] || [];
+  const owner  = getOwnerLabel(r);
+
+  const flowListHtml = flows.length
+    ? flows.map(f => {
+        const stateLabel = f.statecode === 1 ? 'Active' : 'Inactive';
+        const stateClass = f.statecode === 1 ? 'badge badge-assigned' : 'badge badge-inactive';
+        return `<div class="flow-item">
+          <span class="flow-item-icon">⚡</span>
+          <span class="flow-item-name">${escHtml(f.name)}</span>
+          <span class="${stateClass}">${stateLabel}</span>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:12px;color:var(--text-secondary)">No associated flows found in this environment.</div>';
+
+  const descHtml = r.description
+    ? escHtml(r.description)
+    : '<em style="color:var(--text-disabled)">No description</em>';
+
+  const connIdFull = r.connectionid
+    ? `<span class="expand-field-value mono">${escHtml(r.connectionid)}</span>
+       <button class="btn-icon" style="margin-left:4px" title="Copy" onclick="copyText('${escHtml(r.connectionid)}','Connection ID')">⧉</button>`
+    : '<span style="color:var(--text-disabled)">Not assigned</span>';
+
+  return `<tr class="expand-row" id="expand-${r.connectionreferenceid}">
+    <td colspan="9">
+      <div class="expand-panel">
+        <div class="expand-grid">
+          <div>
+            <div class="expand-field">
+              <div class="expand-field-label">Description</div>
+              <div class="expand-field-value" style="font-size:12px;color:var(--text-secondary)">${descHtml}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Connector</div>
+              <div class="expand-field-value">${ci.icon} ${escHtml(ci.label)}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Logical Name</div>
+              <div class="expand-field-value mono">${escHtml(r.connectionreferencelogicalname)}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Connection ID</div>
+              <div style="display:flex;align-items:center;gap:6px">${connIdFull}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Owner</div>
+              <div class="expand-field-value">${escHtml(owner)}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Solution(s)</div>
+              <div class="expand-field-value">
+                ${sols.length ? sols.map(s => `<span class="badge badge-solution">${escHtml(s)}</span>`).join(' ') : '—'}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4>Associated Flows (${flows.length})</h4>
+            <div class="flow-list">${flowListHtml}</div>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ─── Expand / collapse row ────────────────────────────────────────────────────
+
+function toggleExpand(id) {
+  if (expandedId === id) {
+    expandedId = null;
+  } else {
+    expandedId = id;
+  }
+  renderTable();
+  // Scroll expanded row into view
+  if (expandedId) {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`expand-${expandedId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function truncate(s, n) {
+  if (!s || s.length <= n) return s;
+  return s.substring(0, n) + '…';
+}
+
+function copyText(text, label) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`${label} copied to clipboard`, 'success');
+  }).catch(() => {
+    showToast('Could not copy — please copy manually', 'error');
+  });
+}
+
+function showToast(msg, type) {
+  const c  = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast${type ? ' ' + type : ''}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+loadAll();
+</script>
+</body>
+</html>
