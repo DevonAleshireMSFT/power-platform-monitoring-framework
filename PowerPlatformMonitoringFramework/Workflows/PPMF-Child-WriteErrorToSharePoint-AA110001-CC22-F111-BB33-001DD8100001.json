@@ -160,15 +160,13 @@
           "inputs": {
             "parameters": {
               "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
-              "parameters/method": "GET",
-              "parameters/uri": "_api/web/lists/GetByTitle('@{parameters('SharePoint List Name (ppmf_SharePointListName)')}')/items?$select=Id&$filter=FlowRunId eq '@{body('Parse_JSON')?['FlowRunId']}'&$top=1",
-              "parameters/headers": {
-                "Accept": "application/json;odata=nometadata"
-              }
+              "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+              "$filter": "FlowRunId eq '@{body('Parse_JSON')?['FlowRunId']}'",
+              "$top": 1
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-              "operationId": "HttpRequest",
+              "operationId": "GetItems",
               "connectionName": "shared_sharepointonline-1"
             },
             "retryPolicy": {
@@ -232,44 +230,7 @@
           },
           "else": {
             "actions": {
-              "Compose_item_body": {
-                "runAfter": {},
-                "metadata": {
-                  "operationMetadataId": "aa110001-cc22-0006a-bb33-001dd8100001"
-                },
-                "type": "Compose",
-                "inputs": {
-                  "Title": "@coalesce(body('Parse_JSON')?['FlowName'], body('Parse_JSON')?['ApplicationName'], 'Error')",
-                  "SourceType": "@body('Parse_JSON')?['SourceType']",
-                  "EnvironmentName": "@body('Parse_JSON')?['EnvironmentName']",
-                  "SolutionName": "@body('Parse_JSON')?['SolutionName']",
-                  "ApplicationName": "@body('Parse_JSON')?['ApplicationName']",
-                  "AppVersion": "@body('Parse_JSON')?['AppVersion']",
-                  "FlowName": "@body('Parse_JSON')?['FlowName']",
-                  "FlowRunId": "@body('Parse_JSON')?['FlowRunId']",
-                  "FlowUrl": "@body('Parse_JSON')?['FlowUrl']",
-                  "SessionId": "@body('Parse_JSON')?['SessionId']",
-                  "CorrelationId": "@body('Parse_JSON')?['CorrelationId']",
-                  "UserName": "@body('Parse_JSON')?['UserName']",
-                  "UserEmail": "@body('Parse_JSON')?['UserEmail']",
-                  "ActiveScreen": "@body('Parse_JSON')?['ActiveScreen']",
-                  "ErrorMessage": "@body('Parse_JSON')?['ErrorMessage']",
-                  "ErrorSource": "@body('Parse_JSON')?['ErrorSource']",
-                  "ErrorType": "@body('Parse_JSON')?['ErrorType']",
-                  "Severity": "@body('Parse_JSON')?['Severity']",
-                  "OccurredOn": "@body('Parse_JSON')?['OccurredOn']",
-                  "RawPayload": "@body('Parse_JSON')?['RawPayload']",
-                  "TriageStatus": "New",
-                  "SyncedToDataverse": false,
-                  "SyncAttempts": 0
-                }
-              },
               "Create_item": {
-                "runAfter": {
-                  "Compose_item_body": [
-                    "Succeeded"
-                  ]
-                },
                 "metadata": {
                   "operationMetadataId": "aa110001-cc22-0006-bb33-001dd8100001"
                 },
@@ -277,17 +238,34 @@
                 "inputs": {
                   "parameters": {
                     "dataset": "@parameters('SharePoint Site URL (ppmf_SharePointSiteUrl)')",
-                    "parameters/method": "POST",
-                    "parameters/uri": "_api/web/lists/GetByTitle('@{parameters('SharePoint List Name (ppmf_SharePointListName)')}')/items",
-                    "parameters/headers": {
-                      "Accept": "application/json;odata=nometadata",
-                      "Content-Type": "application/json;odata=nometadata"
-                    },
-                    "parameters/body": "@{string(outputs('Compose_item_body'))}"
+                    "table": "@parameters('SharePoint List Name (ppmf_SharePointListName)')",
+                    "item/Title": "@coalesce(body('Parse_JSON')?['FlowName'], body('Parse_JSON')?['ApplicationName'], 'Error')",
+                    "item/SourceType": "@body('Parse_JSON')?['SourceType']",
+                    "item/EnvironmentName": "@body('Parse_JSON')?['EnvironmentName']",
+                    "item/SolutionName": "@body('Parse_JSON')?['SolutionName']",
+                    "item/ApplicationName": "@body('Parse_JSON')?['ApplicationName']",
+                    "item/AppVersion": "@body('Parse_JSON')?['AppVersion']",
+                    "item/FlowName": "@body('Parse_JSON')?['FlowName']",
+                    "item/FlowRunId": "@body('Parse_JSON')?['FlowRunId']",
+                    "item/FlowUrl": "@body('Parse_JSON')?['FlowUrl']",
+                    "item/SessionId": "@body('Parse_JSON')?['SessionId']",
+                    "item/CorrelationId": "@body('Parse_JSON')?['CorrelationId']",
+                    "item/UserName": "@body('Parse_JSON')?['UserName']",
+                    "item/UserEmail": "@body('Parse_JSON')?['UserEmail']",
+                    "item/ActiveScreen": "@body('Parse_JSON')?['ActiveScreen']",
+                    "item/ErrorMessage": "@body('Parse_JSON')?['ErrorMessage']",
+                    "item/ErrorSource": "@body('Parse_JSON')?['ErrorSource']",
+                    "item/ErrorType": "@body('Parse_JSON')?['ErrorType']",
+                    "item/Severity": "@body('Parse_JSON')?['Severity']",
+                    "item/OccurredOn": "@body('Parse_JSON')?['OccurredOn']",
+                    "item/RawPayload": "@body('Parse_JSON')?['RawPayload']",
+                    "item/TriageStatus": "New",
+                    "item/SyncedToDataverse": false,
+                    "item/SyncAttempts": 0
                   },
                   "host": {
                     "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-                    "operationId": "HttpRequest",
+                    "operationId": "PostItem",
                     "connectionName": "shared_sharepointonline-1"
                   },
                   "retryPolicy": {
@@ -328,7 +306,7 @@
                   "statusCode": 200,
                   "body": {
                     "result": "Success",
-                    "recordid": "@body('Create_item')?['Id']"
+                    "recordid": "@outputs('Create_item')?['body/ID']"
                   }
                 }
               }

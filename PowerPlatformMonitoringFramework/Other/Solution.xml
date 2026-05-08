@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26041.165" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26041.165" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26042.00159">
+<ImportExportXml version="9.2.26041.165" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26041.165" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26043.00156">
   <SolutionManifest>
     <UniqueName>PowerPlatformMonitoringFramework</UniqueName>
     <LocalizedNames>
@@ -95,12 +95,12 @@
       <RootComponent type="29" id="{74c993d4-d438-f111-88b3-001dd8207c25}" behavior="0" />
       <RootComponent type="29" id="{79936152-7845-f111-bec6-001dd80db2d0}" behavior="0" />
       <RootComponent type="29" id="{7b537412-d538-f111-88b3-001dd82013a3}" behavior="0" />
-      <RootComponent type="29" id="{b3819854-8f27-f111-8341-001dd8207276}" behavior="0" />
-      <RootComponent type="29" id="{d3f874c5-271f-f111-8341-001dd808cec5}" behavior="0" />
-      <RootComponent type="29" id="{da8c9045-6024-f111-8341-001dd8207b15}" behavior="0" />
       <RootComponent type="29" id="{aa110001-cc22-f111-bb33-001dd8100001}" behavior="0" />
       <RootComponent type="29" id="{aa110002-cc22-f111-bb33-001dd8100002}" behavior="0" />
       <RootComponent type="29" id="{aa110003-cc22-f111-bb33-001dd8100003}" behavior="0" />
+      <RootComponent type="29" id="{b3819854-8f27-f111-8341-001dd8207276}" behavior="0" />
+      <RootComponent type="29" id="{d3f874c5-271f-f111-8341-001dd808cec5}" behavior="0" />
+      <RootComponent type="29" id="{da8c9045-6024-f111-8341-001dd8207b15}" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_base" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_config_setup" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_docs" behavior="0" />
@@ -118,9 +118,7 @@
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
-        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
-          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
-        </Required>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
         <Dependent type="80" schemaName="ppmf_PPMFPlatformMonitor" displayName="PPMF - Platform Monitor" />
       </MissingDependency>
       <MissingDependency>

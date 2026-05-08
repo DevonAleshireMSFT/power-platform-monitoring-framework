@@ -1,6 +1,6 @@
 # Power Platform Monitoring Framework (PPMF)
 
-> **v1.0.0.10** · Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
+> Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
 
 PPMF is an enterprise-ready observability solution for the Microsoft Power Platform. When a Power Automate flow fails or a Canvas App encounters an error, PPMF automatically captures structured error data into Dataverse, sends a formatted adaptive card alert to a Microsoft Teams channel, and creates a trackable triage record — without requiring any significant changes to your existing flows.
 
@@ -33,7 +33,7 @@ PPMF solves this by:
 | **11 Power Automate flows** | Error capture, Teams alerting, Canvas App handling, SharePoint write, SharePoint sync, demo flow, and weekly maintenance |
 | **12 Environment variables** | All runtime configuration in one place — no flow edits required |
 | **4 Security roles** | Admin, Triager, Reader, Service Account |
-| **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, and configuration |
+| **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, connection reference review, and configuration |
 | **In-app documentation** | Full architecture overview, integration guides, and field reference |
 | **In-app release notes** | Changelog accessible from the Documentation page |
 
@@ -65,9 +65,10 @@ The solution includes a guided setup experience. After import:
 
 1. Open **Configuration → Setup & Configuration** inside the PPMF Platform Monitor app.
 2. Follow the on-screen checklist — it covers connection references, flow activation, and environment variable configuration.
-3. If deploying without Dataverse, set `ppmf_WritingMode` to `SharePoint`, configure the SharePoint site URL and list name, and assign the SharePoint connection reference. See the **SharePoint Error Store** section of the Setup page.
-4. The page runs 11 automated checks and displays a pass/warn/fail result for each. All checks must be green before PPMF will reliably process errors.
-5. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
+3. To verify connection reference assignment, open **Configuration → Connection References**. The page shows the assignment status of every connection reference in the environment, the owner, which solution each belongs to, and how many flows depend on it. An unassigned reference will cause dependent flows to fail at runtime.
+4. If deploying without Dataverse, set `ppmf_WritingMode` to `SharePoint`, configure the SharePoint site URL and list name, and assign the SharePoint connection reference. See the **SharePoint Error Store** section of the Setup page.
+5. The page runs 11 automated checks and displays a pass/warn/fail result for each. All checks must be green before PPMF will reliably process errors.
+6. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
 
 For full instructions, integration guides, and field reference documentation, open **Help → Documentation** inside the app.
 
