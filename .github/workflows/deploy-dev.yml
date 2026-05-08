@@ -49,6 +49,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract solution version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$sol = Get-Content "PowerPlatformMonitoringFramework/Other/Solution.xml"
+          $version  = $sol.ImportExportXml.SolutionManifest.Version
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Solution version: $version"
+
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
@@ -87,3 +96,14 @@ jobs:
           force-overwrite: true
           publish-changes: true
           skip-dependency-check: false
+
+      - name: Deployment health check
+        shell: pwsh
+        run: |
+          .\scripts\Test-PPMFDeployment.ps1 `
+            -EnvironmentUrl  "${{ secrets.PP_DEV_ENVIRONMENT_URL }}" `
+            -ClientId        "${{ secrets.PP_CLIENT_ID }}" `
+            -ClientSecret    "${{ secrets.PP_CLIENT_SECRET }}" `
+            -TenantId        "${{ secrets.PP_TENANT_ID }}" `
+            -Cloud           "UsGovHigh" `
+            -ExpectedVersion "${{ steps.version.outputs.version }}"
