@@ -471,7 +471,6 @@ const DV_HEADERS = {
 let allRefs     = [];  // raw connection reference records
 let flowMap     = {};  // { connectionreferencelogicalname: [{ name, statecode }] }
 let solutionMap = {};  // { connectionreferenceid: [solutionFriendlyName] }
-let connUserMap = {};  // { connectionid: 'user@domain' } — who authenticated each connection
 let expandedId  = null;
 
 // ─── Friendly connector names ─────────────────────────────────────────────────
@@ -559,37 +558,7 @@ async function loadAll() {
       // Non-fatal — solution column will show "—"
     }
 
-    // ── 3. Connections — who authenticated each connection ────────────────
-    // The `connections` table stores the actual OAuth connection objects.
-    // `cr_connectionid` matches the `connectionid` field on connectionreferences.
-    // `statuses` / `authenticateduser` / `createdby` carry the signed-in identity.
-    try {
-      const conRes = await dvGet(
-        'connections?$select=connectionid,createdby,name,authenticateduser'
-      );
-      connUserMap = {};
-      for (const con of (conRes.value || [])) {
-        if (!con.connectionid) continue;
-        // authenticateduser is a JSON string like {"id":"...","displayName":"user@domain"}
-        let identity = '';
-        if (con.authenticateduser) {
-          try {
-            const au = typeof con.authenticateduser === 'string'
-              ? JSON.parse(con.authenticateduser)
-              : con.authenticateduser;
-            identity = au.displayName || au.userPrincipalName || au.id || '';
-          } catch { /* not JSON */ }
-        }
-        if (!identity && con.createdby) identity = con.createdby;
-        if (!identity && con.name)      identity = con.name;
-        if (identity) connUserMap[con.connectionid] = identity;
-      }
-    } catch {
-      connUserMap = {};
-      // Non-fatal — Connected As column will be blank
-    }
-
-    // ── 4. Cloud flows and their connection reference usage ────────────────
+    // ── 3. Cloud flows and their connection reference usage ────────────────
     // Query all cloud flows (category 5) and inspect their clientdata to find
     // which connection reference logical names each flow references.
     // The expand approach (connectionreference_workflow) is not a valid Web API
@@ -609,9 +578,11 @@ async function loadAll() {
         try {
           const def = JSON.parse(wf.clientdata);
           // clientdata schema: { properties: { connectionReferences: { key: { connectionReferenceLogicalName } } } }
-          const connectionRefs = def?.properties?.connectionReferences || {};
+          const connectionRefs = def?.properties?.connectionReferences
+                              || def?.connectionReferences
+                              || {};
           for (const key of Object.keys(connectionRefs)) {
-            const lname = connectionRefs[key]?.connectionReferenceLogicalName;
+            const lname = connectionRefs[key]?.connection?.connectionReferenceLogicalName;
             if (!lname) continue;
             if (!flowMap[lname]) flowMap[lname] = [];
             flowMap[lname].push({ name: wf.name, statecode: wf.statecode });
@@ -764,7 +735,7 @@ function renderTable() {
             <th class="col-logical">Logical Name</th>
             <th class="col-connector">Connector</th>
             <th class="col-solution">Solution</th>
-            <th class="col-owner">Record Owner / Connected As</th>
+            <th class="col-owner">Record Owner</th>
             <th class="col-connid">Connection ID</th>
             <th class="col-flows">Flows</th>
             <th class="col-actions"></th>
@@ -802,12 +773,9 @@ function buildRow(r) {
     ? sols.map(s => `<span class="badge badge-solution">${escHtml(s)}</span>`).join(' ')
     : '<span style="color:var(--text-disabled);font-size:11px">—</span>';
 
-  // Owner + connected user
-  const ownerName  = getOwnerLabel(r);
-  const connUser   = connUserMap[r.connectionid] || '';
-  const ownerHtml  = connUser
-    ? `<span title="Record owner: ${escHtml(ownerName)}">${escHtml(truncate(ownerName, 20))}</span><br><span style="font-size:11px;color:var(--text-secondary)" title="Connected as: ${escHtml(connUser)}">🔗 ${escHtml(truncate(connUser, 26))}</span>`
-    : `<span title="${escHtml(ownerName)}">${escHtml(truncate(ownerName, 26))}</span>`;
+  // Owner
+  const ownerName = getOwnerLabel(r);
+  const ownerHtml = `<span title="${escHtml(ownerName)}">${escHtml(truncate(ownerName, 26))}</span>`;
 
   // Connection ID
   const connIdHtml = r.connectionid
@@ -846,10 +814,9 @@ function buildRow(r) {
 
 function buildExpandRow(r) {
   const flows  = flowMap[r.connectionreferencelogicalname] || [];
-  const ci     = connectorInfo(r.connectorid);
-  const sols   = solutionMap[r.connectionreferenceid] || [];
-  const owner     = getOwnerLabel(r);
-  const connUser   = connUserMap[r.connectionid] || '';
+  const ci    = connectorInfo(r.connectorid);
+  const sols  = solutionMap[r.connectionreferenceid] || [];
+  const owner = getOwnerLabel(r);
 
   const flowListHtml = flows.length
     ? flows.map(f => {
@@ -896,10 +863,6 @@ function buildExpandRow(r) {
             <div class="expand-field">
               <div class="expand-field-label">Record Owner</div>
               <div class="expand-field-value">${escHtml(owner)}</div>
-            </div>
-            <div class="expand-field">
-              <div class="expand-field-label">Connected As</div>
-              <div class="expand-field-value">${connUser ? escHtml(connUser) : '<em style="color:var(--text-disabled)">Not assigned</em>'}</div>
             </div>
             <div class="expand-field">
               <div class="expand-field-label">Solution(s)</div>
