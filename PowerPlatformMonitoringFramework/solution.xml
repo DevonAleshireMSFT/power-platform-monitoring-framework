@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26041.165" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26041.165" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26043.00156">
+<ImportExportXml version="9.2.26042.159" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26042.159" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26043.00156">
   <SolutionManifest>
     <UniqueName>PowerPlatformMonitoringFramework</UniqueName>
     <LocalizedNames>
@@ -101,24 +100,28 @@
       <RootComponent type="29" id="{b3819854-8f27-f111-8341-001dd8207276}" behavior="0" />
       <RootComponent type="29" id="{d3f874c5-271f-f111-8341-001dd808cec5}" behavior="0" />
       <RootComponent type="29" id="{da8c9045-6024-f111-8341-001dd8207b15}" behavior="0" />
+      <RootComponent type="60" id="{1f24458a-bc48-f111-bec5-001dd802d907}" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_base" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_config_setup" behavior="0" />
+      <RootComponent type="61" schemaName="ppmf_connectionrefs" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_docs" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_errorEventForm" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_releasenotes" behavior="0" />
+      <RootComponent type="61" schemaName="ppmf_severityBadgeForm" behavior="0" />
+      <RootComponent type="61" schemaName="ppmf_severityIcon" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_critical" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_info" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_unknown" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_warning" behavior="0" />
-      <RootComponent type="61" schemaName="ppmf_severityBadgeForm" behavior="0" />
-      <RootComponent type="61" schemaName="ppmf_severityIcon" behavior="0" />
       <RootComponent type="62" schemaName="ppmf_PPMFPlatformMonitor" behavior="0" />
       <RootComponent type="66" schemaName="ppmf_ppmf.SeverityBadge" behavior="0" />
       <RootComponent type="80" schemaName="ppmf_PPMFPlatformMonitor" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
-        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
+          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
+        </Required>
         <Dependent type="80" schemaName="ppmf_PPMFPlatformMonitor" displayName="PPMF - Platform Monitor" />
       </MissingDependency>
       <MissingDependency>
