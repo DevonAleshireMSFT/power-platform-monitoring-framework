@@ -16,10 +16,11 @@
 #   .\Test-PPMFDeployment.ps1 -EnvironmentUrl "https://org.crm.dynamics.com"
 #
 # Usage (CI / service principal):
+#   $secret = ConvertTo-SecureString $env:PP_CLIENT_SECRET -AsPlainText -Force
 #   .\Test-PPMFDeployment.ps1 `
 #       -EnvironmentUrl  "https://org.crm.dynamics.com" `
 #       -ClientId        $env:PP_CLIENT_ID `
-#       -ClientSecret    $env:PP_CLIENT_SECRET `
+#       -ClientSecret    $secret `
 #       -TenantId        $env:PP_TENANT_ID
 #
 # Exit codes:
@@ -38,11 +39,18 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
+    [ValidatePattern('^https://')]
     [string] $EnvironmentUrl,
 
     # Service principal auth (CI). Omit for interactive auth.
+    [ValidateNotNullOrEmpty()]
     [string] $ClientId,
-    [string] $ClientSecret,
+
+    # Use SecureString to prevent the secret appearing in Script Block Logs.
+    # In CI, wrap with: ConvertTo-SecureString $env:PP_CLIENT_SECRET -AsPlainText -Force
+    [SecureString] $ClientSecret,
+
+    [ValidateNotNullOrEmpty()]
     [string] $TenantId,
 
     [ValidateSet("", "UsGov", "UsGovHigh", "UsGovDod")]
@@ -136,7 +144,7 @@ function Invoke-DvApi ([string]$RelativeUrl) {
         'Authorization'    = "Bearer $script:AccessToken"
         'Prefer'           = 'odata.include-annotations="*"'
     }
-    $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get -ErrorAction Stop
+    $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get -TimeoutSec 30 -ErrorAction Stop
     return $response
 }
 
@@ -145,7 +153,9 @@ function Invoke-DvApi ([string]$RelativeUrl) {
 function Get-AccessToken {
     Write-Header "Authentication"
 
-    $useServicePrincipal = $ClientId -and $ClientSecret -and $TenantId
+    $useServicePrincipal = ($PSBoundParameters.ContainsKey('ClientId') -and
+                            $PSBoundParameters.ContainsKey('ClientSecret') -and
+                            $PSBoundParameters.ContainsKey('TenantId'))
 
     if ($useServicePrincipal) {
         Write-Host "  Authenticating with service principal..." -ForegroundColor Gray
@@ -164,18 +174,38 @@ function Get-AccessToken {
             default    { "https://service.crm.dynamics.com" }
         }
 
+        # Convert SecureString to plain text only at the point of use,
+        # inside a local scope so it is not retained in a variable.
+        $plainSecret  = [System.Net.NetworkCredential]::new('', $ClientSecret).Password
+
         $tokenBody = @{
-            grant_type    = "client_credentials"
+            grant_type    = 'client_credentials'
             client_id     = $ClientId
-            client_secret = $ClientSecret
+            client_secret = $plainSecret
             resource      = $resource
         }
 
-        $tokenResponse = Invoke-RestMethod `
-            -Uri    "$authority/$TenantId/oauth2/token" `
-            -Method Post `
-            -Body   $tokenBody `
-            -ErrorAction Stop
+        # Suppress verbose output to prevent request body appearing in logs.
+        $savedVerbose = $VerbosePreference
+        $VerbosePreference = 'SilentlyContinue'
+        try {
+            $tokenResponse = Invoke-RestMethod `
+                -Uri        "$authority/$TenantId/oauth2/token" `
+                -Method     Post `
+                -Body       $tokenBody `
+                -TimeoutSec 30 `
+                -ErrorAction Stop
+        } finally {
+            $VerbosePreference = $savedVerbose
+            # Overwrite plain secret in memory immediately after use
+            $plainSecret = $null
+            [System.GC]::Collect()
+        }
+
+        if (-not $tokenResponse.access_token) {
+            Write-Host "  ✖  Token endpoint returned a response but access_token was empty." -ForegroundColor Red
+            exit 1
+        }
 
         $script:AccessToken = $tokenResponse.access_token
         Write-Host "  ✔  Service principal authenticated" -ForegroundColor Green
@@ -184,8 +214,8 @@ function Get-AccessToken {
         Write-Host "  Authenticating interactively via PAC CLI..." -ForegroundColor Gray
 
         # Use pac cli to get a token for the environment
-        $cloudArg = if ($Cloud) { "--cloud $Cloud" } else { "" }
-        $pacOutput = pac auth list 2>&1
+        $cloudArgs = if ($Cloud) { @('auth', 'list', '--cloud', $Cloud) } else { @('auth', 'list') }
+        $pacOutput = & pac @cloudArgs 2>&1
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  ✖  PAC CLI not available or no auth profile found." -ForegroundColor Red
             Write-Host "     Run 'pac auth create' or provide -ClientId/-ClientSecret/-TenantId." -ForegroundColor DarkGray
@@ -197,8 +227,14 @@ function Get-AccessToken {
         Write-Host "  ℹ  For CI usage, provide -ClientId, -ClientSecret, and -TenantId." -ForegroundColor Yellow
         Write-Host "     Attempting to use current PAC CLI auth profile token..." -ForegroundColor Gray
 
-        # Extract token from PAC environment (PAC stores tokens in the profile)
-        $envInfo = pac env who --json 2>&1 | ConvertFrom-Json -ErrorAction SilentlyContinue
+        # Verify PAC CLI can reach the target environment
+        $envRaw = pac env who --json 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  ✖  PAC CLI 'env who' failed (exit $LASTEXITCODE): $envRaw" -ForegroundColor Red
+            Write-Host "     Run 'pac auth select' to choose an active profile, or provide service principal credentials." -ForegroundColor DarkGray
+            exit 1
+        }
+        $envInfo = $envRaw | ConvertFrom-Json -ErrorAction SilentlyContinue
         if (-not $envInfo) {
             Write-Host "  ✖  Could not retrieve auth token from PAC CLI profile." -ForegroundColor Red
             Write-Host "     Run 'pac auth select' to choose an active profile, or provide service principal credentials." -ForegroundColor DarkGray
@@ -216,9 +252,12 @@ function Get-AccessToken {
 function Invoke-DvApiPac ([string]$RelativeUrl) {
     # Wrapper that uses pac org api if no Bearer token available (interactive auth)
     if ($script:UsePacCli) {
-        $baseUrl  = $EnvironmentUrl.TrimEnd('/')
-        $fullUrl  = "$baseUrl/api/data/v9.2/$RelativeUrl"
-        $raw      = pac org api --url $fullUrl --json 2>&1
+        $baseUrl = $EnvironmentUrl.TrimEnd('/')
+        $fullUrl = "$baseUrl/api/data/v9.2/$RelativeUrl"
+        $raw     = pac org api --url $fullUrl --json 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "PAC CLI API call failed (exit $LASTEXITCODE): $raw"
+        }
         return $raw | ConvertFrom-Json -ErrorAction Stop
     }
     return Invoke-DvApi $RelativeUrl
