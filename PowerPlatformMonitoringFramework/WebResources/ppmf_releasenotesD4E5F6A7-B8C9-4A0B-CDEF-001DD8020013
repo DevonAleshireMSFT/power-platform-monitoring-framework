@@ -220,7 +220,8 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-section-label">Releases</div>
-    <a href="#v1-0-0-10" class="active">v1.0.0.10</a>
+    <a href="#v1-0-0-11" class="active">v1.0.0.11</a>
+    <a href="#v1-0-0-10">v1.0.0.10</a>
     <a href="#v1-0-0-9">v1.0.0.9</a>
     <a href="#v1-0-0-8">v1.0.0.8</a>
   </nav>
@@ -230,11 +231,48 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <main class="app-main" id="main-content">
 
+    <!-- ── v1.0.0.11 ───────────────────────────────────────────────────────── -->
+    <div class="release-card" id="v1-0-0-11">
+      <div class="release-header">
+        <span class="release-version">v1.0.0.11</span>
+        <span class="badge badge-new" style="font-size:12px">Latest</span>
+        <span class="release-date">May 8, 2026</span>
+      </div>
+      <div class="release-body">
+
+        <div class="change-group">
+          <div class="change-group-title">Connection Reference Review Page</div>
+          <ul class="change-list">
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>PPMF – Connection Reference Review</strong> (<code>ppmf_connectionrefs</code>) — new web resource page accessible from <strong>Configuration → Connection References</strong> in the model-driven app. Displays all connection references in the environment in a single view, showing assignment status (Assigned / Unassigned / Inactive), connector type, record owner, solution membership, and the number of dependent cloud flows. Expanding a row reveals the full connection ID, description, and a list of every flow that depends on the reference along with each flow's active or inactive state.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Summary stat cards</strong> — header row showing total connection references alongside a breakdown by status (Assigned, Unassigned, Inactive) that updates on every load and refresh.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Unassigned warning banner</strong> — prominent callout displayed automatically when one or more references have no connection assigned, with a count and a direct instruction to navigate to Solutions → Connection References to resolve.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Filter bar</strong> — filter by status, connector type, solution, and owner. Includes a <strong>Hide SYSTEM</strong> checkbox to suppress platform-owned references (e.g. <code>msdyn_ContentConversion</code>) and focus on solution-specific entries.</span>
+            </li>
+            <li class="change-item">
+              <span class="badge badge-new">New</span>
+              <span class="change-item-text"><strong>Sitemap entry</strong> — <em>Connection References</em> added to the <strong>Configuration</strong> group in the PPMF Platform Monitor model-driven app, between Setup &amp; Configuration and Alert Routes.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ── v1.0.0.10 ───────────────────────────────────────────────────────── -->
     <div class="release-card" id="v1-0-0-10">
       <div class="release-header">
         <span class="release-version">v1.0.0.10</span>
-        <span class="badge badge-new" style="font-size:12px">Latest</span>
         <span class="release-date">May 4, 2026</span>
       </div>
       <div class="release-body">

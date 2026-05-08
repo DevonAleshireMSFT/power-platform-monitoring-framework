@@ -60,7 +60,7 @@
     .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
 
     /* ── Layout ──────────────────────────────────────────────────────────── */
-    .app-main { padding: 24px 32px; max-width: 1280px; }
+    .app-main { padding: 24px 32px; }
 
     /* ── Cards ───────────────────────────────────────────────────────────── */
     .card {
@@ -201,7 +201,7 @@
     .col-logical  { min-width: 200px; }
     .col-connector{ width: 140px; }
     .col-solution { width: 160px; }
-    .col-owner    { width: 160px; }
+    .col-owner    { width: 180px; }
     .col-connid   { width: 140px; }
     .col-flows    { width: 100px; text-align: center; }
     .col-actions  { width: 64px; text-align: right; }
@@ -421,6 +421,12 @@
         <select id="filter-solution" onchange="applyFilters()">
           <option value="">All solutions</option>
         </select>
+        <select id="filter-owner" onchange="applyFilters()">
+          <option value="">All owners</option>
+        </select>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;white-space:nowrap;height:32px">
+          <input type="checkbox" id="hide-system" onchange="applyFilters()" style="width:14px;height:14px;cursor:pointer"> Hide SYSTEM
+        </label>
         <span class="filter-count" id="filter-count"></span>
       </div>
 
@@ -465,6 +471,7 @@ const DV_HEADERS = {
 let allRefs     = [];  // raw connection reference records
 let flowMap     = {};  // { connectionreferencelogicalname: [{ name, statecode }] }
 let solutionMap = {};  // { connectionreferenceid: [solutionFriendlyName] }
+let connUserMap = {};  // { connectionid: 'user@domain' } — who authenticated each connection
 let expandedId  = null;
 
 // ─── Friendly connector names ─────────────────────────────────────────────────
@@ -552,51 +559,69 @@ async function loadAll() {
       // Non-fatal — solution column will show "—"
     }
 
-    // ── 3. Cloud flows and their connection reference usage ────────────────
+    // ── 3. Connections — who authenticated each connection ────────────────
+    // The `connections` table stores the actual OAuth connection objects.
+    // `cr_connectionid` matches the `connectionid` field on connectionreferences.
+    // `statuses` / `authenticateduser` / `createdby` carry the signed-in identity.
     try {
-      // Try expanding the relationship from connection references side
-      const flowRes = await dvGet(
-        'connectionreferences?' +
-        '$select=connectionreferencelogicalname&' +
-        '$expand=connectionreference_workflow($select=name,statecode)'
+      const conRes = await dvGet(
+        'connections?$select=connectionid,createdby,name,authenticateduser'
       );
-      flowMap = {};
-      for (const cr of (flowRes.value || [])) {
-        const lname = cr.connectionreferencelogicalname;
-        const flows = cr['connectionreference_workflow'] || [];
-        if (lname && flows.length) flowMap[lname] = flows;
+      connUserMap = {};
+      for (const con of (conRes.value || [])) {
+        if (!con.connectionid) continue;
+        // authenticateduser is a JSON string like {"id":"...","displayName":"user@domain"}
+        let identity = '';
+        if (con.authenticateduser) {
+          try {
+            const au = typeof con.authenticateduser === 'string'
+              ? JSON.parse(con.authenticateduser)
+              : con.authenticateduser;
+            identity = au.displayName || au.userPrincipalName || au.id || '';
+          } catch { /* not JSON */ }
+        }
+        if (!identity && con.createdby) identity = con.createdby;
+        if (!identity && con.name)      identity = con.name;
+        if (identity) connUserMap[con.connectionid] = identity;
       }
     } catch {
-      // Fallback: query all cloud flows and scan their definitions
-      try {
-        const wfRes = await dvGet(
-          'workflows?' +
-          '$select=workflowid,name,statecode,clientdata&' +
-          '$filter=category eq 5&' +
-          '$top=200'
-        );
-        flowMap = {};
-        for (const wf of (wfRes.value || [])) {
-          if (!wf.clientdata) continue;
-          try {
-            const def = JSON.parse(wf.clientdata);
-            const connectionRefs = def?.properties?.connectionReferences
-                                || def?.connectionReferences
-                                || {};
-            for (const key of Object.keys(connectionRefs)) {
-              const lname = connectionRefs[key]?.connectionReferenceLogicalName
-                         || connectionRefs[key]?.connectionReferenceLogicalName;
-              if (!lname) continue;
-              if (!flowMap[lname]) flowMap[lname] = [];
-              flowMap[lname].push({ name: wf.name, statecode: wf.statecode });
-            }
-          } catch {
-            // unparseable flow definition — skip
-          }
-        }
-      } catch {
-        flowMap = {};
+      connUserMap = {};
+      // Non-fatal — Connected As column will be blank
+    }
+
+    // ── 4. Cloud flows and their connection reference usage ────────────────
+    // Query all cloud flows (category 5) and inspect their clientdata to find
+    // which connection reference logical names each flow references.
+    // The expand approach (connectionreference_workflow) is not a valid Web API
+    // navigation property and silently returns empty — scan clientdata instead.
+    try {
+      let allFlows = [];
+      let nextLink = 'workflows?$select=workflowid,name,statecode,clientdata&$filter=category eq 5&$top=250';
+      // Page through all flows (environments with many flows may exceed one page)
+      while (nextLink) {
+        const wfRes = await dvGet(nextLink.replace(`${API}/`, ''));
+        allFlows = allFlows.concat(wfRes.value || []);
+        nextLink = wfRes['@odata.nextLink'] || null;
       }
+      flowMap = {};
+      for (const wf of allFlows) {
+        if (!wf.clientdata) continue;
+        try {
+          const def = JSON.parse(wf.clientdata);
+          // clientdata schema: { properties: { connectionReferences: { key: { connectionReferenceLogicalName } } } }
+          const connectionRefs = def?.properties?.connectionReferences || {};
+          for (const key of Object.keys(connectionRefs)) {
+            const lname = connectionRefs[key]?.connectionReferenceLogicalName;
+            if (!lname) continue;
+            if (!flowMap[lname]) flowMap[lname] = [];
+            flowMap[lname].push({ name: wf.name, statecode: wf.statecode });
+          }
+        } catch {
+          // unparseable flow definition — skip
+        }
+      }
+    } catch {
+      flowMap = {};
     }
 
     renderTable();
@@ -644,6 +669,10 @@ function updateStats() {
 
 // ─── Populate filter dropdowns ────────────────────────────────────────────────
 
+function getOwnerLabel(r) {
+  return r['_ownerid_value@OData.Community.Display.V1.FormattedValue'] || 'SYSTEM';
+}
+
 function populateFilterDropdowns() {
   // Connectors
   const connectorSel = document.getElementById('filter-connector');
@@ -656,15 +685,23 @@ function populateFilterDropdowns() {
   const solutions   = [...new Set(Object.values(solutionMap).flat())].sort();
   solutionSel.innerHTML = '<option value="">All solutions</option>' +
     solutions.map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join('');
+
+  // Owners
+  const ownerSel = document.getElementById('filter-owner');
+  const owners   = [...new Set(allRefs.map(r => getOwnerLabel(r)))].sort();
+  ownerSel.innerHTML = '<option value="">All owners</option>' +
+    owners.map(o => `<option value="${escHtml(o)}">${escHtml(o)}</option>`).join('');
 }
 
 // ─── Filters ──────────────────────────────────────────────────────────────────
 
 function getFilteredRefs() {
-  const search    = document.getElementById('search-input').value.toLowerCase().trim();
-  const status    = document.getElementById('filter-status').value;
-  const connector = document.getElementById('filter-connector').value;
-  const solution  = document.getElementById('filter-solution').value;
+  const search     = document.getElementById('search-input').value.toLowerCase().trim();
+  const status     = document.getElementById('filter-status').value;
+  const connector  = document.getElementById('filter-connector').value;
+  const solution   = document.getElementById('filter-solution').value;
+  const owner      = document.getElementById('filter-owner').value;
+  const hideSystem = document.getElementById('hide-system').checked;
 
   return allRefs.filter(r => {
     // Text search
@@ -683,6 +720,10 @@ function getFilteredRefs() {
       const sols = solutionMap[r.connectionreferenceid] || [];
       if (!sols.includes(solution)) return false;
     }
+    // Owner filter
+    if (owner && getOwnerLabel(r) !== owner) return false;
+    // Hide SYSTEM toggle
+    if (hideSystem && getOwnerLabel(r) === 'SYSTEM') return false;
     return true;
   });
 }
@@ -723,7 +764,7 @@ function renderTable() {
             <th class="col-logical">Logical Name</th>
             <th class="col-connector">Connector</th>
             <th class="col-solution">Solution</th>
-            <th class="col-owner">Owner</th>
+            <th class="col-owner">Record Owner / Connected As</th>
             <th class="col-connid">Connection ID</th>
             <th class="col-flows">Flows</th>
             <th class="col-actions"></th>
@@ -761,13 +802,12 @@ function buildRow(r) {
     ? sols.map(s => `<span class="badge badge-solution">${escHtml(s)}</span>`).join(' ')
     : '<span style="color:var(--text-disabled);font-size:11px">—</span>';
 
-  // Owner
-  const ownerName = r['_ownerid_value@OData.Community.Display.V1.FormattedValue']
-                 || r['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
-                 || '—';
-  const ownerHtml = ownerName !== '—'
-    ? `<span title="${escHtml(ownerName)}">${escHtml(truncate(ownerName, 22))}</span>`
-    : '<span style="color:var(--text-disabled)">—</span>';
+  // Owner + connected user
+  const ownerName  = getOwnerLabel(r);
+  const connUser   = connUserMap[r.connectionid] || '';
+  const ownerHtml  = connUser
+    ? `<span title="Record owner: ${escHtml(ownerName)}">${escHtml(truncate(ownerName, 20))}</span><br><span style="font-size:11px;color:var(--text-secondary)" title="Connected as: ${escHtml(connUser)}">🔗 ${escHtml(truncate(connUser, 26))}</span>`
+    : `<span title="${escHtml(ownerName)}">${escHtml(truncate(ownerName, 26))}</span>`;
 
   // Connection ID
   const connIdHtml = r.connectionid
@@ -808,7 +848,8 @@ function buildExpandRow(r) {
   const flows  = flowMap[r.connectionreferencelogicalname] || [];
   const ci     = connectorInfo(r.connectorid);
   const sols   = solutionMap[r.connectionreferenceid] || [];
-  const owner  = r['_ownerid_value@OData.Community.Display.V1.FormattedValue'] || '—';
+  const owner     = getOwnerLabel(r);
+  const connUser   = connUserMap[r.connectionid] || '';
 
   const flowListHtml = flows.length
     ? flows.map(f => {
@@ -853,8 +894,12 @@ function buildExpandRow(r) {
               <div style="display:flex;align-items:center;gap:6px">${connIdFull}</div>
             </div>
             <div class="expand-field">
-              <div class="expand-field-label">Owner</div>
+              <div class="expand-field-label">Record Owner</div>
               <div class="expand-field-value">${escHtml(owner)}</div>
+            </div>
+            <div class="expand-field">
+              <div class="expand-field-label">Connected As</div>
+              <div class="expand-field-value">${connUser ? escHtml(connUser) : '<em style="color:var(--text-disabled)">Not assigned</em>'}</div>
             </div>
             <div class="expand-field">
               <div class="expand-field-label">Solution(s)</div>
