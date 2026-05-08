@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{c69ac878-8045-f111-bec6-001dd80db7d6}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="ppmf_name" select="1" icon="1" preview="1">
+        <row name="result" id="ppmf_erroreventid">
+          <cell name="ppmf_name" width="182" />
+          <cell name="ppmf_triagestatus" width="114" />
+          <cell name="ppmf_severity" width="100" />
+          <cell name="ppmf_solutionname" width="125" />
+          <cell name="ppmf_flowname" width="106" />
+          <cell name="ppmf_errormessage" width="123" />
+          <cell name="ppmf_occurredon" width="113" />
+          <cell name="ppmf_assignedtoid" width="111" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical" distinct="true">
+        <entity name="ppmf_errorevent">
+          <attribute name="ppmf_erroreventid" />
+          <attribute name="ppmf_name" />
+          <attribute name="ppmf_triagestatus" />
+          <attribute name="ppmf_severity" />
+          <attribute name="ppmf_solutionname" />
+          <attribute name="ppmf_flowname" />
+          <attribute name="ppmf_errormessage" />
+          <attribute name="ppmf_occurredon" />
+          <attribute name="ppmf_assignedtoid" />
+          <order attribute="ppmf_occurredon" descending="true" />
+          <filter type="and">
+            <condition attribute="ppmf_severity" operator="eq" value="3" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.5</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Critical Errors" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Error events with Critical severity requiring immediate attention." languagecode="1033" />
+    </Descriptions>
+  </savedquery>
+</savedqueries>

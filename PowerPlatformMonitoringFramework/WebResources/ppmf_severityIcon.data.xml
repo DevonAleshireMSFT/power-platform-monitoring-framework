@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{d739af1e-9645-f111-bec6-001dd80db2d0}</WebResourceId>
+  <Name>ppmf_severityIcon</Name>
+  <DisplayName>ppmf_severityIcon</DisplayName>
+  <Description>ppmf_severityIcon script to set the statis indicator for severity on the error event view</Description>
+  <LanguageCode>0</LanguageCode>
+  <WebResourceType>3</WebResourceType>
+  <IntroducedVersion>1.0.0.6</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/ppmf_severityIconD739AF1E-9645-F111-BEC6-001DD80DB2D0</FileName>
+</WebResource>
