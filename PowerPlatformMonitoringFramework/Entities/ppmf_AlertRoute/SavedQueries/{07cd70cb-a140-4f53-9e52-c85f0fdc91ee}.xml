@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{07cd70cb-a140-4f53-9e52-c85f0fdc91ee}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="ppmf_name" select="1" icon="1" preview="1">
+        <row name="result" id="ppmf_alertrouteid">
+          <cell name="ppmf_name" width="300" />
+          <cell name="ppmf_isactive" width="100" />
+          <cell name="ppmf_solutionnamepattern" width="168" />
+          <cell name="ppmf_minseverity" width="147" />
+          <cell name="ppmf_teamid" width="131" />
+          <cell name="ppmf_channelid" width="142" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="ppmf_alertroute">
+          <attribute name="ppmf_alertrouteid" />
+          <attribute name="ppmf_name" />
+          <order attribute="ppmf_name" descending="false" />
+          <attribute name="ppmf_isactive" />
+          <attribute name="ppmf_solutionnamepattern" />
+          <attribute name="ppmf_minseverity" />
+          <attribute name="ppmf_teamid" />
+          <attribute name="ppmf_channelid" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Alert Routes" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="All configured alert routing rules. Active routes override the default Teams channel for matching solutions." languagecode="1033" />
+    </Descriptions>
+  </savedquery>
+</savedqueries>

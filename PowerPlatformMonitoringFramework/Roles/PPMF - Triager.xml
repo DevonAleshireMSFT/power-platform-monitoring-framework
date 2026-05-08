@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Role id="{59d46f28-1e45-f111-bec5-001dd802d907}" name="PPMF - Triager" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <AppliesTo>Users and TEams</AppliesTo>
+  <Description>Grants read and write access to Error Events and Error Notes for active triage work. Assign to support analysts and developers responsible for investigating, updating, and resolving errors. Cannot modify Alert Routes.</Description>
+  <SummaryOfCoreTablePermissions>ppmf_ErrorEvent: Read/Write (Org), Append To (Org). ppmf_ErrorNote: Create/Read/Write/Delete/Append (User), Read (Org). ppmf_AlertRoute: Read (Org) only. No create, write, or delete on Alert Routes.</SummaryOfCoreTablePermissions>
+  <RolePrivileges>
+    <RolePrivilege name="prvAppendToppmf_ErrorEvent" level="Global" />
+    <RolePrivilege name="prvCreateSharePointData" level="Global" />
+    <RolePrivilege name="prvReadPluginAssembly" level="Global" />
+    <RolePrivilege name="prvReadPluginType" level="Global" />
+    <RolePrivilege name="prvReadppmf_AlertRoute" level="Global" />
+    <RolePrivilege name="prvReadppmf_ErrorEvent" level="Global" />
+    <RolePrivilege name="prvReadppmf_ErrorNote" level="Global" />
+    <RolePrivilege name="prvReadSdkMessage" level="Global" />
+    <RolePrivilege name="prvReadSdkMessageProcessingStep" level="Global" />
+    <RolePrivilege name="prvReadSdkMessageProcessingStepImage" level="Global" />
+    <RolePrivilege name="prvReadSharePointData" level="Global" />
+    <RolePrivilege name="prvReadSharePointDocument" level="Global" />
+    <RolePrivilege name="prvWriteppmf_ErrorEvent" level="Global" />
+    <RolePrivilege name="prvWriteSharePointData" level="Global" />
+  </RolePrivileges>
+</Role>

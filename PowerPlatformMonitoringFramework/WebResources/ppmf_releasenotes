@@ -220,8 +220,7 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-section-label">Releases</div>
-    <a href="#v1-0-0-11" class="active">v1.0.0.11</a>
-    <a href="#v1-0-0-10">v1.0.0.10</a>
+    <a href="#v1-0-0-10" class="active">v1.0.0.10</a>
     <a href="#v1-0-0-9">v1.0.0.9</a>
     <a href="#v1-0-0-8">v1.0.0.8</a>
   </nav>
@@ -231,44 +230,11 @@
   ═══════════════════════════════════════════════════════════════════════ -->
   <main class="app-main" id="main-content">
 
-    <!-- ── v1.0.0.11 ───────────────────────────────────────────────────────── -->
-    <div class="release-card" id="v1-0-0-11">
-      <div class="release-header">
-        <span class="release-version">v1.0.0.11</span>
-        <span class="badge badge-new" style="font-size:12px">Latest</span>
-        <span class="release-date">May 8, 2026</span>
-      </div>
-      <div class="release-body">
-
-        <div class="change-group">
-          <div class="change-group-title">Configuration — Connection Reference Review</div>
-          <ul class="change-list">
-            <li class="change-item">
-              <span class="badge badge-new">New</span>
-              <span class="change-item-text"><strong>Connection Reference Review page</strong> (<code>ppmf_connectionrefs</code>) — new page under the Configuration group in the PPMF Platform Monitor app. Displays all connection references in the environment with assignment status, connector type, record owner, solution membership, connection ID, and the count of cloud flows that depend on each reference.</span>
-            </li>
-            <li class="change-item">
-              <span class="badge badge-new">New</span>
-              <span class="change-item-text"><strong>Expandable row detail panel</strong> — clicking any row reveals full connection reference details including description, logical name, connection ID, owner, solution(s), and a list of all associated cloud flows with their active/inactive state.</span>
-            </li>
-            <li class="change-item">
-              <span class="badge badge-new">New</span>
-              <span class="change-item-text"><strong>Filter bar</strong> — filter by text search, assignment status (Assigned / Unassigned / Inactive), connector type, solution, record owner, and a Hide SYSTEM toggle to suppress system-owned references.</span>
-            </li>
-            <li class="change-item">
-              <span class="badge badge-new">New</span>
-              <span class="change-item-text"><strong>Unassigned warning callout</strong> — a warning banner is shown automatically when one or more active connection references have no connection assigned, with a direct link to the Solutions area for remediation.</span>
-            </li>
-          </ul>
-        </div>
-
-      </div>
-    </div>
-
     <!-- ── v1.0.0.10 ───────────────────────────────────────────────────────── -->
     <div class="release-card" id="v1-0-0-10">
       <div class="release-header">
         <span class="release-version">v1.0.0.10</span>
+        <span class="badge badge-new" style="font-size:12px">Latest</span>
         <span class="release-date">May 4, 2026</span>
       </div>
       <div class="release-body">

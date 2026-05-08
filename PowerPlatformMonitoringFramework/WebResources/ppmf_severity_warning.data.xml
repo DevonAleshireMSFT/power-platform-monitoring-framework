@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{f67e4efb-9545-f111-bec6-001dd80db2d0}</WebResourceId>
+  <Name>ppmf_severity_warning</Name>
+  <DisplayName>ppmf_severity_warning</DisplayName>
+  <Description>ppmf_severity_warning</Description>
+  <WebResourceType>11</WebResourceType>
+  <IntroducedVersion>1.0.0.6</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/ppmf_severity_warningF67E4EFB-9545-F111-BEC6-001DD80DB2D0</FileName>
+</WebResource>

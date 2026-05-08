@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ImportExportXml version="9.2.26042.159" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26042.159" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26043.00156">
   <SolutionManifest>
     <UniqueName>PowerPlatformMonitoringFramework</UniqueName>
@@ -107,12 +108,12 @@
       <RootComponent type="61" schemaName="ppmf_docs" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_errorEventForm" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_releasenotes" behavior="0" />
-      <RootComponent type="61" schemaName="ppmf_severityBadgeForm" behavior="0" />
-      <RootComponent type="61" schemaName="ppmf_severityIcon" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_critical" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_info" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_unknown" behavior="0" />
       <RootComponent type="61" schemaName="ppmf_severity_warning" behavior="0" />
+      <RootComponent type="61" schemaName="ppmf_severityBadgeForm" behavior="0" />
+      <RootComponent type="61" schemaName="ppmf_severityIcon" behavior="0" />
       <RootComponent type="62" schemaName="ppmf_PPMFPlatformMonitor" behavior="0" />
       <RootComponent type="66" schemaName="ppmf_ppmf.SeverityBadge" behavior="0" />
       <RootComponent type="80" schemaName="ppmf_PPMFPlatformMonitor" behavior="0" />

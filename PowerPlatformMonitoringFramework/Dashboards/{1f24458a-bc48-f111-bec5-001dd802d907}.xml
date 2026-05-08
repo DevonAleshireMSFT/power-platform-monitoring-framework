@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalizedNames>
+    <LocalizedName description="Operations Triage" languagecode="1033" />
+  </LocalizedNames>
+  <FormId>{1f24458a-bc48-f111-bec5-001dd802d907}</FormId>
+  <IsCustomizable>1</IsCustomizable>
+  <IsDefault>0</IsDefault>
+  <FormXml>
+    <forms type="powerbi">
+      <form>
+        <tabs>
+          <tab showlabel="false" verticallayout="true" id="{adc39464-d835-4d71-8122-75c6352baa20}">
+            <labels>
+              <label description="" languagecode="1033" />
+            </labels>
+            <columns>
+              <column width="100%">
+                <sections>
+                  <section showlabel="false" showbar="false" columns="111" id="{deaacfd0-a672-4ad9-816f-ea8a50317d6a}">
+                    <labels>
+                      <label description="" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="3" rowspan="24" showlabel="false" id="{6cef5229-1a70-44d8-a64b-b75a48b1625d}" availableforphone="false">
+                          <labels>
+                            <label description="" languagecode="1033" />
+                          </labels>
+                          <control id="22304a87-d7cf-45b2-a749-85cc87db0026" classid="{8C54228C-1B25-4909-A12A-F2B968BB0D62}">
+                            <parameters>
+                              <PowerBIGroupId>5df05fbe-39e4-4f49-a827-0660d2c4d1ef</PowerBIGroupId>
+                              <PowerBIReportId>25b6791e-0f9b-4fe1-bb1c-67f9e73f5ab4</PowerBIReportId>
+                              <TileUrl>https://app.high.powerbigov.us/reportEmbed?w=2&amp;config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVVTLUdPVi1UQi1URVhBUy1yZWRpcmVjdC5oaWdoLmFuYWx5c2lzLnVzZ292Y2xvdWRhcGkubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19&amp;groupId=5df05fbe-39e4-4f49-a827-0660d2c4d1ef&amp;reportId=25b6791e-0f9b-4fe1-bb1c-67f9e73f5ab4</TileUrl>
+                              <Type>2</Type>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                    </rows>
+                  </section>
+                </sections>
+              </column>
+            </columns>
+          </tab>
+        </tabs>
+      </form>
+    </forms>
+  </FormXml>
+  <IntroducedVersion>1.0.0.10</IntroducedVersion>
+  <IsTabletEnabled>0</IsTabletEnabled>
+</Dashboard>
