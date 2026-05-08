@@ -12,7 +12,7 @@
 #   PP_CLIENT_SECRET        Azure App Registration client secret
 #   PP_TENANT_ID            Azure AD tenant ID
 #   PP_DEV_ENVIRONMENT_URL  Dev environment URL
-#                           e.g. https://org05d9d92f.crm.microsoftdynamics.us/
+#                           e.g. https://orgXXXXXXXX.crm.microsoftdynamics.us/
 #   PP_DV_CONNECTION_ID     Dataverse connection ID from the maker portal
 #                           (Data → Connections → Dataverse → copy ID from URL)
 #   PP_TEAMS_CONNECTION_ID  Teams connection ID from the maker portal
@@ -48,6 +48,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Extract solution version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$sol = Get-Content "PowerPlatformMonitoringFramework/Other/Solution.xml"
+          $version  = $sol.ImportExportXml.SolutionManifest.Version
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Solution version: $version"
 
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
@@ -87,3 +96,15 @@ jobs:
           force-overwrite: true
           publish-changes: true
           skip-dependency-check: false
+
+      - name: Deployment health check
+        shell: pwsh
+        run: |
+          $secret = ConvertTo-SecureString "${{ secrets.PP_CLIENT_SECRET }}" -AsPlainText -Force
+          .\scripts\Test-PPMFDeployment.ps1 `
+            -EnvironmentUrl  "${{ secrets.PP_DEV_ENVIRONMENT_URL }}" `
+            -ClientId        "${{ secrets.PP_CLIENT_ID }}" `
+            -ClientSecret    $secret `
+            -TenantId        "${{ secrets.PP_TENANT_ID }}" `
+            -Cloud           "UsGovHigh" `
+            -ExpectedVersion "${{ steps.version.outputs.version }}"
