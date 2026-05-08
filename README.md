@@ -1,6 +1,6 @@
 # Power Platform Monitoring Framework (PPMF)
 
-> **v1.0.0.10** · Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
+> Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
 
 PPMF is an enterprise-ready observability solution for the Microsoft Power Platform. When a Power Automate flow fails or a Canvas App encounters an error, PPMF automatically captures structured error data into Dataverse, sends a formatted adaptive card alert to a Microsoft Teams channel, and creates a trackable triage record — without requiring any significant changes to your existing flows.
 
@@ -33,7 +33,7 @@ PPMF solves this by:
 | **11 Power Automate flows** | Error capture, Teams alerting, Canvas App handling, SharePoint write, SharePoint sync, demo flow, and weekly maintenance |
 | **12 Environment variables** | All runtime configuration in one place — no flow edits required |
 | **4 Security roles** | Admin, Triager, Reader, Service Account |
-| **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, and configuration |
+| **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, connection reference review, and configuration |
 | **In-app documentation** | Full architecture overview, integration guides, and field reference |
 | **In-app release notes** | Changelog accessible from the Documentation page |
 
@@ -50,52 +50,35 @@ PPMF solves this by:
 
 ---
 
-## Import
+## Documentation
 
-1. Go to [make.powerapps.com](https://make.powerapps.com) (or your sovereign cloud equivalent) and select your target environment.
-2. Navigate to **Solutions → Import solution**.
-3. Upload `PowerPlatformMonitoringFramework.zip` and complete the import wizard.
-4. Once the import completes, open the **PPMF Platform Monitor** app from the Apps list.
+| Topic | Description |
+|---|---|
+| [Deployment](docs/deployment.md) | Manual import, CI/CD pipeline setup, GitHub Actions secrets, post-deploy health check |
+| [Configuration](docs/configuration.md) | All 12 environment variables, writing modes, SharePoint list provisioning |
+| [Security Roles](docs/security-roles.md) | Role reference, assignment guide, service principal setup |
 
 ---
 
-## Getting Started
+## Quick Start
 
-The solution includes a guided setup experience. After import:
-
-1. Open **Configuration → Setup & Configuration** inside the PPMF Platform Monitor app.
-2. Follow the on-screen checklist — it covers connection references, flow activation, and environment variable configuration.
-3. If deploying without Dataverse, set `ppmf_WritingMode` to `SharePoint`, configure the SharePoint site URL and list name, and assign the SharePoint connection reference. See the **SharePoint Error Store** section of the Setup page.
-4. The page runs 11 automated checks and displays a pass/warn/fail result for each. All checks must be green before PPMF will reliably process errors.
-5. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
+1. Import the solution — see [Deployment](docs/deployment.md).
+2. Open **Configuration → Setup & Configuration** inside the PPMF Platform Monitor app and follow the on-screen checklist.
+3. Run the built-in demo flow to confirm end-to-end alerting works.
 
 For full instructions, integration guides, and field reference documentation, open **Help → Documentation** inside the app.
 
 ---
 
-## Security & Access Control
+## Contributing
 
-Four purpose-built security roles are included in the solution. Assign from **Settings → Users + Permissions → Security Roles** in your environment.
-
-| Role | Assign To | Permissions |
-|---|---|---|
-| **PPMF - Admin** | Power Platform administrators and solution owners | Full Create/Read/Write/Delete/Append/Assign/Share at Organization level on all three PPMF tables |
-| **PPMF - Triager** | Support analysts and developers investigating errors | Read/Write on `ppmf_ErrorEvent` (Org); Create/Read/Write/Delete on own `ppmf_ErrorNote` records; Read-only on `ppmf_AlertRoute` |
-| **PPMF - Reader** | Stakeholders and auditors requiring visibility only | Read-only access to all three PPMF tables. No create, write, or delete privileges |
-| **PPMF - Service Account** | Dataverse application user backed by an **Azure AD app registration (service principal)** — **do not assign to human users** | Create/Read on `ppmf_ErrorEvent`; Create/Append on `ppmf_ErrorNote`; Read-only on `ppmf_AlertRoute` |
-
-> **Service principal, not a licensed service account:** This role is designed for a Dataverse **application user** created from an Azure AD app registration. A service principal does not require a Power Platform license. Do not create a licensed user account for this purpose. To set this up: register an app in Azure AD, create a Dataverse application user linked to that app registration, and assign it the **PPMF - Service Account** role. Assigning this role to a human user will prevent that user from accessing the PPMF Platform Monitor app.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## Contributing
+## Changelog
 
-This solution is stored in PAC-unpacked format for source control. To contribute:
-
-1. Fork or clone the repository.
-2. Make changes to the unpacked files.
-3. Pack and import to test: `pac solution pack --folder . --zipFile ..\test.zip --packagetype Unmanaged`
-4. Submit a pull request with a clear description of the change.
+See [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
