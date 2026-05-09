@@ -153,9 +153,9 @@ function Invoke-DvApi ([string]$RelativeUrl) {
 function Get-AccessToken {
     Write-Header "Authentication"
 
-    $useServicePrincipal = ($PSBoundParameters.ContainsKey('ClientId') -and
-                            $PSBoundParameters.ContainsKey('ClientSecret') -and
-                            $PSBoundParameters.ContainsKey('TenantId'))
+    $useServicePrincipal = (-not [string]::IsNullOrEmpty($ClientId) -and
+                            ($null -ne $ClientSecret) -and
+                            -not [string]::IsNullOrEmpty($TenantId))
 
     if ($useServicePrincipal) {
         Write-Host "  Authenticating with service principal..." -ForegroundColor Gray
