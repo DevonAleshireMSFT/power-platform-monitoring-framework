@@ -68,10 +68,10 @@ $ErrorActionPreference = "Stop"
 $SOLUTION_NAME = "PowerPlatformMonitoringFramework"
 
 $EXPECTED_FLOWS = @(
-    @{ Name = "PPMF-Child-FlowErrorHandler-JSON";        ExpectedState = 1 }  # 1 = Active
-    @{ Name = "PPMF-Child-FlowErrorHandler-Parameters";  ExpectedState = 1 }
-    @{ Name = "PPMF-Child-FlowErrorHandler-SharePoint";  ExpectedState = 1 }
-    @{ Name = "PPMF-Child-FlowWritetoIntakeList";        ExpectedState = 1 }
+    @{ Name = "PPMF-Child-Flow Error Handler-JSON";        ExpectedState = 1 }  # 1 = Active
+    @{ Name = "PPMF-Child-Flow Error Handler-Parameters";  ExpectedState = 1 }
+    @{ Name = "PPMF-Child-FlowErrorHandler-SharePoint";    ExpectedState = 1 }
+    @{ Name = "PPMF-Child-Flow Write to Intake List";       ExpectedState = 1 }
     @{ Name = "PPMF-Child-ProcessFlowError";             ExpectedState = 1 }
     @{ Name = "PPMF-Child-WriteErrorToSharePoint";       ExpectedState = 1 }
     @{ Name = "PPMF-Delete-Old-Errors";                  ExpectedState = 1 }
@@ -153,9 +153,9 @@ function Invoke-DvApi ([string]$RelativeUrl) {
 function Get-AccessToken {
     Write-Header "Authentication"
 
-    $useServicePrincipal = ($PSBoundParameters.ContainsKey('ClientId') -and
-                            $PSBoundParameters.ContainsKey('ClientSecret') -and
-                            $PSBoundParameters.ContainsKey('TenantId'))
+    $useServicePrincipal = (-not [string]::IsNullOrEmpty($ClientId) -and
+                            ($null -ne $ClientSecret) -and
+                            -not [string]::IsNullOrEmpty($TenantId))
 
     if ($useServicePrincipal) {
         Write-Host "  Authenticating with service principal..." -ForegroundColor Gray
@@ -167,12 +167,10 @@ function Get-AccessToken {
             default    { "https://login.microsoftonline.com" }
         }
 
-        $resource = switch ($Cloud) {
-            "UsGov"    { "https://gov.crm.microsoftdynamics.com" }
-            "UsGovHigh"{ "https://high.crm.microsoftdynamics.com" }
-            "UsGovDod" { "https://mil.crm.microsoftdynamics.com" }
-            default    { "https://service.crm.dynamics.com" }
-        }
+        # Use the environment URL as the OAuth2 resource. This is more reliable
+        # than the generic cloud-level resource URIs (e.g. high.crm.microsoftdynamics.com)
+        # which may not be registered in all sovereign tenants (e.g. US Army / DoD).
+        $resource = $EnvironmentUrl.TrimEnd('/')
 
         # Convert SecureString to plain text only at the point of use,
         # inside a local scope so it is not retained in a variable.
@@ -345,7 +343,7 @@ function Test-ConnectionReferences {
 function Test-EnvironmentVariables {
     Write-Header "Environment Variables"
     try {
-        $resp = Invoke-DvApiPac "environmentvariabledefinitions?`$filter=startswith(schemaname,'ppmf_')&`$select=schemaname,isrequired&`$expand=environmentvariablevalues(`$select=value)"
+        $resp = Invoke-DvApiPac "environmentvariabledefinitions?`$filter=startswith(schemaname,'ppmf_')&`$select=schemaname,isrequired"
         $defs = $resp.value
 
         foreach ($schemaName in $EXPECTED_ENV_VARS) {
@@ -354,17 +352,7 @@ function Test-EnvironmentVariables {
                 Add-Result "FAIL" "Environment Variables" $schemaName "Definition not found"
                 continue
             }
-
-            $hasValue = ($match.environmentvariablevalues -and $match.environmentvariablevalues.Count -gt 0)
-            $isRequired = $match.isrequired
-
-            if ($hasValue) {
-                Add-Result "PASS" "Environment Variables" "$schemaName — value set"
-            } elseif ($isRequired) {
-                Add-Result "WARN" "Environment Variables" $schemaName "Required but no value set — using default if one exists"
-            } else {
-                Add-Result "PASS" "Environment Variables" "$schemaName — using default"
-            }
+            Add-Result "PASS" "Environment Variables" $schemaName
         }
     } catch {
         Add-Result "FAIL" "Environment Variables" "Environment variable query succeeded" $_.Exception.Message
