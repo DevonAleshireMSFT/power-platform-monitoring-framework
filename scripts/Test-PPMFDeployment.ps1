@@ -167,12 +167,10 @@ function Get-AccessToken {
             default    { "https://login.microsoftonline.com" }
         }
 
-        $resource = switch ($Cloud) {
-            "UsGov"    { "https://gov.crm.microsoftdynamics.com" }
-            "UsGovHigh"{ "https://high.crm.microsoftdynamics.com" }
-            "UsGovDod" { "https://mil.crm.microsoftdynamics.com" }
-            default    { "https://service.crm.dynamics.com" }
-        }
+        # Use the environment URL as the OAuth2 resource. This is more reliable
+        # than the generic cloud-level resource URIs (e.g. high.crm.microsoftdynamics.com)
+        # which may not be registered in all sovereign tenants (e.g. US Army / DoD).
+        $resource = $EnvironmentUrl.TrimEnd('/')
 
         # Convert SecureString to plain text only at the point of use,
         # inside a local scope so it is not retained in a variable.
