@@ -9,6 +9,9 @@
 #   2. Pack unmanaged and managed solution zips.
 #   3. Create a GitHub Release with both zips as downloadable assets.
 #   4. Import the managed solution to the production environment.
+#   5. Re-activate flows (managed import always deactivates them).
+#   6. Run post-deploy health check against production.
+#   7. Merge main back into dev to keep branch histories in sync.
 #
 # Pre-release checklist (do this before tagging):
 #   - Update <Version> in PowerPlatformMonitoringFramework/Other/Solution.xml
@@ -249,3 +252,16 @@ jobs:
             -TenantId        "${{ secrets.PP_TENANT_ID }}" `
             -Cloud           "UsGovHigh" `
             -ExpectedVersion "${{ steps.version.outputs.VERSION }}"
+
+      # ── Sync main back into dev ───────────────────────────────────────────
+      # Keeps dev in sync with main after a release merge, preventing GitHub
+      # from showing a "Compare & pull request" banner on every page load.
+      - name: Sync main into dev
+        shell: bash
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          git checkout dev
+          git merge origin/main --no-edit
+          git push origin dev
