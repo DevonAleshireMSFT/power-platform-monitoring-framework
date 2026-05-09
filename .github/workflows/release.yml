@@ -82,6 +82,28 @@ jobs:
 
           Write-Host "Version confirmed: $solutionVersion"
 
+      # ── Extract changelog entry for this version ──────────────────────────
+      - name: Extract changelog entry
+        id: changelog
+        shell: pwsh
+        run: |
+          $version   = "${{ steps.version.outputs.VERSION }}"
+          $changelog = Get-Content CHANGELOG.md -Raw
+          $pattern   = "(?s)## \[$([regex]::Escape($version))\][^\n]*\n(.*?)(?=\n## \[|\z)"
+
+          if ($changelog -match $pattern) {
+            $body = $matches[1].Trim()
+            Write-Host "Changelog entry found for $version"
+          } else {
+            Write-Error "No changelog entry found for $version in CHANGELOG.md. Update CHANGELOG.md before tagging."
+            exit 1
+          }
+
+          # GitHub Actions multiline output
+          "BODY<<EOF"   | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          $body         | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "EOF"         | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
       # ── Install PAC CLI ───────────────────────────────────────────────────
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
@@ -120,7 +142,8 @@ jobs:
           name: "Power Platform Monitoring Framework ${{ steps.version.outputs.TAG }}"
           draft: false
           prerelease: false
-          generate_release_notes: true
+          generate_release_notes: false
+          body: ${{ steps.changelog.outputs.BODY }}
           files: |
             out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_unmanaged.zip
             out/PowerPlatformMonitoringFramework_${{ steps.version.outputs.VERSION }}_managed.zip
@@ -153,3 +176,76 @@ jobs:
           force-overwrite: true
           publish-changes: true
           skip-dependency-check: false
+
+      # ── Re-activate flows (managed import always deactivates them) ─────────
+      - name: Re-activate PPMF flows
+        shell: pwsh
+        run: |
+          $flowsToActivate = @(
+            "PPMF-Child-Flow Error Handler-JSON"
+            "PPMF-Child-Flow Error Handler-Parameters"
+            "PPMF-Child-FlowErrorHandler-SharePoint"
+            "PPMF-Child-Flow Write to Intake List"
+            "PPMF-Child-ProcessFlowError"
+            "PPMF-Child-WriteErrorToSharePoint"
+            "PPMF-Delete-Old-Errors"
+            "PPMF-Get-Environment-Info"
+            "PPMF-Power-Apps-Error-Handler-JSON"
+          )
+
+          $baseUrl = "${{ secrets.PP_PROD_ENVIRONMENT_URL }}".TrimEnd('/')
+          $secret  = ConvertTo-SecureString "${{ secrets.PP_CLIENT_SECRET }}" -AsPlainText -Force
+
+          $tokenBody = @{
+            grant_type    = 'client_credentials'
+            client_id     = "${{ secrets.PP_CLIENT_ID }}"
+            client_secret = [System.Net.NetworkCredential]::new('', $secret).Password
+            resource      = $baseUrl
+          }
+
+          $savedVerbose = $VerbosePreference; $VerbosePreference = 'SilentlyContinue'
+          try {
+            $token = (Invoke-RestMethod -Uri "https://login.microsoftonline.us/${{ secrets.PP_TENANT_ID }}/oauth2/token" `
+              -Method Post -Body $tokenBody -TimeoutSec 30 -ErrorAction Stop).access_token
+          } finally {
+            $VerbosePreference = $savedVerbose
+            $tokenBody = $null
+          }
+
+          $headers = @{
+            Authorization      = "Bearer $token"
+            'OData-Version'    = '4.0'
+            'OData-MaxVersion' = '4.0'
+            Accept             = 'application/json'
+            'Content-Type'     = 'application/json'
+          }
+
+          $flows = (Invoke-RestMethod `
+            -Uri "$baseUrl/api/data/v9.2/workflows?`$filter=startswith(name,'PPMF-')&`$select=workflowid,name,statecode" `
+            -Headers $headers -TimeoutSec 30 -ErrorAction Stop).value
+
+          foreach ($flowName in $flowsToActivate) {
+            $flow = $flows | Where-Object { $_.name -eq $flowName } | Select-Object -First 1
+            if (-not $flow)               { Write-Warning "  Not found: $flowName"; continue }
+            if ($flow.statecode -eq 1)    { Write-Host "  Already active: $flowName"; continue }
+            Invoke-RestMethod `
+              -Uri     "$baseUrl/api/data/v9.2/workflows($($flow.workflowid))" `
+              -Method  Patch `
+              -Headers $headers `
+              -Body    '{"statecode":1,"statuscode":2}' `
+              -TimeoutSec 30 -ErrorAction Stop | Out-Null
+            Write-Host "  Activated: $flowName"
+          }
+
+      # ── Post-deploy health check ──────────────────────────────────────────
+      - name: Deployment health check
+        shell: pwsh
+        run: |
+          $secret = ConvertTo-SecureString "${{ secrets.PP_CLIENT_SECRET }}" -AsPlainText -Force
+          .\scripts\Test-PPMFDeployment.ps1 `
+            -EnvironmentUrl  "${{ secrets.PP_PROD_ENVIRONMENT_URL }}" `
+            -ClientId        "${{ secrets.PP_CLIENT_ID }}" `
+            -ClientSecret    $secret `
+            -TenantId        "${{ secrets.PP_TENANT_ID }}" `
+            -Cloud           "UsGovHigh" `
+            -ExpectedVersion "${{ steps.version.outputs.VERSION }}"
