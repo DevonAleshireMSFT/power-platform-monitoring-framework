@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Platform Monitoring Framework</title>
+  <meta name="description" content="PPMF — automated error capture, Teams alerting, and structured triage for Power Automate flows and Canvas Apps.">
+  <style>
+    :root {
+      --primary:       #0078d4;
+      --primary-dark:  #005a9e;
+      --primary-light: #e1effa;
+      --success:       #107c10;
+      --text:          #323130;
+      --text-secondary:#605e5c;
+      --border:        #edebe9;
+      --bg:            #f3f2f1;
+      --surface:       #ffffff;
+      --radius:        6px;
+      --shadow:        0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+      color: #fff;
+      padding: 72px 24px 60px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .hero p {
+      font-size: clamp(15px, 2vw, 19px);
+      opacity: .88;
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: opacity .15s, background .15s;
+      text-decoration: none;
+    }
+    .btn:hover { text-decoration: none; opacity: .88; }
+    .btn-white  { background: #fff; color: var(--primary); }
+    .btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.6); }
+    .btn-outline:hover { background: rgba(255,255,255,.12); }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .container { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Section ──────────────────────────────────────────── */
+    section { padding: 60px 0; }
+    section:nth-child(even) { background: var(--surface); }
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--primary); margin-bottom: 8px;
+    }
+    .section-title { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin-bottom: 12px; }
+    .section-sub   { font-size: 15px; color: var(--text-secondary); max-width: 600px; margin-bottom: 40px; }
+
+    /* ── Feature grid ─────────────────────────────────────── */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    section:nth-child(even) .feature-card { background: var(--bg); }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .feature-desc  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ── Steps ────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 16px; max-width: 680px; }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+      padding: 20px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .step-num {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: var(--primary); color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .step-desc  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .step-desc code {
+      font-family: 'Cascadia Code', Consolas, monospace;
+      font-size: 12px; background: var(--border);
+      border-radius: 3px; padding: 1px 5px;
+    }
+
+    /* ── Components table ─────────────────────────────────── */
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .comp-table th {
+      text-align: left; padding: 10px 14px;
+      background: var(--bg); border-bottom: 2px solid var(--border);
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--text-secondary);
+    }
+    .comp-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table td:first-child { font-weight: 600; white-space: nowrap; }
+
+    /* ── Badges ───────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .badge-blue  { background: #dce9f8; color: #004578; }
+    .badge-green { background: #c3e6c3; color: #0e5a0e; }
+
+    /* ── Callout ──────────────────────────────────────────── */
+    .callout {
+      display: flex; gap: 12px;
+      padding: 14px 18px; border-radius: var(--radius);
+      background: var(--primary-light); border: 1px solid #b0d0ef;
+      font-size: 13px; margin-top: 24px;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; }
+
+    /* ── Cloud support ────────────────────────────────────── */
+    .cloud-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .cloud-pill {
+      padding: 6px 16px; border-radius: 20px;
+      background: var(--primary-light); color: var(--primary-dark);
+      font-size: 13px; font-weight: 600; border: 1px solid #b0d0ef;
+    }
+
+    /* ── Docs links ───────────────────────────────────────── */
+    .doc-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .doc-link {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      text-decoration: none; color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .doc-link:hover { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); text-decoration: none; }
+    .doc-link-icon { font-size: 24px; flex-shrink: 0; }
+    .doc-link-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .doc-link-desc  { font-size: 12px; color: var(--text-secondary); }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      background: #1b1b1b; color: #ccc;
+      padding: 36px 24px; text-align: center;
+      font-size: 13px; line-height: 1.8;
+    }
+    footer a { color: #7ab8f5; }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .hero { padding: 48px 20px 40px; }
+      section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-badge">Open Source · Power Platform</div>
+  <h1>Power Platform<br>Monitoring Framework</h1>
+  <p>Automated error capture, Teams alerting, and structured triage for Power Automate flows and Canvas Apps — with zero changes to your existing solutions.</p>
+  <div class="hero-actions">
+    <a class="btn btn-white" href="https://github.com/dealeshi/power-platform-monitoring-framework/releases/latest">⬇️ Download Latest Release</a>
+    <a class="btn btn-outline" href="https://github.com/dealeshi/power-platform-monitoring-framework">View on GitHub</a>
+  </div>
+</div>
+
+<!-- ── Why PPMF ──────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">Your flows fail silently. PPMF fixes that.</h2>
+    <p class="section-sub">Power Platform environments with dozens of flows have no centralized visibility into failures. PPMF gives you that visibility — automatically.</p>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Instant Teams alerts</div>
+        <div class="feature-desc">A formatted adaptive card is posted the moment a flow fails, with a direct link to the failed run — before any user reports a problem.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Every failure logged</div>
+        <div class="feature-desc">Every failure creates a Dataverse record, whether or not an alert was sent. Nothing gets lost to throttling or silence.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Intelligent routing</div>
+        <div class="feature-desc">Different solutions post to different Teams channels. Configurable per-solution alert routes with optional minimum severity thresholds.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔇</div>
+        <div class="feature-title">Noise suppression</div>
+        <div class="feature-desc">A configurable throttle window suppresses repeat alerts for the same failing flow, so a stuck loop doesn't flood your channel.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗂️</div>
+        <div class="feature-title">Structured triage</div>
+        <div class="feature-desc">Error records move through a tracked workflow — New → In Progress → Fixed — with fields for root cause, suggested fix, work item links, and assignment.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧹</div>
+        <div class="feature-title">Self-maintaining</div>
+        <div class="feature-desc">A weekly maintenance flow automatically deletes resolved records past the configured retention window. No manual cleanup required.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── What's Included ───────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-label">What's Included</div>
+    <h2 class="section-title">Everything in the solution</h2>
+    <p class="section-sub">One import. No dependencies outside Power Platform and Microsoft Teams.</p>
+
+    <table class="comp-table">
+      <thead>
+        <tr><th>Component</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>3 Dataverse tables</td>
+          <td><code>ppmf_errorevent</code> — error records &nbsp;·&nbsp; <code>ppmf_alertroute</code> — routing rules &nbsp;·&nbsp; <code>ppmf_errornote</code> — triage notes</td>
+        </tr>
+        <tr>
+          <td>11 Power Automate flows</td>
+          <td>Error capture, Teams alerting, Canvas App handling, SharePoint write, SharePoint sync, demo flow, and weekly maintenance</td>
+        </tr>
+        <tr>
+          <td>12 Environment variables</td>
+          <td>All runtime configuration in one place — no flow edits required after import</td>
+        </tr>
+        <tr>
+          <td>4 Security roles</td>
+          <td><span class="badge badge-blue">Admin</span> &nbsp;<span class="badge badge-blue">Triager</span> &nbsp;<span class="badge badge-blue">Reader</span> &nbsp;<span class="badge badge-blue">Service Account</span></td>
+        </tr>
+        <tr>
+          <td>Model-driven app</td>
+          <td>PPMF Platform Monitor — triage views, alert route management, connection reference review, and guided setup</td>
+        </tr>
+        <tr>
+          <td>In-app documentation</td>
+          <td>Full architecture overview, integration guides, and field reference — accessible inside the app</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cloud-list">
+      <span class="cloud-pill">✅ Commercial</span>
+      <span class="cloud-pill">✅ GCC</span>
+      <span class="cloud-pill">✅ GCC High</span>
+      <span class="cloud-pill">✅ DoD</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Get Started ───────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Up and running in minutes</h2>
+    <p class="section-sub">No code changes to your existing flows. Just import, configure, and integrate.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Download and import the solution</div>
+          <div class="step-desc">Download the latest <code>.zip</code> from the <a href="https://github.com/dealeshi/power-platform-monitoring-framework/releases/latest">Releases page</a>. In Power Apps, go to <strong>Solutions → Import solution</strong> and upload the zip.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Assign connection references</div>
+          <div class="step-desc">After import, assign a <strong>Dataverse</strong> connection and a <strong>Microsoft Teams</strong> connection to their respective connection references. The Teams account must be a member of your target team.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Open the Setup &amp; Configuration page</div>
+          <div class="step-desc">Open the <strong>PPMF Platform Monitor</strong> app and navigate to <strong>Configuration → Setup &amp; Configuration</strong>. Set the four required environment variables and activate all flows. The page runs 8 automated deployment checks — all must be green.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Run the demo flow</div>
+          <div class="step-desc">Manually trigger <strong>PPMF-Demo-Flow-Failure</strong> with a test solution name. Confirm an alert card arrives in Teams and an error record appears in the Triage view.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-title">Add PPMF to your flows</div>
+          <div class="step-desc">In any flow, wrap your actions in a <strong>Try scope</strong> and add a <strong>Catch scope</strong> that calls <code>PPMF-Child-ProcessFlowError</code> with <code>SolutionName</code>, <code>string(workflow())</code>, and <code>string(result('Try'))</code>. That's it — PPMF handles the rest.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:32px">
+      <span class="callout-icon">📖</span>
+      <div>For full deployment instructions, CI/CD pipeline setup, and security role configuration, see the <a href="deployment.md">Deployment Guide</a>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Docs ──────────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-label">Documentation</div>
+    <h2 class="section-title">Everything you need</h2>
+    <p class="section-sub">Full reference documentation for deployment, configuration, and security.</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="deployment.md">
+        <span class="doc-link-icon">🚀</span>
+        <div>
+          <div class="doc-link-title">Deployment</div>
+          <div class="doc-link-desc">Manual import, CI/CD pipeline, GitHub Actions secrets, post-deploy health check</div>
+        </div>
+      </a>
+      <a class="doc-link" href="configuration.md">
+        <span class="doc-link-icon">⚙️</span>
+        <div>
+          <div class="doc-link-title">Configuration</div>
+          <div class="doc-link-desc">All 12 environment variables, writing modes, SharePoint list provisioning</div>
+        </div>
+      </a>
+      <a class="doc-link" href="security-roles.md">
+        <span class="doc-link-icon">🔐</span>
+        <div>
+          <div class="doc-link-title">Security Roles</div>
+          <div class="doc-link-desc">Role reference, assignment guide, service principal setup</div>
+        </div>
+      </a>
+      <a class="doc-link" href="https://github.com/dealeshi/power-platform-monitoring-framework/blob/main/CHANGELOG.md">
+        <span class="doc-link-icon">📋</span>
+        <div>
+          <div class="doc-link-title">Changelog</div>
+          <div class="doc-link-desc">Release history and what's changed in each version</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────────── -->
+<footer>
+  <p><strong style="color:#fff">Power Platform Monitoring Framework</strong></p>
+  <p style="margin-top:6px">Open source · <a href="https://github.com/dealeshi/power-platform-monitoring-framework">GitHub</a> · Built with assistance from <a href="https://github.com/features/copilot">GitHub Copilot</a></p>
+</footer>
+
+</body>
+</html>
