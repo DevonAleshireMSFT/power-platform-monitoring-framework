@@ -51,6 +51,9 @@ publish/
 TestResults/
 *.nupkg
 
+# GitHub Pages build output
+_site/
+
 # OS
 Thumbs.db
 Desktop.ini
