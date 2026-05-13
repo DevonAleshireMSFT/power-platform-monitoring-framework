@@ -63,6 +63,53 @@ Configure these under **Settings → Secrets and variables → Actions** in the 
 
 ---
 
+## Release Pipeline
+
+The repository includes a second workflow that runs on every version tag push and handles the full production release.
+
+**Workflow file:** `.github/workflows/release.yml`
+
+### Pipeline steps
+
+| Step | What it does |
+|---|---|
+| Extract version | Strips `v` prefix from the tag name and exposes it as a step output |
+| Validate version | Asserts tag version matches `<Version>` in `Solution.xml` — fails if mismatched |
+| Extract changelog entry | Reads the matching `## [version]` section from `CHANGELOG.md` for use as the release body — fails if no entry found |
+| Install PAC CLI | Installs the Power Platform CLI |
+| Pack (unmanaged) | Packs an unmanaged zip for source reference |
+| Set Managed flag | Temporarily sets `<Managed>1</Managed>` in `Solution.xml` for the managed pack |
+| Pack (managed) | Packs the managed zip for production import |
+| Create GitHub Release | Publishes the release with both zips as assets and changelog content as the body |
+| Generate deployment settings | Writes `deploymentsettings.json` mapping connection references to prod connection IDs |
+| Import managed solution | Imports the managed zip to production with force-overwrite and publish-changes |
+| Re-activate PPMF flows | PATCHes the 9 production flows back to Active via the Dataverse API (managed imports always deactivate flows) |
+| Deployment health check | Runs `scripts/Test-PPMFDeployment.ps1` against production |
+| Sync main into dev | Merges `origin/main` back into `dev` to keep branch histories aligned |
+
+### Trigger
+
+Push of a tag matching `v#.#.#.#` (e.g. `v1.0.0.11`).
+
+### Required additional secrets for production
+
+| Secret | Description |
+|---|---|
+| `PP_PROD_ENVIRONMENT_URL` | Production environment URL |
+
+The same `PP_CLIENT_ID`, `PP_CLIENT_SECRET`, `PP_TENANT_ID`, `PP_DV_CONNECTION_ID`, `PP_TEAMS_CONNECTION_ID`, and `PP_SP_CONNECTION_ID` secrets are shared with the dev pipeline — ensure the service principal and connection IDs are valid for the production environment.
+
+### Pre-release checklist
+
+Before pushing a tag:
+1. Update `<Version>` in `PowerPlatformMonitoringFramework/Other/Solution.xml`
+2. Add a `## [version]` entry to `CHANGELOG.md`
+3. Update the in-app release notes web resource (`ppmf_releasenotes`)
+4. Merge `feature/*` → `dev`, validate in dev, then merge `dev` → `main`
+5. Tag `main`: `git tag -a v1.0.0.11 -m "Release v1.0.0.11" && git push origin v1.0.0.11`
+
+---
+
 ## Post-Deploy Health Check
 
 `scripts/Test-PPMFDeployment.ps1` validates that a PPMF deployment is complete and correctly configured. It is run automatically at the end of the CI pipeline and can also be run locally.
@@ -123,9 +170,11 @@ $secret = ConvertTo-SecureString $env:PP_CLIENT_SECRET -AsPlainText -Force
 
 ### Cloud values
 
-| Cloud | `-Cloud` value | Authority | Resource |
-|---|---|---|---|
-| Commercial | *(omit)* | `login.microsoftonline.com` | `service.crm.dynamics.com` |
-| GCC | `UsGov` | `login.microsoftonline.us` | `gov.crm.microsoftdynamics.com` |
-| GCC High | `UsGovHigh` | `login.microsoftonline.us` | `high.crm.microsoftdynamics.com` |
-| DoD | `UsGovDod` | `login.microsoftonline.us` | `mil.crm.microsoftdynamics.com` |
+The `-Cloud` parameter controls the Azure AD authority used for authentication. The OAuth2 resource is always set to the environment URL, which works across all cloud boundaries including sovereign tenants that do not have generic cloud-level service principals registered.
+
+| Cloud | `-Cloud` value | Authority |
+|---|---|---|
+| Commercial | *(omit)* | `login.microsoftonline.com` |
+| GCC | `UsGov` | `login.microsoftonline.us` |
+| GCC High | `UsGovHigh` | `login.microsoftonline.us` |
+| DoD | `UsGovDod` | `login.microsoftonline.us` |
