@@ -114,8 +114,27 @@ Target `dev`. See [Pull Request Guidelines](#pull-request-guidelines) below.
 | Branch | Purpose |
 |---|---|
 | `main` | Stable, release-tagged code. Only merged into from `dev` via a release PR |
-| `dev` | Integration branch. All feature branches merge here. Triggers the dev CI pipeline on push |
+| `dev` | Integration branch and default branch. All feature branches merge here. Triggers the dev CI pipeline on push |
 | `feature/*` | Feature or fix branches. Branch from `dev`, merge back to `dev` |
+| `fix/*` | Bug fix branches. Branch from `dev`, merge back to `dev` |
+
+After merging a release PR (`dev → main`) and pushing a tag, the release pipeline automatically merges `main` back into `dev` to keep branch histories aligned. No manual sync is required.
+
+---
+
+## Release Process
+
+1. Increment `<Version>` in `PowerPlatformMonitoringFramework/Other/Solution.xml`
+2. Add a `## [version]` section to `CHANGELOG.md`
+3. Update the in-app release notes web resource (`ppmf_releasenotes`)
+4. Merge `dev → main` via a release PR
+5. Tag `main` with an annotated tag:
+   ```bash
+   git checkout main && git pull
+   git tag -a v1.0.0.11 -m "Release v1.0.0.11 — brief description"
+   git push origin v1.0.0.11
+   ```
+6. The release pipeline (`release.yml`) triggers automatically and handles packaging, GitHub Release creation, production import, flow re-activation, health check, and syncing `main` back into `dev`.
 
 ---
 
