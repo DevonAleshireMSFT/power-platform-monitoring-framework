@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Power Monitoring Framework</title>
-  <meta name="description" content="PPMF — automated error capture, Teams alerting, and structured triage for Power Automate flows and Canvas Apps.">
+  <meta name="description" content="PMF — automated error capture, Teams alerting, and structured triage for Power Automate flows and Canvas Apps.">
   <style>
     :root {
       --primary:       #0078d4;
@@ -198,8 +198,8 @@
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
 <div class="hero">
-  <div class="hero-badge">Open Source · Power Platform</div>
-  <h1>Power Platform<br>Monitoring Framework</h1>
+  <div class="hero-badge">Open Source · Microsoft Power Automate</div>
+  <h1>Power<br>Monitoring Framework</h1>
   <p>Automated error capture, Teams alerting, and structured triage for Power Automate flows and Canvas Apps — with zero changes to your existing solutions.</p>
   <div class="hero-actions">
     <a class="btn btn-white" href="https://github.com/dealeshi/power-platform-monitoring-framework/releases/latest">⬇️ Download Latest Release</a>
@@ -207,12 +207,12 @@
   </div>
 </div>
 
-<!-- ── Why PPMF ──────────────────────────────────────────────── -->
+<!-- ── Why PMF ──────────────────────────────────────────── -->
 <section>
   <div class="container">
     <div class="section-label">The Problem</div>
-    <h2 class="section-title">Your flows fail silently. PPMF fixes that.</h2>
-    <p class="section-sub">Power Platform environments with dozens of flows have no centralized visibility into failures. PPMF gives you that visibility — automatically.</p>
+    <h2 class="section-title">Your flows fail silently. PMF fixes that.</h2>
+    <p class="section-sub">Power Automate environments with dozens of flows have no centralized visibility into failures. PMF gives you that visibility — automatically.</p>
 
     <div class="features">
       <div class="feature-card">
@@ -254,7 +254,7 @@
   <div class="container">
     <div class="section-label">What's Included</div>
     <h2 class="section-title">Everything in the solution</h2>
-    <p class="section-sub">One import. No dependencies outside Power Platform and Microsoft Teams.</p>
+    <p class="section-sub">One import. No dependencies outside Microsoft Teams.</p>
 
     <table class="comp-table">
       <thead>
@@ -279,7 +279,7 @@
         </tr>
         <tr>
           <td>Model-driven app</td>
-          <td>PPMF Platform Monitor — triage views, alert route management, connection reference review, and guided setup</td>
+          <td>PMF Platform Monitor — triage views, alert route management, connection reference review, and guided setup</td>
         </tr>
         <tr>
           <td>In-app documentation</td>
@@ -323,7 +323,7 @@
         <div class="step-num">3</div>
         <div>
           <div class="step-title">Open the Setup &amp; Configuration page</div>
-          <div class="step-desc">Open the <strong>PPMF Platform Monitor</strong> app and navigate to <strong>Configuration → Setup &amp; Configuration</strong>. Set the four required environment variables and activate all flows. The page runs 8 automated deployment checks — all must be green.</div>
+          <div class="step-desc">Open the <strong>PMF Platform Monitor</strong> app and navigate to <strong>Configuration → Setup &amp; Configuration</strong>. Set the four required environment variables and activate all flows. The page runs 8 automated deployment checks — all must be green.</div>
         </div>
       </div>
       <div class="step">
@@ -336,8 +336,8 @@
       <div class="step">
         <div class="step-num">5</div>
         <div>
-          <div class="step-title">Add PPMF to your flows</div>
-          <div class="step-desc">In any flow, wrap your actions in a <strong>Try scope</strong> and add a <strong>Catch scope</strong> that calls <code>PPMF-Child-ProcessFlowError</code> with <code>SolutionName</code>, <code>string(workflow())</code>, and <code>string(result('Try'))</code>. That's it — PPMF handles the rest.</div>
+          <div class="step-title">Add PMF to your flows</div>
+          <div class="step-desc">In any flow, wrap your actions in a <strong>Try scope</strong> and add a <strong>Catch scope</strong> that calls <code>PPMF-Child-ProcessFlowError</code> with <code>SolutionName</code>, <code>string(workflow())</code>, and <code>string(result('Try'))</code>. That's it — PMF handles the rest.</div>
         </div>
       </div>
     </div>
