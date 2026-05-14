@@ -1,6 +1,6 @@
 // =============================================================================
 // ppmf_errorEventForm.js
-// Error Event main form controller for the Power Platform Monitoring Framework.
+// Error Event main form controller for the Power Monitoring Framework.
 //
 // Depends on: ppmf_base (must be listed as a library before this one on the form).
 //

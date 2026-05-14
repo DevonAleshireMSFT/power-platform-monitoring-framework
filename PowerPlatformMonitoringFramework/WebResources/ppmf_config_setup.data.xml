@@ -3,7 +3,7 @@
   <WebResourceId>{63a537e9-1545-f111-bec5-001dd802d907}</WebResourceId>
   <Name>ppmf_config_setup</Name>
   <DisplayName>PPMF – Setup &amp; Configuration</DisplayName>
-  <Description>Post-import setup and configuration page for the Power Platform Monitoring Framework (PPMF).
+  <Description>Post-import setup and configuration page for the Power Monitoring Framework (PPMF).
 
 Provides a guided checklist that validates all required post-import steps: environment variable configuration, connection reference assignments, child flow activation status, and alert route coverage.
 
@@ -11,7 +11,7 @@ Allows administrators to configure environment variables directly from this page
 
 Supports full CRUD management of ppmf_AlertRoute records, enabling solution-specific alert routing to dedicated Teams channels with per-route severity thresholds.
 
-Requires System Customizer or System Administrator role. Must be accessed from within the Power Platform Monitoring Framework solution as a Configuration Page. The ppmf_AlertRoute table must be provisioned via New-PPMFTables.ps1 before alert route management is available.</Description>
+Requires System Customizer or System Administrator role. Must be accessed from within the Power Monitoring Framework solution as a Configuration Page. The ppmf_AlertRoute table must be provisioned via New-PPMFTables.ps1 before alert route management is available.</Description>
   <WebResourceType>1</WebResourceType>
   <IntroducedVersion>1.0.0.0</IntroducedVersion>
   <IsEnabledForMobileClient>0</IsEnabledForMobileClient>

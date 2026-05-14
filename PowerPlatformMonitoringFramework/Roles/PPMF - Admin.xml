@@ -3,7 +3,7 @@
   <IsCustomizable>1</IsCustomizable>
   <IsAutoAssigned>0</IsAutoAssigned>
   <AppliesTo>Users and Teams</AppliesTo>
-  <Description>Grants full access to all Power Platform Monitoring Framework tables including Alert Route configuration. Assign to Power Platform administrators and solution owners responsible for framework setup and ongoing configuration.</Description>
+  <Description>Grants full access to all Power Monitoring Framework tables including Alert Route configuration. Assign to Power Platform administrators and solution owners responsible for framework setup and ongoing configuration.</Description>
   <SummaryOfCoreTablePermissions>Full Create/Read/Write/Delete/Append/Append To/Assign/Share at Organization level on ppmf_ErrorEvent, ppmf_ErrorNote, and ppmf_AlertRoute.</SummaryOfCoreTablePermissions>
   <RolePrivileges>
     <RolePrivilege name="prvActivateSynchronousWorkflow" level="Basic" />

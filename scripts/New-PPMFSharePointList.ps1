@@ -30,7 +30,7 @@ param (
 
     [string] $ListName = "PPMF Error Events",
 
-    [string] $ListDescription = "Power Platform Monitoring Framework — error event log",
+    [string] $ListDescription = "Power Monitoring Framework — error event log",
 
     [ValidateSet("Production","USGovernment","USGovernmentHigh","USGovernmentDoD")]
     [string] $AzureEnvironment = "Production"

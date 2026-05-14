@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power Platform Monitoring Framework — Documentation</title>
+  <title>Power Monitoring Framework — Documentation</title>
   <style>
     :root {
       --primary:          #0078d4;
@@ -344,7 +344,7 @@
   <div class="qs-modal">
     <div class="qs-header">
       <h2>🚀 Welcome to PPMF</h2>
-      <p>Power Platform Monitoring Framework — Quick Start Guide</p>
+      <p>Power Monitoring Framework — Quick Start Guide</p>
     </div>
     <div class="qs-body">
       <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">
@@ -355,7 +355,7 @@
           <div class="qs-num">1</div>
           <div>
             <div class="qs-step-title">Assign connection references</div>
-            <div class="qs-step-desc">Go to Solutions → Power Platform Monitoring Framework → Connection References. Assign a Dataverse connection to <code>ppmf_DataverseConnectionReference</code> and a Microsoft Teams connection to <code>ppmf_TeamsConnectionReference</code>. If your environment uses SharePoint mode (<code>ppmf_WritingMode</code> = <code>SharePoint</code> or <code>Both</code>), also assign a SharePoint connection to <code>ppmf_SharePointConnectionReference</code>.</div>
+            <div class="qs-step-desc">Go to Solutions → Power Monitoring Framework → Connection References. Assign a Dataverse connection to <code>ppmf_DataverseConnectionReference</code> and a Microsoft Teams connection to <code>ppmf_TeamsConnectionReference</code>. If your environment uses SharePoint mode (<code>ppmf_WritingMode</code> = <code>SharePoint</code> or <code>Both</code>), also assign a SharePoint connection to <code>ppmf_SharePointConnectionReference</code>.</div>
           </div>
         </div>
         <div class="qs-step">
@@ -410,7 +410,7 @@
 <div class="app-header">
   <div class="app-header-icon">📖</div>
   <div>
-    <h1>Power Platform Monitoring Framework</h1>
+    <h1>Power Monitoring Framework</h1>
     <p>Documentation &amp; Field Reference</p>
   </div>
   <div style="margin-left:auto">
@@ -471,7 +471,7 @@
         </div>
       </div>
       <div class="card-body prose">
-        <p>The <strong>Power Platform Monitoring Framework (PPMF)</strong> is a Dataverse-backed solution that provides automated error capture, Teams alerting, and triage management for Power Automate cloud flows and Power Apps canvas applications.</p>
+        <p>The <strong>Power Monitoring Framework (PPMF)</strong> is a Dataverse-backed solution that provides automated error capture, Teams alerting, and triage management for Power Automate cloud flows and Power Apps canvas applications.</p>
         <p>When a monitored flow fails, PPMF captures structured error data to Dataverse, sends a formatted adaptive card to a Microsoft Teams channel, and creates a trackable error record for structured triage. Canvas app errors are handled through a separate entry point that accepts a JSON error payload directly from the app.</p>
         <p>PPMF is designed for enterprise deployment in <strong>Commercial</strong>, <strong>GCC High</strong>, and <strong>DoD</strong> cloud environments and is compatible with managed solution distribution.</p>
 
@@ -554,21 +554,21 @@
             <div class="step-num">1</div>
             <div class="step-content">
               <div class="step-title">Assign the Dataverse connection reference</div>
-              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_DataverseConnectionReference</strong> → select or create a Dataverse connection. <em>Skip if deploying in SharePoint-only mode (ppmf_WritingMode = SharePoint).</em></div>
+              <div class="step-desc">Solutions → Power Monitoring Framework → Connection References → <strong>ppmf_DataverseConnectionReference</strong> → select or create a Dataverse connection. <em>Skip if deploying in SharePoint-only mode (ppmf_WritingMode = SharePoint).</em></div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
             <div class="step-content">
               <div class="step-title">Assign the Teams connection reference</div>
-              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_TeamsConnectionReference</strong> → select or create a Teams connection. The account must be a member of the target Teams team.</div>
+              <div class="step-desc">Solutions → Power Monitoring Framework → Connection References → <strong>ppmf_TeamsConnectionReference</strong> → select or create a Teams connection. The account must be a member of the target Teams team.</div>
             </div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
             <div class="step-content">
               <div class="step-title">Assign the SharePoint connection reference (if using SharePoint mode)</div>
-              <div class="step-desc">Solutions → Power Platform Monitoring Framework → Connection References → <strong>ppmf_SharePointConnectionReference</strong> → select or create a SharePoint connection. Required when <code>ppmf_WritingMode</code> is <code>SharePoint</code> or <code>Both</code>. The account must have Contribute access to the target SharePoint site.</div>
+              <div class="step-desc">Solutions → Power Monitoring Framework → Connection References → <strong>ppmf_SharePointConnectionReference</strong> → select or create a SharePoint connection. Required when <code>ppmf_WritingMode</code> is <code>SharePoint</code> or <code>Both</code>. The account must have Contribute access to the target SharePoint site.</div>
             </div>
           </div>
           <div class="step">

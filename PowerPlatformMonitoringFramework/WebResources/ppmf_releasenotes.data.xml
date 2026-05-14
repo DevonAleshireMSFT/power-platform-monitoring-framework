@@ -3,7 +3,7 @@
   <WebResourceId>{d4e5f6a7-b8c9-4a0b-cdef-001dd8020013}</WebResourceId>
   <Name>ppmf_releasenotes</Name>
   <DisplayName>PPMF - Release Notes</DisplayName>
-  <Description>Release notes for the Power Platform Monitoring Framework. Lists all changes, new features, and fixes for each version.</Description>
+  <Description>Release notes for the Power Monitoring Framework. Lists all changes, new features, and fixes for each version.</Description>
   <LanguageCode>0</LanguageCode>
   <WebResourceType>1</WebResourceType>
   <IntroducedVersion>1.0.0.9</IntroducedVersion>

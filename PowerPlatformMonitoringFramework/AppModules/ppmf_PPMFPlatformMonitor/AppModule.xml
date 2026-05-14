@@ -22,7 +22,7 @@
     <LocalizedName description="PPMF - Platform Monitor" languagecode="1033" />
   </LocalizedNames>
   <Descriptions>
-    <Description description="Centralized triage and configuration console for the Power Platform Monitoring Framework. Provides structured views for reviewing, assigning, and resolving flow and application error events captured across the environment. Includes alert route configuration for directing notifications to solution-specific Teams channels." languagecode="1033" />
+    <Description description="Centralized triage and configuration console for the Power Monitoring Framework. Provides structured views for reviewing, assigning, and resolving flow and application error events captured across the environment. Includes alert route configuration for directing notifications to solution-specific Teams channels." languagecode="1033" />
   </Descriptions>
   <appsettings>
     <appsetting settingdefinitionid.uniquename="AppChannel">

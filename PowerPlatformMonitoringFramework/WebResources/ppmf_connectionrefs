@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power Platform Monitoring Framework — Connection Reference Review</title>
+  <title>Power Monitoring Framework — Connection Reference Review</title>
   <style>
     :root {
       --primary:          #0078d4;
@@ -359,7 +359,7 @@
 <div class="app-header">
   <div class="app-header-icon">🔌</div>
   <div>
-    <h1>Power Platform Monitoring Framework</h1>
+    <h1>Power Monitoring Framework</h1>
     <p id="header-subtitle">Connection Reference Review</p>
   </div>
   <div style="margin-left:auto">

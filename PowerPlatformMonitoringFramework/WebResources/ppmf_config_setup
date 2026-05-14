@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power Platform Monitoring Framework — Setup &amp; Configuration</title>
+  <title>Power Monitoring Framework — Setup &amp; Configuration</title>
   <style>
     :root {
       --primary:          #0078d4;
@@ -256,7 +256,7 @@
 <div class="app-header">
   <div class="app-header-icon">⚙</div>
   <div>
-    <h1>Power Platform Monitoring Framework</h1>
+    <h1>Power Monitoring Framework</h1>
     <p id="header-subtitle">Setup &amp; Configuration</p>
   </div>
 </div>
@@ -783,7 +783,7 @@ const CHECKS = [
           return fail('Connection reference record not found — verify the solution was imported correctly');
         const cid = res.value[0].connectionid;
         if (!cid)
-          return fail('No connection assigned — go to Solutions → Power Platform Monitoring Framework → Connection References and assign a Dataverse connection');
+          return fail('No connection assigned — go to Solutions → Power Monitoring Framework → Connection References and assign a Dataverse connection');
         return pass(`Connection assigned (${res.value[0].connectionreferencedisplayname || cid})`);
       } catch {
         return warn('Could not query connection references — verify you have System Customizer or higher privileges');
@@ -803,7 +803,7 @@ const CHECKS = [
           return fail('Connection reference record not found — verify the solution was imported correctly');
         const cid = res.value[0].connectionid;
         if (!cid)
-          return fail('No connection assigned — go to Solutions → Power Platform Monitoring Framework → Connection References and assign a Teams connection');
+          return fail('No connection assigned — go to Solutions → Power Monitoring Framework → Connection References and assign a Teams connection');
         return pass(`Connection assigned (${res.value[0].connectionreferencedisplayname || cid})`);
       } catch {
         return warn('Could not query connection references — verify you have System Customizer or higher privileges');

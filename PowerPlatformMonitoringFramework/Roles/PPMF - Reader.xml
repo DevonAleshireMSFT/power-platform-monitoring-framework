@@ -3,7 +3,7 @@
   <IsCustomizable>1</IsCustomizable>
   <IsAutoAssigned>0</IsAutoAssigned>
   <AppliesTo>Users and Teams</AppliesTo>
-  <Description>Grants read-only access to all Power Platform Monitoring Framework tables. Assign to stakeholders and auditors who need visibility into error events without the ability to modify records.</Description>
+  <Description>Grants read-only access to all Power Monitoring Framework tables. Assign to stakeholders and auditors who need visibility into error events without the ability to modify records.</Description>
   <SummaryOfCoreTablePermissions>Read-only access to ppmf_ErrorEvent (Org), ppmf_ErrorNote (Org), and ppmf_AlertRoute (Org). No create, write, or delete privileges on any PPMF table.</SummaryOfCoreTablePermissions>
   <RolePrivileges>
     <RolePrivilege name="prvActivateSynchronousWorkflow" level="Basic" />

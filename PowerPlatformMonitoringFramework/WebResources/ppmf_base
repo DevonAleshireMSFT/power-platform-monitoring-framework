@@ -1,6 +1,6 @@
 // =============================================================================
 // ppmf_base.js
-// Foundation script for the Power Platform Monitoring Framework.
+// Foundation script for the Power Monitoring Framework.
 //
 // Establishes the shared PPMF namespace and PPMF.utils helper module.
 // This script must be registered as the FIRST library on any form that uses

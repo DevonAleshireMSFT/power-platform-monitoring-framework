@@ -1,4 +1,4 @@
-# Power Platform Monitoring Framework (PPMF)
+# Power Monitoring Framework (PPMF)
 
 > Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
 
