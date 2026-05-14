@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to PPMF are documented here. Versions follow `MAJOR.MINOR.PATCH.BUILD` and are reflected in `PowerPlatformMonitoringFramework/Other/Solution.xml`.
+All notable changes to PMF are documented here. Versions follow `MAJOR.MINOR.PATCH.BUILD` and are reflected in `PowerPlatformMonitoringFramework/Other/Solution.xml`.
 
 ---
 
@@ -8,7 +8,7 @@ All notable changes to PPMF are documented here. Versions follow `MAJOR.MINOR.PA
 
 ### Added
 
-- **Connection Reference Review page** — new page under Configuration in the PPMF Platform Monitor app. Displays assignment status, record owner, solution membership, and dependent flow count for every connection reference in the environment. Highlights unassigned references with a callout. Includes a filter bar (search, status, connector, solution, owner, hide system references) and expandable rows showing dependent flows with enable/disable state pills.
+- **Connection Reference Review page** — new page under Configuration in the PMF Platform Monitor app. Displays assignment status, record owner, solution membership, and dependent flow count for every connection reference in the environment. Highlights unassigned references with a callout. Includes a filter bar (search, status, connector, solution, owner, hide system references) and expandable rows showing dependent flows with enable/disable state pills.
 - **`scripts/Test-PPMFDeployment.ps1`** — post-deploy validation script. Asserts solution version, all 11 flows, all 3 connection references, all 12 environment variable definitions, all 4 security roles, and key web resources. Supports service principal (CI) and interactive PAC CLI (local) auth. Exits `1` on any failure.
 - **CI/CD pipeline — Dev** (`.github/workflows/deploy-dev.yml`) — GitHub Actions workflow that packs and imports the solution to the dev environment on push to `dev`, then runs the health check script to validate the deployment.
 - **CI/CD pipeline — Release** (`.github/workflows/release.yml`) — GitHub Actions workflow triggered on version tag push. Validates tag matches `Solution.xml`, packs unmanaged and managed zips, creates a GitHub Release with changelog content from `CHANGELOG.md`, imports the managed solution to production, re-activates flows, runs the health check, then merges `main` back into `dev` to keep branch histories in sync.
@@ -68,6 +68,6 @@ All notable changes to PPMF are documented here. Versions follow `MAJOR.MINOR.PA
 - `PPMF-Child-ProcessFlowError`, `PPMF-Delete-Old-Errors`, `PPMF-Get-Environment-Info` flows.
 - `PPMF-Power-Apps-Error-Handler-JSON` Canvas App error handler.
 - `PPMF-Demo-Flow-Failure` demo flow.
-- PPMF Platform Monitor model-driven app with triage views, documentation page, and release notes page.
+- PMF Platform Monitor model-driven app with triage views, documentation page, and release notes page.
 - `PPMF - Admin`, `PPMF - Triager`, `PPMF - Service Account` security roles.
 - 9 environment variables: `ppmf_TeamID`, `ppmf_FlowAlertsChannelID`, `ppmf_EnvironmentName`, `ppmf_PortalBaseUrl`, `ppmf_RetentionDays`, `ppmf_SharePointSiteUrl`, `ppmf_SharePointListName`.

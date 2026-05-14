@@ -1,6 +1,6 @@
 # Configuration
 
-All PPMF runtime configuration is managed through **environment variables** in the solution. No flow edits are required. Values are set from **Solutions → [Solution] → Environment Variables** or from the **Setup & Configuration** page in the PPMF Platform Monitor app.
+All PMF runtime configuration is managed through **environment variables** in the solution. No flow edits are required. Values are set from **Solutions → [Solution] → Environment Variables** or from the **Setup & Configuration** page in the PMF Platform Monitor app.
 
 ---
 
@@ -8,7 +8,7 @@ All PPMF runtime configuration is managed through **environment variables** in t
 
 ### Required
 
-These must be configured before PPMF will reliably process errors.
+These must be configured before PMF will reliably process errors.
 
 | Schema Name | Display Name | Default | Description |
 |---|---|---|---|

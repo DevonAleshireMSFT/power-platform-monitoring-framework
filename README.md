@@ -1,8 +1,8 @@
-# Power Monitoring Framework (PPMF)
+# Power Monitoring Framework (PMF)
 
 > Unmanaged solution · Requires Microsoft Teams · Dataverse optional (SharePoint mode available)
 
-PPMF is an enterprise-ready observability solution for the Microsoft Power Platform. When a Power Automate flow fails or a Canvas App encounters an error, PPMF automatically captures structured error data into Dataverse, sends a formatted adaptive card alert to a Microsoft Teams channel, and creates a trackable triage record — without requiring any significant changes to your existing flows.
+PMF is an enterprise-ready observability solution for the Microsoft Power Platform. When a Power Automate flow fails or a Canvas App encounters an error, PMF automatically captures structured error data into Dataverse, sends a formatted adaptive card alert to a Microsoft Teams channel, and creates a trackable triage record — without requiring any significant changes to your existing flows.
 
 Teams are alerted the moment something breaks. Every failure is logged and triaged. Nothing gets lost.
 
@@ -10,11 +10,11 @@ Compatible with **Commercial**, **GCC**, **GCC High**, and **DoD** cloud environ
 
 ---
 
-## Why PPMF
+## Why PMF
 
 Power Platform environments often have dozens or hundreds of flows running across multiple solutions, with no centralized visibility into failures. When a flow breaks, it typically goes unnoticed until a user reports an issue — by which time business processes may already be impacted.
 
-PPMF solves this by:
+PMF solves this by:
 
 - **Alerting immediately** — a formatted Teams card is posted the moment a failure is detected, with a direct link to the failed flow run
 - **Logging everything** — every failure creates a Dataverse record, whether or not an alert was sent
@@ -33,7 +33,7 @@ PPMF solves this by:
 | **11 Power Automate flows** | Error capture, Teams alerting, Canvas App handling, SharePoint write, SharePoint sync, demo flow, and weekly maintenance |
 | **12 Environment variables** | All runtime configuration in one place — no flow edits required |
 | **4 Security roles** | Admin, Triager, Reader, Service Account |
-| **Model-driven app** | PPMF Platform Monitor — triage views, alert route management, connection reference review, and configuration |
+| **Model-driven app** | PMF Platform Monitor — triage views, alert route management, connection reference review, and configuration |
 | **In-app documentation** | Full architecture overview, integration guides, and field reference |
 | **In-app release notes** | Changelog accessible from the Documentation page |
 
@@ -63,7 +63,7 @@ PPMF solves this by:
 ## Quick Start
 
 1. Import the solution — see [Deployment](docs/deployment.md).
-2. Open **Configuration → Setup & Configuration** inside the PPMF Platform Monitor app and follow the on-screen checklist.
+2. Open **Configuration → Setup & Configuration** inside the PMF Platform Monitor app and follow the on-screen checklist.
 3. Run the built-in demo flow to confirm end-to-end alerting works.
 
 For full instructions, integration guides, and field reference documentation, open **Help → Documentation** inside the app.

@@ -1,6 +1,6 @@
 # Deployment
 
-This page covers importing PPMF manually and deploying it via the automated CI/CD pipeline.
+This page covers importing PMF manually and deploying it via the automated CI/CD pipeline.
 
 ---
 
@@ -9,7 +9,7 @@ This page covers importing PPMF manually and deploying it via the automated CI/C
 1. Go to [make.powerapps.com](https://make.powerapps.com) (or your sovereign cloud equivalent) and select your target environment.
 2. Navigate to **Solutions → Import solution**.
 3. Upload `PowerPlatformMonitoringFramework.zip` and complete the import wizard.
-4. Once the import completes, open the **PPMF Platform Monitor** app from the Apps list.
+4. Once the import completes, open the **PMF Platform Monitor** app from the Apps list.
 5. Open **Configuration → Setup & Configuration** and follow the on-screen checklist — it covers connection references, flow activation, and environment variable configuration.
 6. Run the built-in demo flow to confirm end-to-end alerting works before integrating your first production flow.
 
@@ -83,7 +83,7 @@ The repository includes a second workflow that runs on every version tag push an
 | Create GitHub Release | Publishes the release with both zips as assets and changelog content as the body |
 | Generate deployment settings | Writes `deploymentsettings.json` mapping connection references to prod connection IDs |
 | Import managed solution | Imports the managed zip to production with force-overwrite and publish-changes |
-| Re-activate PPMF flows | PATCHes the 9 production flows back to Active via the Dataverse API (managed imports always deactivate flows) |
+| Re-activate PMF flows | PATCHes the 9 production flows back to Active via the Dataverse API (managed imports always deactivate flows) |
 | Deployment health check | Runs `scripts/Test-PPMFDeployment.ps1` against production |
 | Sync main into dev | Merges `origin/main` back into `dev` to keep branch histories aligned |
 
@@ -112,7 +112,7 @@ Before pushing a tag:
 
 ## Post-Deploy Health Check
 
-`scripts/Test-PPMFDeployment.ps1` validates that a PPMF deployment is complete and correctly configured. It is run automatically at the end of the CI pipeline and can also be run locally.
+`scripts/Test-PPMFDeployment.ps1` validates that a PMF deployment is complete and correctly configured. It is run automatically at the end of the CI pipeline and can also be run locally.
 
 ### What it checks
 

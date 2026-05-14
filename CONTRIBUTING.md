@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to PPMF. This page covers the development workflow, branch strategy, and pull request guidelines.
+Thanks for your interest in contributing to PMF. This page covers the development workflow, branch strategy, and pull request guidelines.
 
 ---
 
@@ -164,4 +164,4 @@ To test a web resource change locally:
 | Script | Description |
 |---|---|
 | `scripts/Test-PPMFDeployment.ps1` | Post-deploy validation — verifies the solution is complete and configured. See [Deployment](docs/deployment.md#post-deploy-health-check). |
-| `scripts/New-PPMFSharePointList.ps1` | Provisions the PPMF SharePoint list with the required column schema. Requires PnP.PowerShell. |
+| `scripts/New-PPMFSharePointList.ps1` | Provisions the PMF SharePoint list with the required column schema. Requires PnP.PowerShell. |
